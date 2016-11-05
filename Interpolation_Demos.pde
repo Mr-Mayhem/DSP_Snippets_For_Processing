@@ -19,14 +19,14 @@
 
 int WINDOW_HEIGHT = 800;
 int SENSOR_PIXELS = 64; //number of discrete values in the input array
-int POINT_MULTIPLIER = 16;   // ratio of interpolated points to original points. influences screen width
-int INTERP_OUT_LENGTH = (SENSOR_PIXELS * POINT_MULTIPLIER); //number of discrete values in the output array
+int X_MULTIPLIER = 16;   // ratio of interpolated points to original points. influences screen width
+int INTERP_OUT_LENGTH = (SENSOR_PIXELS * X_MULTIPLIER); //number of discrete values in the output array
 
 int outerPtr = 2;          // outer loop pointer
 
 float noiseindex = 0.2;           // used for generating smooth noise for data
-float flPOINT_MULTIPLIER = float(POINT_MULTIPLIER);   // convert POINT_MULTIPLIER to float
-float muIncrement = 1/flPOINT_MULTIPLIER;    // 1 divided by flPOINT_MULTIPLIER = one step of change x from 0 to 1
+float X_MULTIPLIER_FLOAT = float(X_MULTIPLIER);   // convert X_MULTIPLIER to float
+float muIncrement = 1/X_MULTIPLIER_FLOAT;    // 1 divided by X_MULTIPLIER_FLOAT = one step of change x from 0 to 1
 float muValue = 0;         // 0 to 1 valid. 0 at start location, 1 at stop location.
 
 float[] inArray = new float[SENSOR_PIXELS];   // array for input signal
@@ -121,7 +121,7 @@ boolean oddframe = true;
     // plot an original data point (from the noise source)
     stroke(0, 255, 255);
     fill(255);
-    ellipse((outerPtr)*POINT_MULTIPLIER, WINDOW_HEIGHT-inArray[outerPtr], 5, 5);
+    ellipse((outerPtr)*X_MULTIPLIER, WINDOW_HEIGHT-inArray[outerPtr], 5, 5);
     outerPtr++;  // increment the outer loop pointer
     if (outerPtr > SENSOR_PIXELS-2) {
       oddframe = false;
@@ -132,8 +132,8 @@ boolean oddframe = true;
     // plot an output data point
     stroke(255);
     muValue=0;
-    for (int innerPtr = 0; innerPtr < POINT_MULTIPLIER; innerPtr++) { // for each new added point -1
-      int combinedIndex = ((outerPtr-1)*POINT_MULTIPLIER) + innerPtr;
+    for (int innerPtr = 0; innerPtr < X_MULTIPLIER; innerPtr++) { // for each new added point -1
+      int combinedIndex = ((outerPtr-1)*X_MULTIPLIER) + innerPtr;
       outArray[combinedIndex] = BreeuwsmaCubicInterpolate(inArray[outerPtr-2], inArray[outerPtr-1], inArray[outerPtr], inArray[outerPtr+1], muValue);
       point(combinedIndex, WINDOW_HEIGHT-outArray[combinedIndex]);
       muValue+=muIncrement;
