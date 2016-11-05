@@ -17,23 +17,24 @@
 // if input and output display out of phase, the outerPtr index can be changed by 1 or 2 in the
 // array argument, like "outArray[outerPtr -1]" and adjust the upper/lower limits for the outerPtr.
 
-int windowHeight = 800;
-int inputDataLength = 64; //number of discrete values in the input array
-int interpPtsPerDataPt = 16;   // Number of new interpolated points for each data point, influences screen width
-int outputDataLength = inputDataLength * interpPtsPerDataPt; //number of discrete values in the output array
+int WINDOW_HEIGHT = 800;
+int SENSOR_PIXELS = 64; //number of discrete values in the input array
+int POINT_MULTIPLIER = 16;   // ratio of interpolated points to original points. influences screen width
+int INTERP_OUT_LENGTH = (SENSOR_PIXELS * POINT_MULTIPLIER); //number of discrete values in the output array
+
 int outerPtr = 2;          // outer loop pointer
 
 float noiseindex = 0.2;           // used for generating smooth noise for data
-float flinterpPtsPerDataPt = float(interpPtsPerDataPt);   // convert interpPtsPerDataPt to float
-float muIncrement = 1/flinterpPtsPerDataPt;    // 1 divided by flinterpPtsPerDataPt = one step of change x from 0 to 1
+float flPOINT_MULTIPLIER = float(POINT_MULTIPLIER);   // convert POINT_MULTIPLIER to float
+float muIncrement = 1/flPOINT_MULTIPLIER;    // 1 divided by flPOINT_MULTIPLIER = one step of change x from 0 to 1
 float muValue = 0;         // 0 to 1 valid. 0 at start location, 1 at stop location.
 
-float[] inArray = new float[inputDataLength];   // array for input signal
-float[] outArray = new float[outputDataLength]; // array for output signal
+float[] inArray = new float[SENSOR_PIXELS];   // array for input signal
+float[] outArray = new float[INTERP_OUT_LENGTH]; // array for output signal
 
 
 void setup() {
-  surface.setSize(outputDataLength, windowHeight);
+  surface.setSize(INTERP_OUT_LENGTH, WINDOW_HEIGHT);
   resetData();
   strokeWeight(1);
   frameRate(10);
@@ -43,16 +44,16 @@ void setup() {
 
 // fill input array with smooth random noise, higher noiseindex changes = more variation
 public void newInputData(){
-  for (int c = 0; c < inputDataLength; c++) {
+  for (int c = 0; c < SENSOR_PIXELS; c++) {
     noiseindex = noiseindex + 0.2;
     
-    inArray[c] = map(noise(noiseindex), 0, 1, 0, windowHeight); 
+    inArray[c] = map(noise(noiseindex), 0, 1, 0, WINDOW_HEIGHT); 
     //numbers[c] = floor(random(height));
    }
 }
 
 public void zeroOutputData(){
-  for (int c = 0; c < outputDataLength; c++) {
+  for (int c = 0; c < INTERP_OUT_LENGTH; c++) {
     outArray[c] = 0;
    }
 }
@@ -120,9 +121,9 @@ boolean oddframe = true;
     // plot an original data point (from the noise source)
     stroke(0, 255, 255);
     fill(255);
-    ellipse((outerPtr)*interpPtsPerDataPt, windowHeight-inArray[outerPtr], 5, 5);
+    ellipse((outerPtr)*POINT_MULTIPLIER, WINDOW_HEIGHT-inArray[outerPtr], 5, 5);
     outerPtr++;  // increment the outer loop pointer
-    if (outerPtr > inputDataLength-2) {
+    if (outerPtr > SENSOR_PIXELS-2) {
       oddframe = false;
       //delay(1000);
       outerPtr = 2;
@@ -131,14 +132,14 @@ boolean oddframe = true;
     // plot an output data point
     stroke(255);
     muValue=0;
-    for (int innerPtr = 0; innerPtr < interpPtsPerDataPt; innerPtr++) { // for each new added point -1
-      int combinedIndex = ((outerPtr-1)*interpPtsPerDataPt) + innerPtr;
+    for (int innerPtr = 0; innerPtr < POINT_MULTIPLIER; innerPtr++) { // for each new added point -1
+      int combinedIndex = ((outerPtr-1)*POINT_MULTIPLIER) + innerPtr;
       outArray[combinedIndex] = BreeuwsmaCubicInterpolate(inArray[outerPtr-2], inArray[outerPtr-1], inArray[outerPtr], inArray[outerPtr+1], muValue);
-      point(combinedIndex, windowHeight-outArray[combinedIndex]);
+      point(combinedIndex, WINDOW_HEIGHT-outArray[combinedIndex]);
       muValue+=muIncrement;
     }
     outerPtr++;  // increment the outer loop pointer
-    if (outerPtr > inputDataLength-2) {
+    if (outerPtr > SENSOR_PIXELS-2) {
       oddframe = true;
       //delay(1000);
       outerPtr = 2;
