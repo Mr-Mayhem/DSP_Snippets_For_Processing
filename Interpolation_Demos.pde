@@ -8,6 +8,15 @@
 // often used in signal and image processing to improve resolution somewhat beyond that 
 // of the original capture device.
 
+// BreeuwsmaCubicInterpolate() is default method. 
+// Try the other interpolation functions by swapping them out. 
+// The first two, linear and cosine interpolation need 2 original data points
+// the last two,  CubicInterpolate and BreeuwsmaCubicInterpolate need 4 original data 
+// points, and indexes need to be adjused accordingly
+
+// if input and output display out of phase, the outerPtr index can be changed by 1 or 2 in the
+// array argument, like "outArray[outerPtr -1]" and adjust the upper/lower limits for the outerPtr.
+
 int windowHeight = 800;
 int inputDataLength = 64; //number of discrete values in the input array
 int PixelsPerPoint = 16;   // Number of screen pixels for each data point, influences screen width
