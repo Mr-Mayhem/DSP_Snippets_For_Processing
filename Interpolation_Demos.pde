@@ -19,13 +19,13 @@
 
 int windowHeight = 800;
 int inputDataLength = 64; //number of discrete values in the input array
-int PixelsPerPoint = 16;   // Number of screen pixels for each data point, influences screen width
-int outputDataLength = inputDataLength * PixelsPerPoint; //number of discrete values in the output array
+int interpPtsPerDataPt = 16;   // Number of new interpolated points for each data point, influences screen width
+int outputDataLength = inputDataLength * interpPtsPerDataPt; //number of discrete values in the output array
 int outerPtr = 2;          // outer loop pointer
 
 float noiseindex = 0.2;           // used for generating smooth noise for data
-float flPixelsPerPoint = float(PixelsPerPoint);   // convert PixelsPerPoint to float
-float muIncrement = 1/flPixelsPerPoint;    // 1 divided by flPixelsPerPoint = one step of change x from 0 to 1
+float flinterpPtsPerDataPt = float(interpPtsPerDataPt);   // convert interpPtsPerDataPt to float
+float muIncrement = 1/flinterpPtsPerDataPt;    // 1 divided by flinterpPtsPerDataPt = one step of change x from 0 to 1
 float muValue = 0;         // 0 to 1 valid. 0 at start location, 1 at stop location.
 
 float[] inArray = new float[inputDataLength];   // array for input signal
@@ -120,7 +120,7 @@ boolean oddframe = true;
     // plot an original data point (from the noise source)
     stroke(0, 255, 255);
     fill(255);
-    ellipse((outerPtr)*PixelsPerPoint, windowHeight-inArray[outerPtr], 5, 5);
+    ellipse((outerPtr)*interpPtsPerDataPt, windowHeight-inArray[outerPtr], 5, 5);
     outerPtr++;  // increment the outer loop pointer
     if (outerPtr > inputDataLength-2) {
       oddframe = false;
@@ -131,8 +131,8 @@ boolean oddframe = true;
     // plot an output data point
     stroke(255);
     muValue=0;
-    for (int innerPtr = 0; innerPtr < PixelsPerPoint; innerPtr++) { // for each new added point -1
-      int combinedIndex = ((outerPtr-1)*PixelsPerPoint) + innerPtr;
+    for (int innerPtr = 0; innerPtr < interpPtsPerDataPt; innerPtr++) { // for each new added point -1
+      int combinedIndex = ((outerPtr-1)*interpPtsPerDataPt) + innerPtr;
       outArray[combinedIndex] = BreeuwsmaCubicInterpolate(inArray[outerPtr-2], inArray[outerPtr-1], inArray[outerPtr], inArray[outerPtr+1], muValue);
       point(combinedIndex, windowHeight-outArray[combinedIndex]);
       muValue+=muIncrement;
