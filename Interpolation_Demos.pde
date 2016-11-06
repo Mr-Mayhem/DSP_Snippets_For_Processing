@@ -18,15 +18,17 @@
 // array argument, like "outArray[outerPtr -1]" and adjust the upper/lower limits for the outerPtr.
 
 int WINDOW_HEIGHT = 800;
-int SENSOR_PIXELS = 64; //number of discrete values in the input array
-int X_MULTIPLIER = 16;   // ratio of interpolated points to original points. influences screen width
-int INTERP_OUT_LENGTH = (SENSOR_PIXELS * X_MULTIPLIER); //number of discrete values in the output array
+int SENSOR_PIXELS = 64;  // number of discrete values in the input array
+int SCREEN_X_MULTIPLIER = 16;   // ratio of interpolated points to original points. influences screen width
+int SCREEN_WIDTH = SENSOR_PIXELS*SCREEN_X_MULTIPLIER; // screen width = total pixels * SCREEN_X_MULTIPLIER
 
-int outerPtr = 1; // outer loop pointer 0
+// number of inserted data points for each original data point (but we insert one less when we use it)
+int INTERPOLATION_X_MULTIPLIER = 16; // Num of points that will be added - 1.
 
-float noiseindex = 0.2;           // used for generating smooth noise for data
-float X_MULTIPLIER_FLOAT = float(X_MULTIPLIER);   // convert X_MULTIPLIER to float
-float muIncrement = 1/X_MULTIPLIER_FLOAT;    // 1 divided by X_MULTIPLIER_FLOAT = one step of change x from 0 to 1
+int INTERP_OUT_LENGTH = (SENSOR_PIXELS * INTERPOLATION_X_MULTIPLIER); //number of discrete values in the output array
+
+int outerPtr = 1;          // outer loop pointer 0
+float noiseindex = 0.2;    // used for generating smooth noise for data
 float muValue = 0;         // 0 to 1 valid. 0 at start location, 1 at stop location.
 
 float[] inArray = new float[SENSOR_PIXELS];   // array for input signal
@@ -34,10 +36,10 @@ float[] outArray = new float[INTERP_OUT_LENGTH]; // array for output signal
 
 
 void setup() {
-  surface.setSize(INTERP_OUT_LENGTH, WINDOW_HEIGHT);
+  surface.setSize(SCREEN_WIDTH, WINDOW_HEIGHT);
   resetData();
   strokeWeight(1);
-  frameRate(20);
+  frameRate(5);
   noFill();
   background(0);
 }
@@ -120,8 +122,7 @@ boolean oddframe = true;
   if (oddframe) {
     // plot an original data point (from the noise source)
     stroke(0, 255, 255);
-    fill(255);
-    ellipse(outerPtr*X_MULTIPLIER, WINDOW_HEIGHT-inArray[ outerPtr], 5, 5);
+    ellipse(outerPtr*SCREEN_X_MULTIPLIER, WINDOW_HEIGHT-inArray[outerPtr], 5, 5);
     outerPtr++;        // increment the outer loop pointers
     if (outerPtr > SENSOR_PIXELS-3) { // we hit the upper limit
       outerPtr = 1;
@@ -129,14 +130,28 @@ boolean oddframe = true;
       //delay(1000);
     }
   } else {
-    // plot an output data pointh
+    // plot interpolated points between original points
+    
+    // The X axis offset starts at a left original data point (where mu = 0), 
+    // and ends at a right original data point (where mu would equal 1), 
+    // but we stop one step short. 
+    // for example, when SCREEN_X_MULTIPLIER = 10 then mu increments in 0.1 size steps.
+    // mu is passed into interpolate, and represents the x axis position of the new point to be.
     stroke(255);
+    
+    //  a decimal fraction between 0 and 1, representing smaller increment of x position relative to original data points. 
+    float muIncrement = 1/float(INTERPOLATION_X_MULTIPLIER);
     muValue=0;
-    for (int innerPtr = 0; innerPtr < X_MULTIPLIER; innerPtr++) { // for each new added point -1
-      int combinedIndex = (( outerPtr)*X_MULTIPLIER) + innerPtr;
+    for (int offset = 0; offset < INTERPOLATION_X_MULTIPLIER; offset++) { // for each new interpolated point, minus one)
+      muValue+=muIncrement; // increment mu
+      int combinedIndex = (outerPtr*INTERPOLATION_X_MULTIPLIER) + offset; // the original point, times the spreading, plus the offset
       outArray[combinedIndex] = BreeuwsmaCubicInterpolate(inArray[ outerPtr-1], inArray[outerPtr], inArray[ outerPtr+1], inArray[outerPtr+2], muValue);
-      point(combinedIndex, WINDOW_HEIGHT-outArray[combinedIndex]);
-      muValue+=muIncrement;
+      // scale the offset for the screen
+      int scaledOffset = round(map(offset, 0, INTERPOLATION_X_MULTIPLIER, 0, SCREEN_X_MULTIPLIER)); 
+      
+      // plot the interpolated point using the scaled x offset
+      point((outerPtr*SCREEN_X_MULTIPLIER)+scaledOffset, WINDOW_HEIGHT-outArray[combinedIndex]);
+      
     }
     outerPtr++;        // increment the outer loop pointers
     if (outerPtr > SENSOR_PIXELS-3) { // we hit the upper limit
