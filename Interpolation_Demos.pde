@@ -22,7 +22,7 @@ int SENSOR_PIXELS = 64; //number of discrete values in the input array
 int X_MULTIPLIER = 16;   // ratio of interpolated points to original points. influences screen width
 int INTERP_OUT_LENGTH = (SENSOR_PIXELS * X_MULTIPLIER); //number of discrete values in the output array
 
-int outerPtr = 2;          // outer loop pointer
+int outerPtr = 1; // outer loop pointer 0
 
 float noiseindex = 0.2;           // used for generating smooth noise for data
 float X_MULTIPLIER_FLOAT = float(X_MULTIPLIER);   // convert X_MULTIPLIER to float
@@ -37,7 +37,7 @@ void setup() {
   surface.setSize(INTERP_OUT_LENGTH, WINDOW_HEIGHT);
   resetData();
   strokeWeight(1);
-  frameRate(10);
+  frameRate(20);
   noFill();
   background(0);
 }
@@ -121,29 +121,29 @@ boolean oddframe = true;
     // plot an original data point (from the noise source)
     stroke(0, 255, 255);
     fill(255);
-    ellipse((outerPtr)*X_MULTIPLIER, WINDOW_HEIGHT-inArray[outerPtr], 5, 5);
-    outerPtr++;  // increment the outer loop pointer
-    if (outerPtr > SENSOR_PIXELS-2) {
-      oddframe = false;
+    ellipse(outerPtr*X_MULTIPLIER, WINDOW_HEIGHT-inArray[ outerPtr], 5, 5);
+    outerPtr++;        // increment the outer loop pointers
+    if (outerPtr > SENSOR_PIXELS-3) { // we hit the upper limit
+      outerPtr = 1;
+      oddframe = false;  // toggle between drawing original data points, and drawing interpolated data points
       //delay(1000);
-      outerPtr = 2;
     }
   } else {
-    // plot an output data point
+    // plot an output data pointh
     stroke(255);
     muValue=0;
     for (int innerPtr = 0; innerPtr < X_MULTIPLIER; innerPtr++) { // for each new added point -1
-      int combinedIndex = ((outerPtr-1)*X_MULTIPLIER) + innerPtr;
-      outArray[combinedIndex] = BreeuwsmaCubicInterpolate(inArray[outerPtr-2], inArray[outerPtr-1], inArray[outerPtr], inArray[outerPtr+1], muValue);
+      int combinedIndex = (( outerPtr)*X_MULTIPLIER) + innerPtr;
+      outArray[combinedIndex] = BreeuwsmaCubicInterpolate(inArray[ outerPtr-1], inArray[outerPtr], inArray[ outerPtr+1], inArray[outerPtr+2], muValue);
       point(combinedIndex, WINDOW_HEIGHT-outArray[combinedIndex]);
       muValue+=muIncrement;
     }
-    outerPtr++;  // increment the outer loop pointer
-    if (outerPtr > SENSOR_PIXELS-2) {
-      oddframe = true;
+    outerPtr++;        // increment the outer loop pointers
+    if (outerPtr > SENSOR_PIXELS-3) { // we hit the upper limit
+      outerPtr = 1;
+      oddframe = true; // toggle between drawing original data points, and drawing interpolated data points
+      resetData(); // we did both the original data and the interpolation cycles, so reset and start over
       //delay(1000);
-      outerPtr = 2;
-      resetData();
     }
   }
 }
