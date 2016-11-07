@@ -1,29 +1,29 @@
 
-// Interpolation_Demos, a simple demos of a few low order interpolation techniques.
+// Interpolation_Demos, a simple demo of a few low order interpolation functions.
 // code translated into java, original source is 
 // http://paulbourke.net/miscellaneous/interpolation/
 
 // Interpolation is the addition of new data points in-between existing data points.
 // There is a trade-off between smoothness/accuracy, versus computational intensity.
-// often used in signal and image processing to improve resolution somewhat beyond that 
-// of the original capture device.
+// often used in signal and image processing to improve data smoothness.
 
-// BreeuwsmaCubicInterpolate() is default method. 
-// Try the other interpolation functions by swapping them out. 
-// The first two, linear and cosine interpolation need 2 original data points
-// the last two,  CubicInterpolate and BreeuwsmaCubicInterpolate need 4 original data 
-// points, and indexes need to be adjused accordingly
+// To see one flavor of plot only, simply comment out the interpolation plots you don't want to see.
+// number of added points is set by INTERPOLATION_X_MULTIPLIER
+// screen width is determined by SCREEN_X_MULTIPLIER
+
+// Linear and cosine interpolation need 2 original data points.
+// CubicInterpolate and BreeuwsmaCubicInterpolate need 4 original data points.
 
 // if input and output display out of phase, the outerPtr index can be changed by 1 or 2 in the
 // array argument, like "outArray[outerPtr -1]" and adjust the upper/lower limits for the outerPtr.
 
 int WINDOW_HEIGHT = 800;
 int SENSOR_PIXELS = 64;  // number of discrete values in the input array
-int SCREEN_X_MULTIPLIER = 16;   // ratio of interpolated points to original points. influences screen width
+int SCREEN_X_MULTIPLIER = 32;   // ratio of interpolated points to original points. influences screen width
 int SCREEN_WIDTH = SENSOR_PIXELS*SCREEN_X_MULTIPLIER; // screen width = total pixels * SCREEN_X_MULTIPLIER
 
 // number of inserted data points for each original data point (but we insert one less when we use it)
-int INTERPOLATION_X_MULTIPLIER = 16; // Num of points that will be added - 1.
+int INTERPOLATION_X_MULTIPLIER = 10; // Num of points that will be added - 1.
 
 int INTERP_OUT_LENGTH = (SENSOR_PIXELS * INTERPOLATION_X_MULTIPLIER); //number of discrete values in the output array
 
@@ -31,15 +31,16 @@ int outerPtr = 1;          // outer loop pointer 0
 float noiseindex = 0.2;    // used for generating smooth noise for data
 float muValue = 0;         // 0 to 1 valid. 0 at start location, 1 at stop location.
 
-float[] inArray = new float[SENSOR_PIXELS];   // array for input signal
-float[] outArray = new float[INTERP_OUT_LENGTH]; // array for output signal
-
+float[] inArray = new float[SENSOR_PIXELS];       // array for input signal
+float[] outArray1 = new float[INTERP_OUT_LENGTH]; // array for linearly interpolated output signal
+float[] outArray2 = new float[INTERP_OUT_LENGTH]; // array for cubically interpolated output signal
+float[] outArray3 = new float[INTERP_OUT_LENGTH]; // array for Breeuwsma cubically interpolated output signal
 
 void setup() {
   surface.setSize(SCREEN_WIDTH, WINDOW_HEIGHT);
   resetData();
   strokeWeight(1);
-  frameRate(5);
+  frameRate(10);
   noFill();
   background(0);
 }
@@ -56,7 +57,9 @@ public void newInputData(){
 
 public void zeroOutputData(){
   for (int c = 0; c < INTERP_OUT_LENGTH; c++) {
-    outArray[c] = 0;
+    outArray1[c] = 0;
+    outArray2[c] = 0;
+    outArray3[c] = 0;
    }
 }
 
@@ -137,7 +140,6 @@ boolean oddframe = true;
     // but we stop one step short. 
     // for example, when SCREEN_X_MULTIPLIER = 10 then mu increments in 0.1 size steps.
     // mu is passed into interpolate, and represents the x axis position of the new point to be.
-    stroke(255);
     
     //  a decimal fraction between 0 and 1, representing smaller increment of x position relative to original data points. 
     float muIncrement = 1/float(INTERPOLATION_X_MULTIPLIER);
@@ -145,12 +147,25 @@ boolean oddframe = true;
     for (int offset = 0; offset < INTERPOLATION_X_MULTIPLIER; offset++) { // for each new interpolated point, minus one)
       muValue+=muIncrement; // increment mu
       int combinedIndex = (outerPtr*INTERPOLATION_X_MULTIPLIER) + offset; // the original point, times the spreading, plus the offset
-      outArray[combinedIndex] = BreeuwsmaCubicInterpolate(inArray[ outerPtr-1], inArray[outerPtr], inArray[ outerPtr+1], inArray[outerPtr+2], muValue);
+      outArray1[combinedIndex] = LinearInterpolate(inArray[ outerPtr], inArray[outerPtr+1], muValue);
+      outArray2[combinedIndex] = CubicInterpolate(inArray[ outerPtr-1], inArray[outerPtr], inArray[ outerPtr+1], inArray[outerPtr+2], muValue);
+      outArray3[combinedIndex] = BreeuwsmaCubicInterpolate(inArray[ outerPtr-1], inArray[outerPtr], inArray[ outerPtr+1], inArray[outerPtr+2], muValue);
+      
       // scale the offset for the screen
       int scaledOffset = round(map(offset, 0, INTERPOLATION_X_MULTIPLIER, 0, SCREEN_X_MULTIPLIER)); 
       
-      // plot the interpolated point using the scaled x offset
-      point((outerPtr*SCREEN_X_MULTIPLIER)+scaledOffset, WINDOW_HEIGHT-outArray[combinedIndex]);
+      // plot an interpolated point using the scaled x offset
+      stroke(255, 0, 0); // linear is red
+      point((outerPtr*SCREEN_X_MULTIPLIER)+scaledOffset, WINDOW_HEIGHT-outArray1[combinedIndex]);
+      
+      // plot an interpolated point using the scaled x offset
+      stroke(0, 255, 0); // cubic is green
+      point((outerPtr*SCREEN_X_MULTIPLIER)+scaledOffset, WINDOW_HEIGHT-outArray2[combinedIndex]);
+      
+      // plot an interpolated point using the scaled x offset
+      stroke(0, 0, 255); //BreeuwsmaCubic is blue
+      point((outerPtr*SCREEN_X_MULTIPLIER)+scaledOffset, WINDOW_HEIGHT-outArray3[combinedIndex]);
+      
       
     }
     outerPtr++;        // increment the outer loop pointers
@@ -158,7 +173,10 @@ boolean oddframe = true;
       outerPtr = 1;
       oddframe = true; // toggle between drawing original data points, and drawing interpolated data points
       resetData(); // we did both the original data and the interpolation cycles, so reset and start over
-      //delay(1000);
+      delay(5000);
     }
   }
+}
+
+void Interpolate(){
 }
