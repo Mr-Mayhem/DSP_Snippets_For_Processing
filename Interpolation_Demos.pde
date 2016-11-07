@@ -18,7 +18,7 @@
 // array argument, like "outArray[outerPtr -1]" and adjust the upper/lower limits for the outerPtr.
 
 int WINDOW_HEIGHT = 800;
-int SENSOR_PIXELS = 64;  // number of discrete values in the input array
+int SENSOR_PIXELS = 32;  // number of discrete values in the input array
 int SCREEN_X_MULTIPLIER = 32;   // ratio of interpolated points to original points. influences screen width
 int SCREEN_WIDTH = SENSOR_PIXELS*SCREEN_X_MULTIPLIER; // screen width = total pixels * SCREEN_X_MULTIPLIER
 
