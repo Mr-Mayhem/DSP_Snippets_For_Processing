@@ -25,15 +25,19 @@ int SCREEN_WIDTH = SENSOR_PIXELS*SCREEN_X_MULTIPLIER; // screen width = total pi
 color COLOR_ORIGINAL_DATA = color(0, 255, 255);
 color COLOR_LINEAR_INTERP = color(255, 0, 0);
 color COLOR_COSINE_INTERP = color(0, 255, 0);
-color COLOR_BCOSINE_INTERP = color(0, 0, 255);
+color COLOR_BCOSINE_INTERP = color(255, 255, 0);
 
 // number of inserted data points for each original data point (but we insert one less when we use it)
 int INTERPOLATION_X_MULTIPLIER = 32; // Num of points that will be added - 1.
 
 int INTERP_OUT_LENGTH = (SENSOR_PIXELS * INTERPOLATION_X_MULTIPLIER); //number of discrete values in the output array
 
+// used to toggle between a process of drawing the original data and 
+// a later process drawing the interpolation of the data
+boolean oddframe = true; 
+
 int outerPtr = 1;          // outer loop pointer 0
-float noiseindex = 0.2;    // used for generating smooth noise for data
+float noiseindex = 0.25;    // used for generating smooth noise for data
 float muValue = 0;         // 0 to 1 valid. 0 at start location, 1 at stop location.
 
 float[] inArray = new float[SENSOR_PIXELS];       // array for input signal
@@ -56,6 +60,9 @@ void DrawLegend() {
   rectY = 20;
   rectWidth = 10;
   rectHeight = 10;
+ 
+  // draw a legend showing what each color represents
+  strokeWeight(1);
   
   stroke(COLOR_ORIGINAL_DATA);
   fill(COLOR_ORIGINAL_DATA);
@@ -85,12 +92,26 @@ void DrawLegend() {
   text("Breeuwsma's Catmull-Rom Interpolation", rectX+20, rectY+10);
 }
 
-
+void drawGrid(int gWidth, int gHeight, int divisor)
+{
+  int widthSpace = gWidth/divisor; // Number of Vertical Lines
+  int heightSpace = gHeight/divisor; // Number of Horozontal Lines
+  strokeWeight(1);
+  stroke(25,25,25); // White Color
+  // Draw vertical
+  for(int i=0; i<gWidth; i+=widthSpace){
+    line(i,0,i,gHeight);
+   }
+   // Draw Horizontal
+   for(int w=0; w<gHeight; w+=heightSpace){
+     line(0,w,gWidth,w);
+   }
+}
 
 // fill input array with smooth random noise, higher noiseindex changes = more variation
 public void newInputData(){
   for (int c = 0; c < SENSOR_PIXELS; c++) {
-    noiseindex = noiseindex + 0.2;
+    noiseindex = noiseindex + 0.25;
     
     inArray[c] = map(noise(noiseindex), 0, 1, 0, WINDOW_HEIGHT); 
     //numbers[c] = floor(random(height));
@@ -111,7 +132,7 @@ public void resetData(){
   muValue = 0;
  
   if(noiseindex > 100){
-    noiseindex = 0.2; // noise generator variable reset to beginning
+    noiseindex = 0.25; // noise generator variable reset to beginning
   }
 }
 
@@ -160,15 +181,16 @@ float Breeuwsma_Catmull_Rom_Interpolate(float y0,float y1, float y2,float y3, fl
    return(a0*mu*mu2+a1*mu2+a2*mu+a3);
 }
 
-boolean oddframe = true;
-
  void draw() {
   if (outerPtr ==1) {
+    // draw the x and y aixs
+    drawGrid(SCREEN_WIDTH, WINDOW_HEIGHT, 8);
     DrawLegend();
   }
   noFill();
   if (oddframe) {
     // plot an original data point (from the noise source)
+    strokeWeight(1);
     stroke(COLOR_ORIGINAL_DATA);
     ellipse(outerPtr*SCREEN_X_MULTIPLIER, WINDOW_HEIGHT-inArray[outerPtr], 5, 5);
     outerPtr++;        // increment the outer loop pointers
@@ -201,7 +223,9 @@ boolean oddframe = true;
       
       // scale the offset for the screen
       int scaledOffset = round(map(offset, 0, INTERPOLATION_X_MULTIPLIER-1, 0, SCREEN_X_MULTIPLIER-1)); 
-
+      
+      strokeWeight(1);
+      
       // plot an interpolated point using the scaled x offset
       stroke(COLOR_LINEAR_INTERP); // linear is red
       point((outerPtr*SCREEN_X_MULTIPLIER)+scaledOffset, WINDOW_HEIGHT-outArray1[combinedIndex]);
@@ -222,6 +246,8 @@ boolean oddframe = true;
       oddframe = true; // toggle between drawing original data points, and drawing interpolated data points
       resetData(); // we did both the original data and the interpolation cycles, so reset and start over
       background(0);
+      // draw the x and y aixs
+      drawGrid(SCREEN_WIDTH, WINDOW_HEIGHT, 8);
       DrawLegend();
       delay(5000);
     }
