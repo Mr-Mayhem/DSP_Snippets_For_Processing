@@ -45,6 +45,7 @@ void setup() {
   surface.setSize(SCREEN_WIDTH, WINDOW_HEIGHT);
   strokeWeight(2);
   frameRate(10);
+  background(0);
   resetData();
 }
 
@@ -55,8 +56,6 @@ void DrawLegend() {
   rectY = 20;
   rectWidth = 10;
   rectHeight = 10;
-  
-  background(0);
   
   stroke(COLOR_ORIGINAL_DATA);
   fill(COLOR_ORIGINAL_DATA);
@@ -222,6 +221,7 @@ boolean oddframe = true;
       outerPtr = 1;
       oddframe = true; // toggle between drawing original data points, and drawing interpolated data points
       resetData(); // we did both the original data and the interpolation cycles, so reset and start over
+      background(0);
       DrawLegend();
       delay(5000);
     }
