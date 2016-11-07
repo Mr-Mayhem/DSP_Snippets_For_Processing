@@ -23,7 +23,7 @@ int SCREEN_X_MULTIPLIER = 32;   // ratio of interpolated points to original poin
 int SCREEN_WIDTH = SENSOR_PIXELS*SCREEN_X_MULTIPLIER; // screen width = total pixels * SCREEN_X_MULTIPLIER
 
 // number of inserted data points for each original data point (but we insert one less when we use it)
-int INTERPOLATION_X_MULTIPLIER = 10; // Num of points that will be added - 1.
+int INTERPOLATION_X_MULTIPLIER = 32; // Num of points that will be added - 1.
 
 int INTERP_OUT_LENGTH = (SENSOR_PIXELS * INTERPOLATION_X_MULTIPLIER); //number of discrete values in the output array
 
@@ -39,7 +39,7 @@ float[] outArray3 = new float[INTERP_OUT_LENGTH]; // array for Breeuwsma cubical
 void setup() {
   surface.setSize(SCREEN_WIDTH, WINDOW_HEIGHT);
   resetData();
-  strokeWeight(1);
+  strokeWeight(2);
   frameRate(10);
   noFill();
   background(0);
@@ -145,14 +145,17 @@ boolean oddframe = true;
     float muIncrement = 1/float(INTERPOLATION_X_MULTIPLIER);
     muValue=0;
     for (int offset = 0; offset < INTERPOLATION_X_MULTIPLIER; offset++) { // for each new interpolated point, minus one)
+      
       muValue+=muIncrement; // increment mu
+      
       int combinedIndex = (outerPtr*INTERPOLATION_X_MULTIPLIER) + offset; // the original point, times the spreading, plus the offset
+      
       outArray1[combinedIndex] = LinearInterpolate(inArray[ outerPtr], inArray[outerPtr+1], muValue);
       outArray2[combinedIndex] = CubicInterpolate(inArray[ outerPtr-1], inArray[outerPtr], inArray[ outerPtr+1], inArray[outerPtr+2], muValue);
       outArray3[combinedIndex] = BreeuwsmaCubicInterpolate(inArray[ outerPtr-1], inArray[outerPtr], inArray[ outerPtr+1], inArray[outerPtr+2], muValue);
       
       // scale the offset for the screen
-      int scaledOffset = round(map(offset, 0, INTERPOLATION_X_MULTIPLIER, 0, SCREEN_X_MULTIPLIER)); 
+      int scaledOffset = round(map(offset, 0, INTERPOLATION_X_MULTIPLIER-1, 0, SCREEN_X_MULTIPLIER-1)); 
       
       // plot an interpolated point using the scaled x offset
       stroke(255, 0, 0); // linear is red
