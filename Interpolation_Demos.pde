@@ -5,7 +5,7 @@
 
 // Interpolation is the addition of new data points in-between existing data points.
 // There is a trade-off between smoothness/accuracy, versus computational intensity.
-// often used in signal and image processing to improve data smoothness.
+// Interpolation is often used in signal and image processing to improve data smoothness.
 
 // To see one flavor of plot only, simply comment out the interpolation plots you don't want to see.
 // number of added points is set by INTERPOLATION_X_MULTIPLIER
