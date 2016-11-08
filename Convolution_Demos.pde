@@ -1,3 +1,15 @@
+/*
+   - Demo Sketch for convolution of data in an array
+  by Douglas Mayhew
+
+  Use with PC running matching Processing app
+  
+  Created by Douglas Mayhew, November 7, 2016.
+  Released into the public domain.
+*/
+// convolution code originally from //http://www.dspguide.com/ch6/3.htm
+// translated into java 
+
 color COLOR_ORIGINAL_DATA = color(0, 255, 0); // green
 color COLOR_IMPULSE_DATA = color(255, 255, 0); //yellow
 color COLOR_OUTPUT_DATA = color(255); // white
