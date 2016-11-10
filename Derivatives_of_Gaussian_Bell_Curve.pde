@@ -114,7 +114,7 @@ class Gaussian {
   }
   
   void calc(float sigma, int len) {
-    sd = map(sigma,0,len,0.001, 3);     //standard deviation based on mouseX
+    sd = map(sigma,0,len,0.001, 1);     //standard deviation based on mouseX
     for (int i = 0; i < len; i++) {
       float xcoord = map(i,0,len,-3,3);
       float sq2pi = sqrt(2*PI);                   //square root of 2 * PI
