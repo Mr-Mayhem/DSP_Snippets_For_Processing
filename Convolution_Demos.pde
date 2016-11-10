@@ -40,26 +40,34 @@ void setup() {
  void draw() {
   if (outerPtr >= inputDataLength) {
     resetData();
+    drawLegend();
   }
   
   if (outerPtr == 1) {
     // draw the x and y aixs
     background(0);
     drawGrid(SCREEN_WIDTH, SCREEN_HEIGHT, 8);
-    drawLegend();
   }
-
-  //plot the impulse data
-  strokeWeight(2);
-  stroke(COLOR_IMPULSE_DATA);
-  if (impulsePtr < impulseDataLength) { 
-    point((impulsePtr)*PixelsPerPoint+20, (SCREEN_HEIGHT/5)-h[impulsePtr]*10);
+    drawGrid(SCREEN_WIDTH, SCREEN_HEIGHT, 8);
+    drawLegend();
+  
+  strokeWeight(4);
+  for (int innerPtr = 0; innerPtr < impulseDataLength; innerPtr++) { // increment the inner loop pointer
+    // erase a previous impulse data point
+    stroke(0); // background color
+    point((outerPtr+innerPtr-2)*PixelsPerPoint, SCREEN_HEIGHT-100-(h[innerPtr]*10));
   }
 
   // plot original data point
   stroke(COLOR_ORIGINAL_DATA);
   point((outerPtr-1)*PixelsPerPoint, SCREEN_HEIGHT-x[outerPtr]);
+  
+  strokeWeight(2);
   for (int innerPtr = 0; innerPtr < impulseDataLength; innerPtr++) { // increment the inner loop pointer
+    //delay(5);
+    //plot impulse data point
+    stroke(COLOR_IMPULSE_DATA); // impulse color
+    point((outerPtr+innerPtr-1)*PixelsPerPoint, SCREEN_HEIGHT-100-(h[innerPtr]*10));  // draw new impulse point
     y[outerPtr+innerPtr-1] = y[outerPtr+innerPtr-1] + x[outerPtr-1] * h[innerPtr];  //convolve (the magic line)
   }
 
@@ -67,7 +75,6 @@ void setup() {
   stroke(COLOR_OUTPUT_DATA);
   point((outerPtr-(impulseDataLength/2)-1)*PixelsPerPoint, SCREEN_HEIGHT-y[outerPtr]/impulseSum);
   outerPtr++;  // increment the outer loop pointer
-  impulsePtr = outerPtr -1;  // increment the outer loop pointer
 }
 
 public void newInputData(){

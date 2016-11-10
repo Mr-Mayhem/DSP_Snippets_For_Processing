@@ -17,9 +17,9 @@
 // if input and output display out of phase, the outerPtr index can be changed by 1 or 2 in the
 // array argument, like "outArray[outerPtr -1]" and adjust the upper/lower limits for the outerPtr.
 
-int WINDOW_HEIGHT = 800;
-int SENSOR_PIXELS = 32;  // number of discrete values in the input array
-int SCREEN_X_MULTIPLIER = 32;   // ratio of interpolated points to original points. influences screen width
+int SCREEN_HEIGHT = 800;
+int SENSOR_PIXELS = 32;           // number of discrete values in the input array
+int SCREEN_X_MULTIPLIER = 32;     // ratio of interpolated points to original points. influences screen width
 int SCREEN_WIDTH = SENSOR_PIXELS*SCREEN_X_MULTIPLIER; // screen width = total pixels * SCREEN_X_MULTIPLIER
 
 color COLOR_ORIGINAL_DATA = color(0, 255, 255);
@@ -37,7 +37,7 @@ int INTERP_OUT_LENGTH = (SENSOR_PIXELS * INTERPOLATION_X_MULTIPLIER); //number o
 boolean oddframe = true; 
 
 int outerPtr = 1;          // outer loop pointer 0
-float noiseindex = 0.25;    // used for generating smooth noise for data
+float noiseindex = 0.25;   // used for generating smooth noise for data
 float muValue = 0;         // 0 to 1 valid. 0 at start location, 1 at stop location.
 
 float[] inArray = new float[SENSOR_PIXELS];       // array for input signal
@@ -46,14 +46,14 @@ float[] outArray2 = new float[INTERP_OUT_LENGTH]; // array for cubically interpo
 float[] outArray3 = new float[INTERP_OUT_LENGTH]; // array for Breeuwsma cubically interpolated output signal
 
 void setup() {
-  surface.setSize(SCREEN_WIDTH, WINDOW_HEIGHT);
+  surface.setSize(SCREEN_WIDTH, SCREEN_HEIGHT);
   strokeWeight(2);
   frameRate(10);
   background(0);
   resetData();
 }
 
-void DrawLegend() {
+void drawLegend() {
   int rectX, rectY, rectWidth, rectHeight;
   
   rectX = 20;
@@ -113,7 +113,7 @@ public void newInputData(){
   for (int c = 0; c < SENSOR_PIXELS; c++) {
     noiseindex = noiseindex + 0.25;
     
-    inArray[c] = map(noise(noiseindex), 0, 1, 0, WINDOW_HEIGHT); 
+    inArray[c] = map(noise(noiseindex), 0, 1, 0, SCREEN_HEIGHT); 
     //numbers[c] = floor(random(height));
    }
 }
@@ -184,15 +184,15 @@ float Breeuwsma_Catmull_Rom_Interpolate(float y0,float y1, float y2,float y3, fl
  void draw() {
   if (outerPtr ==1) {
     // draw the x and y aixs
-    drawGrid(SCREEN_WIDTH, WINDOW_HEIGHT, 8);
-    DrawLegend();
+    drawGrid(SCREEN_WIDTH, SCREEN_HEIGHT, 8);
+    drawLegend();
   }
   noFill();
   if (oddframe) {
     // plot an original data point (from the noise source)
     strokeWeight(1);
     stroke(COLOR_ORIGINAL_DATA);
-    ellipse(outerPtr*SCREEN_X_MULTIPLIER, WINDOW_HEIGHT-inArray[outerPtr], 5, 5);
+    ellipse(outerPtr*SCREEN_X_MULTIPLIER, SCREEN_HEIGHT-inArray[outerPtr], 5, 5);
     outerPtr++;        // increment the outer loop pointers
     if (outerPtr > SENSOR_PIXELS-3) { // we hit the upper limit
       outerPtr = 1;
@@ -228,17 +228,15 @@ float Breeuwsma_Catmull_Rom_Interpolate(float y0,float y1, float y2,float y3, fl
       
       // plot an interpolated point using the scaled x offset
       stroke(COLOR_LINEAR_INTERP); // linear is red
-      point((outerPtr*SCREEN_X_MULTIPLIER)+scaledOffset, WINDOW_HEIGHT-outArray1[combinedIndex]);
+      point((outerPtr*SCREEN_X_MULTIPLIER)+scaledOffset, SCREEN_HEIGHT-outArray1[combinedIndex]);
       
       // plot an interpolated point using the scaled x offset
       stroke(COLOR_COSINE_INTERP); // cubic is green
-      point((outerPtr*SCREEN_X_MULTIPLIER)+scaledOffset, WINDOW_HEIGHT-outArray2[combinedIndex]);
+      point((outerPtr*SCREEN_X_MULTIPLIER)+scaledOffset, SCREEN_HEIGHT-outArray2[combinedIndex]);
       
       // plot an interpolated point using the scaled x offset
       stroke(COLOR_BCOSINE_INTERP); //BreeuwsmaCubic is blue
-      point((outerPtr*SCREEN_X_MULTIPLIER)+scaledOffset, WINDOW_HEIGHT-outArray3[combinedIndex]);
-      
-      
+      point((outerPtr*SCREEN_X_MULTIPLIER)+scaledOffset, SCREEN_HEIGHT-outArray3[combinedIndex]);
     }
     outerPtr++;        // increment the outer loop pointers
     if (outerPtr > SENSOR_PIXELS-3) { // we hit the upper limit
@@ -247,9 +245,9 @@ float Breeuwsma_Catmull_Rom_Interpolate(float y0,float y1, float y2,float y3, fl
       resetData(); // we did both the original data and the interpolation cycles, so reset and start over
       background(0);
       // draw the x and y aixs
-      drawGrid(SCREEN_WIDTH, WINDOW_HEIGHT, 8);
-      DrawLegend();
-      delay(5000);
+      drawGrid(SCREEN_WIDTH, SCREEN_HEIGHT, 8);
+      drawLegend();
+      delay(3000);
     }
   }
 }
