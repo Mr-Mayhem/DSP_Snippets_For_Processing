@@ -1,5 +1,5 @@
 # Processing-Snippets
-A growing pile of short Processing (Java) sketches related to visualizing steps involved in signal processing, with the goal of building up the ingredients for edge detection of narrow shadows cast upon the sensor window, with subpixel resolution, on pixel data originating from a linear photodiode array sensor.
+A growing pile of short Processing (Java) sketches related to visualizing steps involved in signal processing, with the goal of building up the ingredients for edge detection of narrow shadows cast upon the sensor window, with subpixel resolution, on pixel data originating from a linear photodiode array sensor. I am simply chasing the main ingredients to do edge detection as I learn about them, an I will combine the whole process in a final Processing sketch, and an Arduino sketch, for use with such linear array photo sensors.
 
 "Convolution_Demos.pde" demonstrates 1d convolution of existing data with a shorter impulse, or "kernel"
 Kinda basic, but I will be improving it. 
@@ -11,7 +11,7 @@ Also, see https://en.wikipedia.org/wiki/Convolution
 
 "Interpolation_Demos.pde" shows how to interpolate, or add new points in between existing points, using various methods.
 
-Just chasing the main ingredients now as I learn about them, then will combine to a final Processing sketch, and an Arduino sketch, for use with the sensors.
+Description of Edge Detection in under a minute:
 
 The analog pixel values can be sampled a few times and averaged, to reduce noise. 
 Or not, if speed more the concern vs accuracy. Maybe a balance can be found by experiment, or maybe 1 sample is clean enough.
