@@ -31,9 +31,9 @@ color COLOR_D3 = color(0, 0, 255);
 color COLOR_D4 = color(0, 255, 255);
 color COLOR_D5 = color(255, 0, 255);
 
-int SCREEN_HEIGHT = 800;
-int SCREEN_WIDTH = 800;
-int NUM_OF_DATA_POINTS = 800;
+int SCREEN_HEIGHT = 1000;
+int SCREEN_WIDTH = 1000;
+int NUM_OF_DATA_POINTS = 1000;
 int HALF_SCREEN_HEIGHT = SCREEN_HEIGHT/2;
 
 float[] floatArray0 = new float[NUM_OF_DATA_POINTS];
@@ -42,8 +42,8 @@ float[] floatArray2 = new float[NUM_OF_DATA_POINTS];
 float[] floatArray3 = new float[NUM_OF_DATA_POINTS];
 float[] floatArray4 = new float[NUM_OF_DATA_POINTS];
 float[] floatArray5 = new float[NUM_OF_DATA_POINTS];
-int oloopMax = 500;
-int ii = 500;
+int oloopMax = 1000;
+int ii = 1000;
 boolean flip = true;
 
 Gaussian Gaussian1;
@@ -78,23 +78,26 @@ void draw() {
     floatArray4[i] = floatArray3[i+1]-floatArray3[i]; // 4th derivative, the y difference between adjacent x points of d3
     floatArray5[i] = floatArray4[i+1]-floatArray4[i]; // 5th derivative, the y difference between adjacent x points of d4
     
+    // scale x for the screen width
+    int scaledX = round(map(x, 0, NUM_OF_DATA_POINTS-1, 0, SCREEN_WIDTH-1)); 
+      
     stroke(COLOR_ORIGINAL_DATA);
-    point(x, y); // plot original data, a gaussian bell curve
+    point(scaledX, y); // plot original data, a gaussian bell curve
     
     stroke(COLOR_D1);
-    point(x, map(floatArray1[i], 0, 1, HALF_SCREEN_HEIGHT - 2, 2)); // plot 1st derivative
+    point(scaledX, map(floatArray1[i], 0, 1, HALF_SCREEN_HEIGHT - 1, 1)); // plot 1st derivative
     
     stroke(COLOR_D2);
-    point(x, map(floatArray2[i], 0, 1, HALF_SCREEN_HEIGHT - 2, 2)); // plot 2nd derivative (used for edge detection)
+    point(scaledX, map(floatArray2[i], 0, 1, HALF_SCREEN_HEIGHT - 1, 1)); // plot 2nd derivative (used for edge detection)
     
     stroke(COLOR_D3);
-    point(x, map(floatArray3[i], 0, 1, HALF_SCREEN_HEIGHT - 2, 2)); // plot 3nd derivative
+    point(scaledX, map(floatArray3[i], 0, 1, HALF_SCREEN_HEIGHT - 1, 1)); // plot 3nd derivative
     
     stroke(COLOR_D4);
-    point(x, map(floatArray4[i], 0, 1, HALF_SCREEN_HEIGHT - 2, 2)); // plot 4th derivative
+    point(scaledX, map(floatArray4[i], 0, 1, HALF_SCREEN_HEIGHT - 1, 1)); // plot 4th derivative
     
     stroke(COLOR_D5);
-    point(x, map(floatArray5[i], 0, 1, HALF_SCREEN_HEIGHT - 2, 2)); // plot 5th derivative
+    point(scaledX, map(floatArray5[i], 0, 1, HALF_SCREEN_HEIGHT - 1, 1)); // plot 5th derivative
   }
   
   if (!flip){
