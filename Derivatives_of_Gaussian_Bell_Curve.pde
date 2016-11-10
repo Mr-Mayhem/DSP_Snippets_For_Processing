@@ -50,7 +50,7 @@ void setup() {
 }
 
 void draw() {
-  //background(0); // uncomment this to see the whole series; comment to see current set only
+  background(0); // uncomment this to see the whole series; comment to see current set only
   Gaussian1.calc(ii, numHeights);
   //for (int i = 250; i < 500; i++) {  // try other original data shapes
   //  heights[i] = i-250;
