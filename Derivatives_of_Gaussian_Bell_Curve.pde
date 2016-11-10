@@ -72,11 +72,11 @@ void draw() {
     float x = i; 
     float y = map(floatArray0[i], 0, 1, HALF_SCREEN_HEIGHT-2, 2); // original data, a gaussian bell curve
     
-    floatArray1[i] = floatArray0[i+1]-floatArray0[i]; // 1st derivative, the difference between adjacent x points of original
-    floatArray2[i] = floatArray1[i+1]-floatArray1[i]; // 2nd derivative, the difference between adjacent x points of d1
-    floatArray3[i] = floatArray2[i+1]-floatArray2[i]; // 3nd derivative, the difference between adjacent x points of d2
-    floatArray4[i] = floatArray3[i+1]-floatArray3[i]; // 4th derivative, the difference between adjacent x points of d3
-    floatArray5[i] = floatArray4[i+1]-floatArray4[i]; // 5th derivative, the difference between adjacent x points of d4
+    floatArray1[i] = floatArray0[i+1]-floatArray0[i]; // 1st derivative, the y difference between adjacent x points of original
+    floatArray2[i] = floatArray1[i+1]-floatArray1[i]; // 2nd derivative, the y difference between adjacent x points of d1
+    floatArray3[i] = floatArray2[i+1]-floatArray2[i]; // 3nd derivative, the y difference between adjacent x points of d2
+    floatArray4[i] = floatArray3[i+1]-floatArray3[i]; // 4th derivative, the y difference between adjacent x points of d3
+    floatArray5[i] = floatArray4[i+1]-floatArray4[i]; // 5th derivative, the y difference between adjacent x points of d4
     
     stroke(COLOR_ORIGINAL_DATA);
     point(x, y); // plot original data, a gaussian bell curve
