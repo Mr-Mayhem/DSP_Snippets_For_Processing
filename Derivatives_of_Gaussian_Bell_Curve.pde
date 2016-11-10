@@ -65,7 +65,7 @@ void draw() {
   
    drawGrid(SCREEN_WIDTH, SCREEN_HEIGHT, 8);
    drawLegend();
-  // a little for loop that draws a line between each point on the graph
+  // a for loop that plots the data...
   
   for (int i = 1; i < (numOfArrays)-1; i++) {
     float x = i; 
