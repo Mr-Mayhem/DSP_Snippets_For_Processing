@@ -33,14 +33,15 @@ color COLOR_D5 = color(255, 0, 255);
 
 int SCREEN_HEIGHT = 800;
 int SCREEN_WIDTH = 800;
-int numOfDataPoints = 800;
+int NUM_OF_DATA_POINTS = 800;
 int HALF_SCREEN_HEIGHT = SCREEN_HEIGHT/2;
-float[] floatArray0 = new float[numOfDataPoints];
-float[] floatArray1 = new float[numOfDataPoints];
-float[] floatArray2 = new float[numOfDataPoints];
-float[] floatArray3 = new float[numOfDataPoints];
-float[] floatArray4 = new float[numOfDataPoints];
-float[] floatArray5 = new float[numOfDataPoints];
+
+float[] floatArray0 = new float[NUM_OF_DATA_POINTS];
+float[] floatArray1 = new float[NUM_OF_DATA_POINTS];
+float[] floatArray2 = new float[NUM_OF_DATA_POINTS];
+float[] floatArray3 = new float[NUM_OF_DATA_POINTS];
+float[] floatArray4 = new float[NUM_OF_DATA_POINTS];
+float[] floatArray5 = new float[NUM_OF_DATA_POINTS];
 int oloopMax = 500;
 int ii = 500;
 boolean flip = true;
@@ -57,7 +58,7 @@ void setup() {
 
 void draw() {
   background(0); // uncomment this to see the whole series; comment to see current set only
-  Gaussian1.calc(ii, numOfDataPoints);
+  Gaussian1.calc(ii, NUM_OF_DATA_POINTS);
   //for (int i = 250; i < 500; i++) {  // try other original data shapes
   //  floatArray[i] = i-250;
   //  floatArray[i+250] = 500+(-i);
@@ -67,7 +68,7 @@ void draw() {
    drawLegend();
   // a for loop that plots the data...
   
-  for (int i = 1; i < (numOfDataPoints)-1; i++) {
+  for (int i = 1; i < (NUM_OF_DATA_POINTS)-1; i++) {
     float x = i; 
     float y = map(floatArray0[i], 0, 1, HALF_SCREEN_HEIGHT-2, 2); // original data, a gaussian bell curve
     
