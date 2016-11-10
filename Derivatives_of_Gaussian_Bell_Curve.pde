@@ -29,7 +29,7 @@ color COLOR_D1 = color(255, 0, 0);
 color COLOR_D2 = color(0, 255, 0);
 color COLOR_D3 = color(0, 0, 255);
 color COLOR_D4 = color(0, 255, 255);
-color COLOR_D5 = color(200, 200, 200);
+color COLOR_D5 = color(255, 0, 255);
 
 int SCREEN_HEIGHT = 800;
 int SCREEN_WIDTH = 800;
@@ -188,16 +188,16 @@ void drawLegend() {
 
 void drawGrid(int gWidth, int gHeight, int divisor)
 {
-  int SCREEN_WIDTHSpace = gWidth/divisor; // Number of Vertical Lines
-  int SCREEN_HEIGHTSpace = gWidth/divisor; // Number of Horozontal Lines
+  int widthSpace = gWidth/divisor; // Number of Vertical Lines
+  int heightSpace = gHeight/divisor; // Number of Horozontal Lines
   strokeWeight(1);
   stroke(25,25,25); // White Color
   // Draw vertical
-  for(int i=0; i<gWidth; i+=SCREEN_WIDTHSpace){
+  for(int i=0; i<gWidth; i+=widthSpace){
     line(i,0,i,gHeight);
    }
    // Draw Horizontal
-   for(int w=0; w<gHeight; w+=SCREEN_HEIGHTSpace){
+   for(int w=0; w<gHeight; w+=heightSpace){
      line(0,w,gWidth,w);
    }
 }
