@@ -72,19 +72,19 @@ void draw() {
     point(x, y);
     
     stroke(255, 0, 255);
-    point(x, map(d1heights[i], 0, 0.5, HALF_HEIGHT - 2, 2));
+    point(x, map(d1heights[i], 0, 1, HALF_HEIGHT - 2, 2));
     
     stroke(255, 255, 0);
-    point(x, map(d2heights[i], 0, 0.5, HALF_HEIGHT - 2, 2));
+    point(x, map(d2heights[i], 0, 1, HALF_HEIGHT - 2, 2));
     
     stroke(0, 255, 0);
-    point(x, map(d3heights[i], 0, 0.5, HALF_HEIGHT - 2, 2));
+    point(x, map(d3heights[i], 0, 1, HALF_HEIGHT - 2, 2));
     
     stroke(0, 0, 255);
-    point(x, map(d4heights[i], 0, 0.5, HALF_HEIGHT - 2, 2));
+    point(x, map(d4heights[i], 0, 1, HALF_HEIGHT - 2, 2));
     
     stroke(255, 0, 255);
-    point(x, map(d5heights[i], 0, 0.5, HALF_HEIGHT - 2, 2));
+    point(x, map(d5heights[i], 0, 1, HALF_HEIGHT - 2, 2));
   }
   
   if (flip){
