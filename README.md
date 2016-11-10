@@ -12,7 +12,7 @@ Then the computer program would fit a parabola to the top three samples of the t
 
 Then the difference between the two results is the center of a shadow cast upon the sensor.
 
-Left out a few things, like thresholding. Also, the sigma or 'wnarrowness' of the gaussian kernel used in convolution step, sets how agressive the smoothing is. Narrow tall ones make less blurred results, wide ones make more blurred results, with higher frequencies suppressed more.
+Left out a few things, like thresholding. Also, the sigma or 'narrowness' of the gaussian kernel used in convolution step, sets how agressive the smoothing is. Narrow tall ones make less blurred results, wide ones make more blurred results, with higher frequencies suppressed more.
 
 "Interpolation_Demos.pde" shows how to interpolate, or add new points in between existing points, using various methods.
 
