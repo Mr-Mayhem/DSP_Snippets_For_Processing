@@ -15,7 +15,7 @@ color COLOR_IMPULSE_DATA = color(255, 255, 0); //yellow
 color COLOR_OUTPUT_DATA = color(255); // white
 
 int inputDataLength = 256; //number of discrete values in the array
-int impulseDataLength = 19; // use even impulseDataLength to produce an even integer phase offset
+int impulseDataLength = 19; // use odd impulseDataLength to produce an even integer phase offset
 int outputDataLength = inputDataLength + impulseDataLength; //number of discrete values in the array
 int outerPtr = 1; // outer loop pointer
 int impulsePtr = 0; // outer loop pointer
