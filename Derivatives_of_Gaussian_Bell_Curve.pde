@@ -123,10 +123,10 @@ class Gaussian {
   Gaussian () {  
   }
   
-  void calc(float sigma, int len) {
-    sd = map(sigma,0,len,0.001, 1);     //standard deviation based on mouseX
-    for (int i = 0; i < len; i++) {
-      float xcoord = map(i,0,len,-3,3);
+  void calc(float sigma, int numOfXPoints) {
+    sd = map(sigma,0,numOfXPoints, 0.001, 1);     //standard deviation based on sigma mapped to numOfXPoints
+    for (int i = 0; i < numOfXPoints; i++) {
+      float xcoord = map(i,0,numOfXPoints,-3,3);
       float sq2pi = sqrt(2*PI);                   //square root of 2 * PI
       float xmsq = -1*(xcoord-m)*(xcoord-m);      //-(x - mu)^2
       float sdsq = sd*sd;                         //variance (standard deviation squared)
