@@ -25,9 +25,9 @@
   It is this angle I am investigating for use in my convolution.pde Processing sketch.
   */
   
-int HEIGHT = 1080;
-int WIDTH = 1920;
-int numHeights = 1900;
+int HEIGHT = 800;
+int WIDTH = 800;
+int numHeights = 800;
 int HALF_HEIGHT = HEIGHT/2;
 float[] heights = new float[numHeights];
 float[] d1heights = new float[numHeights];
