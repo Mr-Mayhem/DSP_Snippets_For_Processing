@@ -11,7 +11,9 @@ Also, see https://en.wikipedia.org/wiki/Convolution
 
 "Interpolation_Demos.pde" shows how to interpolate, or add new points in between existing points, using various methods.
 
+=========================================================================================
 Description of Edge Detection in under a minute:
+=========================================================================================
 
 The analog pixel values can be sampled a few times and averaged, to reduce noise. 
 Or not, if speed more the concern vs accuracy. Maybe a balance can be found by experiment, or maybe 1 sample is clean enough.
