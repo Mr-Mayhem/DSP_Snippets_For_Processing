@@ -8,9 +8,9 @@ Kinda basic, but I will be improving it.
 To find an edge in the pixels, a popular method is to use the 2nd derivative of a gaussian as a smoothing and edge detection 
 in one 'for loop'.  
 
-Then the computer program would fit a parabola to the top three samples of the two main resulting peaks/troughs, to find center of the edges with subpixel resolution, aka quadradic polynomial interpolation.
+Then the computer program would fit a parabola to the top three samples of the two main resulting peaks/troughs, to find center of the edges with subpixel resolution in the x axis, aka quadradic polynomial interpolation.
 
-Then the difference between the two results is the center of a shadow cast upon the sensor.
+Then the subpixel x axis difference between the two results is the center of a shadow cast upon the sensor.
 
 Left out a few things, like thresholding. Also, the sigma or 'narrowness' of the gaussian kernel used in convolution step, sets how agressive the smoothing is. Narrow tall ones make less blurred results, wide ones make more blurred results, with higher frequencies suppressed more.
 
