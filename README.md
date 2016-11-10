@@ -18,7 +18,7 @@ Interpolation can be applied to the data prior to edge detection, for higher res
 
 Next, to find an edge in the pixels, a popular method is to use the 2nd derivative of a gaussian as a smoothing and edge detection in one 'for loop' step.  
 
-Finally, the computer program would fit a parabola to the top three samples of the two main resulting peaks/troughs, to find center of the edges with subpixel resolution in the x axis, aka quadradic polynomial interpolation. And there is a version of this which takes 4 inputs, rather than 3, and is claimed to be much more accurate, but again at a speed cost.
+Finally, the computer program would fit a parabola to the top three samples of the two main resulting peaks/troughs, to find center of the edges with subpixel resolution in the x axis, aka quadradic polynomial interpolation. And there is a version of this which takes 4 inputs, rather than 3, and is claimed to be much more accurate, but again at a speed cost. I will sort these out after I get the basic 3 point one working ok.
 
 Then the subpixel x axis difference between the two results is the center of a shadow cast upon the sensor.
 
