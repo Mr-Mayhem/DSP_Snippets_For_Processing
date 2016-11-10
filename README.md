@@ -12,9 +12,10 @@ Then the computer program would fit a parabola to the top 3 points to find cente
 
 Then the difference between the two edges is the center of a shadow cast upon the sensor.
 
-Left out a few things, like thresholding, the sigmag of the gaussian kernel used sets how agressive the smoothing is, etc
-Really just chasing the main ingredients, then will combine to a final Processing app and a Arduino verson for use with
-the sensors.
+Left out a few things, like thresholding. The sigma or 'width' of the gaussian kernel used in convolution step, sets how agressive the smoothing is.
 
 "Interpolation_Demos.pde" shows how to interpolate, or add new points in between existing points, using various methods.
 
+
+Just chasing the main ingredients now as I learn about them, then will combine to a final Processing sketch, and an Arduino sketch, for use with
+the sensors.
