@@ -33,14 +33,14 @@ color COLOR_D5 = color(255, 0, 255);
 
 int SCREEN_HEIGHT = 800;
 int SCREEN_WIDTH = 800;
-int numSCREEN_HEIGHTs = 800;
+int numOfArrays = 800;
 int HALF_SCREEN_HEIGHT = SCREEN_HEIGHT/2;
-float[] SCREEN_HEIGHTs = new float[numSCREEN_HEIGHTs];
-float[] d1SCREEN_HEIGHTs = new float[numSCREEN_HEIGHTs];
-float[] d2SCREEN_HEIGHTs = new float[numSCREEN_HEIGHTs];
-float[] d3SCREEN_HEIGHTs = new float[numSCREEN_HEIGHTs];
-float[] d4SCREEN_HEIGHTs = new float[numSCREEN_HEIGHTs];
-float[] d5SCREEN_HEIGHTs = new float[numSCREEN_HEIGHTs];
+float[] floatArray0 = new float[numOfArrays];
+float[] floatArray1 = new float[numOfArrays];
+float[] floatArray2 = new float[numOfArrays];
+float[] floatArray3 = new float[numOfArrays];
+float[] floatArray4 = new float[numOfArrays];
+float[] floatArray5 = new float[numOfArrays];
 int oloopMax = 500;
 int ii = 500;
 boolean flip = true;
@@ -57,42 +57,43 @@ void setup() {
 
 void draw() {
   background(0); // uncomment this to see the whole series; comment to see current set only
-  Gaussian1.calc(ii, numSCREEN_HEIGHTs);
+  Gaussian1.calc(ii, numOfArrays);
   //for (int i = 250; i < 500; i++) {  // try other original data shapes
-  //  SCREEN_HEIGHTs[i] = i-250;
-  //  SCREEN_HEIGHTs[i+250] = 500+(-i);
+  //  floatArray[i] = i-250;
+  //  floatArray[i+250] = 500+(-i);
   //}
   
    drawGrid(SCREEN_WIDTH, SCREEN_HEIGHT, 8);
    drawLegend();
   // a little for loop that draws a line between each point on the graph
   
-  for (int i = 1; i < (numSCREEN_HEIGHTs)-1; i++) {
+  for (int i = 1; i < (numOfArrays)-1; i++) {
     float x = i; 
-    float y = map(SCREEN_HEIGHTs[i], 0, 1, HALF_SCREEN_HEIGHT-2, 2); // original data, a gaussian bell curve
-    d1SCREEN_HEIGHTs[i] = SCREEN_HEIGHTs[i+1]-SCREEN_HEIGHTs[i];     // 1st derivative, the difference between adjacent x points of original
-    d2SCREEN_HEIGHTs[i] = d1SCREEN_HEIGHTs[i+1]-d1SCREEN_HEIGHTs[i]; // 2nd derivative, the difference between adjacent x points of d1
-    d3SCREEN_HEIGHTs[i] = d2SCREEN_HEIGHTs[i+1]-d2SCREEN_HEIGHTs[i]; // 3nd derivative, the difference between adjacent x points of d2
-    d4SCREEN_HEIGHTs[i] = d3SCREEN_HEIGHTs[i+1]-d3SCREEN_HEIGHTs[i]; // 4th derivative, the difference between adjacent x points of d3
-    d5SCREEN_HEIGHTs[i] = d4SCREEN_HEIGHTs[i+1]-d4SCREEN_HEIGHTs[i]; // 5th derivative, the difference between adjacent x points of d4
+    float y = map(floatArray0[i], 0, 1, HALF_SCREEN_HEIGHT-2, 2); // original data, a gaussian bell curve
+    
+    floatArray1[i] = floatArray0[i+1]-floatArray0[i]; // 1st derivative, the difference between adjacent x points of original
+    floatArray2[i] = floatArray1[i+1]-floatArray1[i]; // 2nd derivative, the difference between adjacent x points of d1
+    floatArray3[i] = floatArray2[i+1]-floatArray2[i]; // 3nd derivative, the difference between adjacent x points of d2
+    floatArray4[i] = floatArray3[i+1]-floatArray3[i]; // 4th derivative, the difference between adjacent x points of d3
+    floatArray5[i] = floatArray4[i+1]-floatArray4[i]; // 5th derivative, the difference between adjacent x points of d4
     
     stroke(COLOR_ORIGINAL_DATA);
-    point(x, y);
+    point(x, y); // plot original data, a gaussian bell curve
     
     stroke(COLOR_D1);
-    point(x, map(d1SCREEN_HEIGHTs[i], 0, 1, HALF_SCREEN_HEIGHT - 2, 2));
+    point(x, map(floatArray1[i], 0, 1, HALF_SCREEN_HEIGHT - 2, 2)); // plot 1st derivative
     
     stroke(COLOR_D2);
-    point(x, map(d2SCREEN_HEIGHTs[i], 0, 1, HALF_SCREEN_HEIGHT - 2, 2));
+    point(x, map(floatArray2[i], 0, 1, HALF_SCREEN_HEIGHT - 2, 2)); // plot 2nd derivative (used for edge detection)
     
     stroke(COLOR_D3);
-    point(x, map(d3SCREEN_HEIGHTs[i], 0, 1, HALF_SCREEN_HEIGHT - 2, 2));
+    point(x, map(floatArray3[i], 0, 1, HALF_SCREEN_HEIGHT - 2, 2)); // plot 3nd derivative
     
     stroke(COLOR_D4);
-    point(x, map(d4SCREEN_HEIGHTs[i], 0, 1, HALF_SCREEN_HEIGHT - 2, 2));
+    point(x, map(floatArray4[i], 0, 1, HALF_SCREEN_HEIGHT - 2, 2)); // plot 4th derivative
     
     stroke(COLOR_D5);
-    point(x, map(d5SCREEN_HEIGHTs[i], 0, 1, HALF_SCREEN_HEIGHT - 2, 2));
+    point(x, map(floatArray5[i], 0, 1, HALF_SCREEN_HEIGHT - 2, 2)); // plot 5th derivative
   }
   
   if (!flip){
@@ -128,7 +129,7 @@ class Gaussian {
       float sq2pi = sqrt(2*PI);                   //square root of 2 * PI
       float xmsq = -1*(xcoord-m)*(xcoord-m);      //-(x - mu)^2
       float sdsq = sd*sd;                         //variance (standard deviation squared)
-      SCREEN_HEIGHTs[i] = (1 / (sd * sq2pi)) * (pow(e, (xmsq/sdsq)));  //P(x) function
+      floatArray0[i] = (1 / (sd * sq2pi)) * (pow(e, (xmsq/sdsq)));  //P(x) function
     }
   } 
 }
