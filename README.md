@@ -1,5 +1,5 @@
 # Processing-Snippets
-A growing pile of short Processing (Java) sketches related to visualizing steps involved in signal processing, with the goal of building up the ingredients for edge detection with subpixel resolution, on pixel data originating from a linear photodiode array sensor.
+A growing pile of short Processing (Java) sketches related to visualizing steps involved in signal processing, with the goal of building up the ingredients for edge detection of narrow shadows cast upon the sensor window, with subpixel resolution, on pixel data originating from a linear photodiode array sensor.
 
 "Convolution_Demos.pde" demonstrates 1d convolution of existing data with a shorter impulse, or "kernel"
 Kinda basic, but I will be improving it.
