@@ -26,3 +26,15 @@ Then the subpixel x axis difference between the two results is the center of a s
 
 Left out a few things, like thresholding. Also, the sigma or 'narrowness' of the gaussian kernel used in convolution step, sets how agressive the smoothing is. Narrow tall ones make less blurred results, wide ones make more blurred results, with higher frequencies suppressed more. Too narrow, and the data is noisy and accuracy is lost that way. Too wide, and the sharpness of the peaks is smeared out too much, and accuracy is lost that way. This is otherwise known as the scaling problem in edge detection.
 
+This commercial software explains edge detection:
+http://docs.adaptive-vision.com/curr...Detection.html
+
+and sub-pixel resolution method, by fitting a parabola
+http://docs.adaptive-vision.com/curr..._Subpixel.html
+
+This book chapter explains a bunch of 2d (camera) edge finding techniques.
+I am working on 1d versions (a line of pixel values, rather than an area).
+
+Machine Vision Edge Detection
+http://www.cse.usf.edu/~r1k/MachineV...n_Chapter5.pdf
+
