@@ -24,24 +24,30 @@
   
   It is this angle I am investigating for use in my convolution.pde Processing sketch.
   */
-  
-int HEIGHT = 800;
-int WIDTH = 800;
-int numHeights = 800;
-int HALF_HEIGHT = HEIGHT/2;
-float[] heights = new float[numHeights];
-float[] d1heights = new float[numHeights];
-float[] d2heights = new float[numHeights];
-float[] d3heights = new float[numHeights];
-float[] d4heights = new float[numHeights];
-float[] d5heights = new float[numHeights];
+color COLOR_ORIGINAL_DATA = color(255);
+color COLOR_D1 = color(255, 0, 0);
+color COLOR_D2 = color(0, 255, 0);
+color COLOR_D3 = color(0, 0, 255);
+color COLOR_D4 = color(0, 255, 255);
+color COLOR_D5 = color(200, 200, 200);
+
+int SCREEN_HEIGHT = 800;
+int SCREEN_WIDTH = 800;
+int numSCREEN_HEIGHTs = 800;
+int HALF_SCREEN_HEIGHT = SCREEN_HEIGHT/2;
+float[] SCREEN_HEIGHTs = new float[numSCREEN_HEIGHTs];
+float[] d1SCREEN_HEIGHTs = new float[numSCREEN_HEIGHTs];
+float[] d2SCREEN_HEIGHTs = new float[numSCREEN_HEIGHTs];
+float[] d3SCREEN_HEIGHTs = new float[numSCREEN_HEIGHTs];
+float[] d4SCREEN_HEIGHTs = new float[numSCREEN_HEIGHTs];
+float[] d5SCREEN_HEIGHTs = new float[numSCREEN_HEIGHTs];
 int oloopMax = 500;
-int ii = 0;
+int ii = 500;
 boolean flip = true;
 
 Gaussian Gaussian1;
 void setup() {
-  surface.setSize(WIDTH, HEIGHT);
+  surface.setSize(SCREEN_WIDTH, SCREEN_HEIGHT);
   Gaussian1 = new Gaussian();
   strokeWeight(1);
   noFill();
@@ -51,57 +57,59 @@ void setup() {
 
 void draw() {
   background(0); // uncomment this to see the whole series; comment to see current set only
-  Gaussian1.calc(ii, numHeights);
+  Gaussian1.calc(ii, numSCREEN_HEIGHTs);
   //for (int i = 250; i < 500; i++) {  // try other original data shapes
-  //  heights[i] = i-250;
-  //  heights[i+250] = 500+(-i);
+  //  SCREEN_HEIGHTs[i] = i-250;
+  //  SCREEN_HEIGHTs[i+250] = 500+(-i);
   //}
   
-
+   drawGrid(SCREEN_WIDTH, SCREEN_HEIGHT, 8);
+   drawLegend();
   // a little for loop that draws a line between each point on the graph
   
-  for (int i = 1; i < (numHeights)-1; i++) {
+  for (int i = 1; i < (numSCREEN_HEIGHTs)-1; i++) {
     float x = i; 
-    float y = map(heights[i], 0, 1, HALF_HEIGHT-2, 2); // original data, a gaussian bell curve
-    d1heights[i] = heights[i+1]-heights[i];     // 1st derivative, the difference between adjacent x points of original
-    d2heights[i] = d1heights[i+1]-d1heights[i]; // 2nd derivative, the difference between adjacent x points of d1
-    d3heights[i] = d2heights[i+1]-d2heights[i]; // 3nd derivative, the difference between adjacent x points of d2
-    d4heights[i] = d3heights[i+1]-d3heights[i]; // 4th derivative, the difference between adjacent x points of d3
-    d5heights[i] = d4heights[i+1]-d4heights[i]; // 5th derivative, the difference between adjacent x points of d4
-    stroke(255);
+    float y = map(SCREEN_HEIGHTs[i], 0, 1, HALF_SCREEN_HEIGHT-2, 2); // original data, a gaussian bell curve
+    d1SCREEN_HEIGHTs[i] = SCREEN_HEIGHTs[i+1]-SCREEN_HEIGHTs[i];     // 1st derivative, the difference between adjacent x points of original
+    d2SCREEN_HEIGHTs[i] = d1SCREEN_HEIGHTs[i+1]-d1SCREEN_HEIGHTs[i]; // 2nd derivative, the difference between adjacent x points of d1
+    d3SCREEN_HEIGHTs[i] = d2SCREEN_HEIGHTs[i+1]-d2SCREEN_HEIGHTs[i]; // 3nd derivative, the difference between adjacent x points of d2
+    d4SCREEN_HEIGHTs[i] = d3SCREEN_HEIGHTs[i+1]-d3SCREEN_HEIGHTs[i]; // 4th derivative, the difference between adjacent x points of d3
+    d5SCREEN_HEIGHTs[i] = d4SCREEN_HEIGHTs[i+1]-d4SCREEN_HEIGHTs[i]; // 5th derivative, the difference between adjacent x points of d4
+    
+    stroke(COLOR_ORIGINAL_DATA);
     point(x, y);
     
-    stroke(255, 0, 255);
-    point(x, map(d1heights[i], 0, 1, HALF_HEIGHT - 2, 2));
+    stroke(COLOR_D1);
+    point(x, map(d1SCREEN_HEIGHTs[i], 0, 1, HALF_SCREEN_HEIGHT - 2, 2));
     
-    stroke(255, 255, 0);
-    point(x, map(d2heights[i], 0, 1, HALF_HEIGHT - 2, 2));
+    stroke(COLOR_D2);
+    point(x, map(d2SCREEN_HEIGHTs[i], 0, 1, HALF_SCREEN_HEIGHT - 2, 2));
     
-    stroke(0, 255, 0);
-    point(x, map(d3heights[i], 0, 1, HALF_HEIGHT - 2, 2));
+    stroke(COLOR_D3);
+    point(x, map(d3SCREEN_HEIGHTs[i], 0, 1, HALF_SCREEN_HEIGHT - 2, 2));
     
-    stroke(0, 0, 255);
-    point(x, map(d4heights[i], 0, 1, HALF_HEIGHT - 2, 2));
+    stroke(COLOR_D4);
+    point(x, map(d4SCREEN_HEIGHTs[i], 0, 1, HALF_SCREEN_HEIGHT - 2, 2));
     
-    stroke(255, 0, 255);
-    point(x, map(d5heights[i], 0, 1, HALF_HEIGHT - 2, 2));
+    stroke(COLOR_D5);
+    point(x, map(d5SCREEN_HEIGHTs[i], 0, 1, HALF_SCREEN_HEIGHT - 2, 2));
   }
   
-  if (flip){
-    if (ii > oloopMax) {
-      flip = false;
-      delay(3000);
-      background(0);
-    }
-    ii++;
-  } else 
-  {
+  if (!flip){
     if (ii < 0) {
       flip = true;
-      delay(1000);
+      delay(2000);
       background(0);
     }
     ii--;
+  } else 
+  {
+    if (ii > oloopMax) {
+      flip = false;
+      delay(2000);
+      background(0);
+    }
+    ii++;
   }
 }
 
@@ -120,7 +128,76 @@ class Gaussian {
       float sq2pi = sqrt(2*PI);                   //square root of 2 * PI
       float xmsq = -1*(xcoord-m)*(xcoord-m);      //-(x - mu)^2
       float sdsq = sd*sd;                         //variance (standard deviation squared)
-      heights[i] = (1 / (sd * sq2pi)) * (pow(e, (xmsq/sdsq)));  //P(x) function
+      SCREEN_HEIGHTs[i] = (1 / (sd * sq2pi)) * (pow(e, (xmsq/sdsq)));  //P(x) function
     }
   } 
+}
+
+void drawLegend() {
+  int rectX, rectY, rectSCREEN_WIDTH, rectSCREEN_HEIGHT;
+  
+  rectX = 20;
+  rectY = 20;
+  rectSCREEN_WIDTH = 10;
+  rectSCREEN_HEIGHT = 10;
+ 
+  // draw a legend showing what each color represents
+  strokeWeight(1);
+  
+  stroke(COLOR_ORIGINAL_DATA);
+  fill(COLOR_ORIGINAL_DATA);
+  rect(rectX, rectY, rectSCREEN_WIDTH, rectSCREEN_HEIGHT);
+  fill(255);
+  text("Original Data", rectX+20, rectY+10);
+  
+  rectY+=20;
+  stroke(COLOR_D1);
+  fill(COLOR_D1);
+  rect(rectX, rectY, rectSCREEN_WIDTH, rectSCREEN_HEIGHT);
+  fill(255);
+  text("1st derivative", rectX+20, rectY+10);
+  
+  rectY+=20;
+  stroke(COLOR_D2);
+  fill(COLOR_D2);
+  rect(rectX, rectY, rectSCREEN_WIDTH, rectSCREEN_HEIGHT);
+  fill(255);
+  text("2nd derivative", rectX+20, rectY+10);
+  
+  rectY+=20;
+  stroke(COLOR_D3);
+  fill(COLOR_D3);
+  rect(rectX, rectY, rectSCREEN_WIDTH, rectSCREEN_HEIGHT);
+  fill(255);
+  text("3rd derivative", rectX+20, rectY+10);
+  
+  rectY+=20;
+  stroke(COLOR_D4);
+  fill(COLOR_D4);
+  rect(rectX, rectY, rectSCREEN_WIDTH, rectSCREEN_HEIGHT);
+  fill(255);
+  text("4th derivative", rectX+20, rectY+10);
+  
+  rectY+=20;
+  stroke(COLOR_D5);
+  fill(COLOR_D5);
+  rect(rectX, rectY, rectSCREEN_WIDTH, rectSCREEN_HEIGHT);
+  fill(255);
+  text("5th derivative", rectX+20, rectY+10);
+}
+
+void drawGrid(int gSCREEN_WIDTH, int gSCREEN_HEIGHT, int divisor)
+{
+  int SCREEN_WIDTHSpace = gSCREEN_WIDTH/divisor; // Number of Vertical Lines
+  int SCREEN_HEIGHTSpace = gSCREEN_HEIGHT/divisor; // Number of Horozontal Lines
+  strokeWeight(1);
+  stroke(25,25,25); // White Color
+  // Draw vertical
+  for(int i=0; i<gSCREEN_WIDTH; i+=SCREEN_WIDTHSpace){
+    line(i,0,i,gSCREEN_HEIGHT);
+   }
+   // Draw Horizontal
+   for(int w=0; w<gSCREEN_HEIGHT; w+=SCREEN_HEIGHTSpace){
+     line(0,w,gSCREEN_WIDTH,w);
+   }
 }
