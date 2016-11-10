@@ -134,70 +134,70 @@ class Gaussian {
 }
 
 void drawLegend() {
-  int rectX, rectY, rectSCREEN_WIDTH, rectSCREEN_HEIGHT;
+  int rectX, rectY, rectWidth, rectHeight;
   
   rectX = 20;
   rectY = 20;
-  rectSCREEN_WIDTH = 10;
-  rectSCREEN_HEIGHT = 10;
+  rectWidth = 10;
+  rectHeight = 10;
  
   // draw a legend showing what each color represents
   strokeWeight(1);
   
   stroke(COLOR_ORIGINAL_DATA);
   fill(COLOR_ORIGINAL_DATA);
-  rect(rectX, rectY, rectSCREEN_WIDTH, rectSCREEN_HEIGHT);
+  rect(rectX, rectY, rectWidth, rectHeight);
   fill(255);
   text("Original Data", rectX+20, rectY+10);
   
   rectY+=20;
   stroke(COLOR_D1);
   fill(COLOR_D1);
-  rect(rectX, rectY, rectSCREEN_WIDTH, rectSCREEN_HEIGHT);
+  rect(rectX, rectY, rectWidth, rectHeight);
   fill(255);
   text("1st derivative", rectX+20, rectY+10);
   
   rectY+=20;
   stroke(COLOR_D2);
   fill(COLOR_D2);
-  rect(rectX, rectY, rectSCREEN_WIDTH, rectSCREEN_HEIGHT);
+  rect(rectX, rectY, rectWidth, rectHeight);
   fill(255);
   text("2nd derivative", rectX+20, rectY+10);
   
   rectY+=20;
   stroke(COLOR_D3);
   fill(COLOR_D3);
-  rect(rectX, rectY, rectSCREEN_WIDTH, rectSCREEN_HEIGHT);
+  rect(rectX, rectY, rectWidth, rectHeight);
   fill(255);
   text("3rd derivative", rectX+20, rectY+10);
   
   rectY+=20;
   stroke(COLOR_D4);
   fill(COLOR_D4);
-  rect(rectX, rectY, rectSCREEN_WIDTH, rectSCREEN_HEIGHT);
+  rect(rectX, rectY, rectWidth, rectHeight);
   fill(255);
   text("4th derivative", rectX+20, rectY+10);
   
   rectY+=20;
   stroke(COLOR_D5);
   fill(COLOR_D5);
-  rect(rectX, rectY, rectSCREEN_WIDTH, rectSCREEN_HEIGHT);
+  rect(rectX, rectY, rectWidth, rectHeight);
   fill(255);
   text("5th derivative", rectX+20, rectY+10);
 }
 
-void drawGrid(int gSCREEN_WIDTH, int gSCREEN_HEIGHT, int divisor)
+void drawGrid(int gWidth, int gHeight, int divisor)
 {
-  int SCREEN_WIDTHSpace = gSCREEN_WIDTH/divisor; // Number of Vertical Lines
-  int SCREEN_HEIGHTSpace = gSCREEN_HEIGHT/divisor; // Number of Horozontal Lines
+  int SCREEN_WIDTHSpace = gWidth/divisor; // Number of Vertical Lines
+  int SCREEN_HEIGHTSpace = gWidth/divisor; // Number of Horozontal Lines
   strokeWeight(1);
   stroke(25,25,25); // White Color
   // Draw vertical
-  for(int i=0; i<gSCREEN_WIDTH; i+=SCREEN_WIDTHSpace){
-    line(i,0,i,gSCREEN_HEIGHT);
+  for(int i=0; i<gWidth; i+=SCREEN_WIDTHSpace){
+    line(i,0,i,gHeight);
    }
    // Draw Horizontal
-   for(int w=0; w<gSCREEN_HEIGHT; w+=SCREEN_HEIGHTSpace){
-     line(0,w,gSCREEN_WIDTH,w);
+   for(int w=0; w<gHeight; w+=SCREEN_HEIGHTSpace){
+     line(0,w,gWidth,w);
    }
 }
