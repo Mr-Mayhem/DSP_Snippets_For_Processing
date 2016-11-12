@@ -11,6 +11,11 @@ Also, see https://en.wikipedia.org/wiki/Convolution
 
 "Interpolation_Demos.pde" shows how to interpolate, or add new points in between existing points, using various methods.
 
+"Interpolation_Demos_2.pde" is improved over the original, in the sense that inputs to the interpolation function are indexed
+backwards in time from the most recent data point, useful when running interpolation on live sensor data, because then
+you don't have the luxury of examining any data more recent than what just arrived.
+This version is also a bit better thought out.
+
 =========================================================================================
 Description of Edge Detection in under a minute:
 =========================================================================================
