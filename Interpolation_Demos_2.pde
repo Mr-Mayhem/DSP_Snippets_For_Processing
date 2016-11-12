@@ -30,7 +30,7 @@ An older version, Interpolation_Demos.pde is also available.
 This V2 is improved in the sense that inputs to the interpolation function are indexed
 backwards in time, useful when running this on live sensor data, because then
 you don't have the luxury of examining any data more recent than what just arrived.
-That version is also a bit better thought out.
+This version is also a bit better thought out.
  
 */
 
