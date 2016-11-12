@@ -40,9 +40,9 @@ int SCREEN_X_MULTIPLIER = 128;    // ratio of interpolated points to original po
 int SCREEN_WIDTH = SENSOR_PIXELS*SCREEN_X_MULTIPLIER; // screen width = total pixels * SCREEN_X_MULTIPLIER
 
 color COLOR_ORIGINAL_DATA = color(0, 255, 255);
-color COLOR_LINEAR_INTERP = color(255, 255, 0);
+color COLOR_LINEAR_INTERP = color(0, 255, 255);
 color COLOR_COSINE_INTERP = color(0, 255, 0);
-color COLOR_BCOSINE_INTERP = color(0, 255, 255);
+color COLOR_BCOSINE_INTERP = color(255, 255, 0);
 
 // number of inserted data points for each original data point (but we insert one less when we use it)
 int NUM_INTERP_POINTS = 9; // Num of points that will be added per original data point.
@@ -237,6 +237,7 @@ void draw() {
         muValue = muIncrement * innerPtr; // increment mu
         int interpPtr = Raw_Data_Ptr_A + innerPtr;
         //println("innerPtr: " + innerPtr + " interpPtr: " + interpPtr + " muValue: " + muValue);
+        
         inArray[interpPtr] = int(Breeuwsma_Catmull_Rom_Interpolate(inArray[Raw_Data_Ptr_A], inArray[Raw_Data_Ptr_B], inArray[Raw_Data_Ptr_C], inArray[Raw_Data_Ptr_D], muValue));
         //println("inArray[" + interpPtr + "] = " + inArray[interpPtr]);
         //outArray2[combinedIndex] = CubicInterpolate(inArray[ outerPtr-1], inArray[outerPtr], inArray[ outerPtr+1], inArray[outerPtr+2], muValue);
@@ -248,7 +249,7 @@ void draw() {
         //strokeWeight(2);
         
         // plot an interpolated point using the scaled x offset
-        stroke(COLOR_LINEAR_INTERP);
+        stroke(COLOR_BCOSINE_INTERP);
         point(((outerPtr-2)*SCREEN_X_MULTIPLIER)+scaledOffset, height-inArray[interpPtr]);
         // text(((outerPtr*SCREEN_X_MULTIPLIER)+scaledOffset) + ", " + inArray[interpPtr], (outerPtr*SCREEN_X_MULTIPLIER)+scaledOffset, height-inArray[interpPtr]);
         //// plot an interpolated point using the scaled x offset
