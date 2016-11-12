@@ -1,21 +1,36 @@
+ //<>//
+/*
+Interpolation_Demos.pde, a simple Processing sketch demo of a few low-order 
+interpolation functions.
+Created by Douglas Mayhew, November 5, 2016.
+Released into the public domain.
+See: https://github.com/Mr-Mayhem/Processing-Snippets
 
-// Interpolation_Demos, a simple demo of a few low order interpolation functions.
-// code translated into java, original source is 
-// http://paulbourke.net/miscellaneous/interpolation/
+Interpolation functions were translated into java by Douglas Mayhew, 
+For original interpolation functions source code and explanation, see: 
+http://paulbourke.net/miscellaneous/interpolation/
 
-// Interpolation is the addition of new data points in-between existing data points.
-// There is a trade-off between smoothness/accuracy, versus computational intensity.
-// Interpolation is often used in signal and image processing to improve data smoothness.
+Interpolation is the addition of new data points in-between existing data points.
+There is a trade-off between smoothness/accuracy, versus computational intensity.
+Interpolation is often used in signal and image processing to improve data smoothness.
 
-// To see one flavor of plot only, simply comment out the interpolation plots you don't want to see.
-// number of added points is set by INTERPOLATION_X_MULTIPLIER
-// screen width is determined by SCREEN_X_MULTIPLIER
+To see one flavor of plot only, simply comment out the interpolation plots you don't want to see.
+number of added points is set by INTERPOLATION_X_MULTIPLIER
+screen width is determined by SCREEN_X_MULTIPLIER
 
-// Linear and cosine interpolation need 2 original data points.
-// CubicInterpolate and BreeuwsmaCubicInterpolate need 4 original data points.
+Linear and cosine interpolation need 2 original data points.
+CubicInterpolate and BreeuwsmaCubicInterpolate need 4 original data points.
 
-// if input and output display out of phase, the outerPtr index can be changed by 1 or 2 in the
-// array argument, like "outArray[outerPtr -1]" and adjust the upper/lower limits for the outerPtr.
+If the interpolated points are of phase, the outerPtr index can be changed by 1 or 2 in the
+array argument, like "outArray[outerPtr -1]" 
+Also you may need to adjust the upper/lower limits for the outerPtr.
+ 
+An inproved version, Interpolation_Demos_2.pde is now available.
+It is improved in the sense that inputs to the interpolation function are indexed
+backwards in time, useful when running this on live sensor data, because then
+you don't have the luxury of examining any data more recent than what just arrived.
+That version is also a bit better thought out.
+*/
 
 int SCREEN_HEIGHT = 800;
 int SENSOR_PIXELS = 32;           // number of discrete values in the input array
@@ -28,7 +43,7 @@ color COLOR_COSINE_INTERP = color(0, 255, 0);
 color COLOR_BCOSINE_INTERP = color(255, 255, 0);
 
 // number of inserted data points for each original data point (but we insert one less when we use it)
-int INTERPOLATION_X_MULTIPLIER = 32; // Num of points that will be added - 1.
+int INTERPOLATION_X_MULTIPLIER = 16; // Num of points that will be added - 1.
 
 int INTERP_OUT_LENGTH = (SENSOR_PIXELS * INTERPOLATION_X_MULTIPLIER); //number of discrete values in the output array
 
@@ -111,8 +126,9 @@ void drawGrid(int gWidth, int gHeight, int divisor)
 // fill input array with smooth random noise, higher noiseindex changes = more variation
 public void newInputData(){
   for (int c = 0; c < SENSOR_PIXELS; c++) {
-    noiseindex = noiseindex + 0.25;
-    
+    // create one point of perlin noise
+    noiseindex = noiseindex + 0.25; // drives the perlin noise generator
+    // perlin noise generator (makes smoothed noise for simulated data)
     inArray[c] = map(noise(noiseindex), 0, 1, 0, SCREEN_HEIGHT); 
     //numbers[c] = floor(random(height));
    }
@@ -217,9 +233,9 @@ float Breeuwsma_Catmull_Rom_Interpolate(float y0,float y1, float y2,float y3, fl
       
       int combinedIndex = (outerPtr*INTERPOLATION_X_MULTIPLIER) + offset; // the original point, times the spreading, plus the offset
       
-      outArray1[combinedIndex] = LinearInterpolate(inArray[ outerPtr], inArray[outerPtr+1], muValue);
-      outArray2[combinedIndex] = CubicInterpolate(inArray[ outerPtr-1], inArray[outerPtr], inArray[ outerPtr+1], inArray[outerPtr+2], muValue);
-      outArray3[combinedIndex] = Breeuwsma_Catmull_Rom_Interpolate(inArray[ outerPtr-1], inArray[outerPtr], inArray[ outerPtr+1], inArray[outerPtr+2], muValue);
+      outArray1[combinedIndex] = LinearInterpolate(inArray[outerPtr], inArray[outerPtr+1], muValue);
+      outArray2[combinedIndex] = CubicInterpolate(inArray[outerPtr-1], inArray[outerPtr], inArray[ outerPtr+1], inArray[outerPtr+2], muValue);
+      outArray3[combinedIndex] = Breeuwsma_Catmull_Rom_Interpolate(inArray[outerPtr-1], inArray[outerPtr], inArray[ outerPtr+1], inArray[outerPtr+2], muValue);
       
       // scale the offset for the screen
       int scaledOffset = round(map(offset, 0, INTERPOLATION_X_MULTIPLIER-1, 0, SCREEN_X_MULTIPLIER-1)); 
