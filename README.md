@@ -47,7 +47,14 @@ The output from convolution shows a negative peak corresponding to bright-to-dar
 
 Then the subpixel x axis difference between the two results is the center of a shadow cast upon the sensor.
 
-Left out a few things, like thresholding. Also, the sigma or 'narrowness' of the gaussian kernel used in convolution step, sets how agressive the smoothing is. Narrow tall ones make less blurred results, wide ones make more blurred results, with higher frequencies suppressed more. Too narrow, and the data is noisy and accuracy is lost that way. Too wide, and the sharpness of the peaks is smeared out too much, and accuracy is lost that way. This is otherwise known as the scaling problem in edge detection.
+Left out a few things, like thresholding. Also, the sigma or 'wideness / 'narrowness' of the gaussian kernel used in the convolution, sets how agressive the smoothing (blurring) is. This is otherwise known as the scaling problem in edge detection, and it's about finding a best compromise between aggressive smoothing vs light smoothing. 
+
+Thresholding ignores edges which fall below a certain steepness of gradient, etc. Again, its all about tweaking it so it rejects noise, but not desired edges.
+
+Then there is the balance between smoothing and thresholding, which is subtle and depends on the particular situation.
+Also, thresholding may be used more than once, and at different scales to further refine the sensitivity of the system.
+
+That's all I got for ya now.
 
 This commercial software website explains edge detection:
 http://docs.adaptive-vision.com/curr...Detection.html
