@@ -16,6 +16,8 @@ backwards in time from the most recent data point, useful when running interpola
 you don't have the luxury of examining any data more recent than what just arrived.
 This version is also a bit better thought out.
 
+Check for updates often, because we are tweaking the code over time as we better learn the techniques and apply clean-ups, etc.
+
 =========================================================================================
 Description of Edge Detection in under a minute:
 =========================================================================================
