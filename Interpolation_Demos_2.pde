@@ -58,8 +58,6 @@ int Raw_Data_Ptr_B = 0;
 int Raw_Data_Ptr_C = 0;    // use for linear or cosine, also edit 'outerPtr-2' in inner loop to 'outerPtr'
 int Raw_Data_Ptr_D = 0;    // use for linear or cosine, also edit 'outerPtr-2' in inner loop to 'outerPtr'
 
-int interpOffset = 0;
-
 float noiseindex = 0.25;   // used for generating smooth noise for data
 
 //  a decimal fraction between 0 and 1, representing smaller increment of x position 
@@ -75,7 +73,6 @@ void setup() {
   frameRate(10);
   background(0);
   resetData();
-  interpOffset = 2; // 1 for LinearInterpolate, 1 for Cosine, 2 for Cubic, 2 for Breeuwsma_Catmull_Rom, 2 for all
 }
 
 void drawLegend() {
@@ -272,6 +269,8 @@ void draw() {
         //strokeWeight(2);
         
         // plot an interpolated point using the scaled x offset
+        // Note: use outerPtr-1 for LinearInterpolate, outerPtr-1 for Cosine, 
+        // and outerPtr-2 for Cubic, outerPtr-2 for Breeuwsma_Catmull_Rom
         stroke(COLOR_LINEAR_INTERP);
         point(((outerPtr-1)*SCREEN_X_MULTIPLIER)+scaledXOffset, height-interpYValueLinear);
         
