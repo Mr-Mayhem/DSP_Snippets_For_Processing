@@ -37,10 +37,11 @@ int SENSOR_PIXELS = 32;           // number of discrete values in the input arra
 int SCREEN_X_MULTIPLIER = 32;     // ratio of interpolated points to original points. influences screen width
 int SCREEN_WIDTH = SENSOR_PIXELS*SCREEN_X_MULTIPLIER; // screen width = total pixels * SCREEN_X_MULTIPLIER
 
-color COLOR_ORIGINAL_DATA = color(0, 255, 255);
-color COLOR_LINEAR_INTERP = color(255, 0, 0);
-color COLOR_COSINE_INTERP = color(0, 255, 0);
-color COLOR_BCOSINE_INTERP = color(255, 255, 0);
+color COLOR_ORIGINAL_DATA = color(255);         // White
+color COLOR_LINEAR_INTERP = color(255, 0, 0);   // Red
+color COLOR_COSINE_INTERP = color(0, 255, 0);   // Green
+color COLOR_CUBIC_INTERP = color(0, 0, 255);    // Blue
+color COLOR_CATMULL_ROM_INTERP = color(255, 255, 0); // Yellow
 
 // number of inserted data points for each original data point (but we insert one less when we use it)
 int INTERPOLATION_X_MULTIPLIER = 16; // Num of points that will be added - 1.
@@ -57,8 +58,9 @@ float muValue = 0;         // 0 to 1 valid. 0 at start location, 1 at stop locat
 
 float[] inArray = new float[SENSOR_PIXELS];       // array for input signal
 float[] outArray1 = new float[INTERP_OUT_LENGTH]; // array for linearly interpolated output signal
-float[] outArray2 = new float[INTERP_OUT_LENGTH]; // array for cubically interpolated output signal
-float[] outArray3 = new float[INTERP_OUT_LENGTH]; // array for Breeuwsma cubically interpolated output signal
+float[] outArray2 = new float[INTERP_OUT_LENGTH]; // array for cosine interpolated output signal
+float[] outArray3 = new float[INTERP_OUT_LENGTH]; // array for cubic interpolated output signal
+float[] outArray4 = new float[INTERP_OUT_LENGTH]; // array for Breeuwsma cubic interpolated output signal
 
 void setup() {
   surface.setSize(SCREEN_WIDTH, SCREEN_HEIGHT);
@@ -100,8 +102,15 @@ void drawLegend() {
   text("Cosine Interpolation", rectX+20, rectY+10);
   
   rectY+=20;
-  stroke(COLOR_BCOSINE_INTERP);
-  fill(COLOR_BCOSINE_INTERP);
+  stroke(COLOR_CUBIC_INTERP);
+  fill(COLOR_CUBIC_INTERP);
+  rect(rectX, rectY, rectWidth, rectHeight);
+  fill(255);
+  text("Cubic Interpolation", rectX+20, rectY+10);
+  
+  rectY+=20;
+  stroke(COLOR_CATMULL_ROM_INTERP);
+  fill(COLOR_CATMULL_ROM_INTERP);
   rect(rectX, rectY, rectWidth, rectHeight);
   fill(255);
   text("Breeuwsma's Catmull-Rom Interpolation", rectX+20, rectY+10);
@@ -139,6 +148,7 @@ public void zeroOutputData(){
     outArray1[c] = 0;
     outArray2[c] = 0;
     outArray3[c] = 0;
+    outArray4[c] = 0;
    }
 }
 
@@ -234,8 +244,9 @@ float Breeuwsma_Catmull_Rom_Interpolate(float y0,float y1, float y2,float y3, fl
       int combinedIndex = (outerPtr*INTERPOLATION_X_MULTIPLIER) + offset; // the original point, times the spreading, plus the offset
       
       outArray1[combinedIndex] = LinearInterpolate(inArray[outerPtr], inArray[outerPtr+1], muValue);
-      outArray2[combinedIndex] = CubicInterpolate(inArray[outerPtr-1], inArray[outerPtr], inArray[ outerPtr+1], inArray[outerPtr+2], muValue);
-      outArray3[combinedIndex] = Breeuwsma_Catmull_Rom_Interpolate(inArray[outerPtr-1], inArray[outerPtr], inArray[ outerPtr+1], inArray[outerPtr+2], muValue);
+      outArray2[combinedIndex] = CosineInterpolate(inArray[outerPtr], inArray[outerPtr+1], muValue);
+      outArray3[combinedIndex] = CubicInterpolate(inArray[outerPtr-1], inArray[outerPtr], inArray[ outerPtr+1], inArray[outerPtr+2], muValue);
+      outArray4[combinedIndex] = Breeuwsma_Catmull_Rom_Interpolate(inArray[outerPtr-1], inArray[outerPtr], inArray[ outerPtr+1], inArray[outerPtr+2], muValue);
       
       // scale the offset for the screen
       int scaledOffset = round(map(offset, 0, INTERPOLATION_X_MULTIPLIER-1, 0, SCREEN_X_MULTIPLIER-1)); 
@@ -251,7 +262,11 @@ float Breeuwsma_Catmull_Rom_Interpolate(float y0,float y1, float y2,float y3, fl
       point((outerPtr*SCREEN_X_MULTIPLIER)+scaledOffset, SCREEN_HEIGHT-outArray2[combinedIndex]);
       
       // plot an interpolated point using the scaled x offset
-      stroke(COLOR_BCOSINE_INTERP); //BreeuwsmaCubic is blue
+      stroke(COLOR_COSINE_INTERP); //BreeuwsmaCubic is blue
+      point((outerPtr*SCREEN_X_MULTIPLIER)+scaledOffset, SCREEN_HEIGHT-outArray3[combinedIndex]);
+      
+      // plot an interpolated point using the scaled x offset
+      stroke(COLOR_CATMULL_ROM_INTERP); //BreeuwsmaCubic is blue
       point((outerPtr*SCREEN_X_MULTIPLIER)+scaledOffset, SCREEN_HEIGHT-outArray3[combinedIndex]);
     }
     outerPtr++;        // increment the outer loop pointers
