@@ -56,11 +56,11 @@ int outerPtr = 1;          // outer loop pointer 0
 float noiseindex = 0.25;   // used for generating smooth noise for data
 float muValue = 0;         // 0 to 1 valid. 0 at start location, 1 at stop location.
 
-float[] inArray = new float[SENSOR_PIXELS];       // array for input signal
-float[] outArray1 = new float[INTERP_OUT_LENGTH]; // array for linearly interpolated output signal
-float[] outArray2 = new float[INTERP_OUT_LENGTH]; // array for cosine interpolated output signal
-float[] outArray3 = new float[INTERP_OUT_LENGTH]; // array for cubic interpolated output signal
-float[] outArray4 = new float[INTERP_OUT_LENGTH]; // array for Breeuwsma cubic interpolated output signal
+int[] inArray = new int[SENSOR_PIXELS];       // array for input signal
+int[] outArray1 = new int[INTERP_OUT_LENGTH]; // array for linearly interpolated output signal
+int[] outArray2 = new int[INTERP_OUT_LENGTH]; // array for cosine interpolated output signal
+int[] outArray3 = new int[INTERP_OUT_LENGTH]; // array for cubic interpolated output signal
+int[] outArray4 = new int[INTERP_OUT_LENGTH]; // array for Breeuwsma cubic interpolated output signal
 
 void setup() {
   surface.setSize(SCREEN_WIDTH, SCREEN_HEIGHT);
@@ -138,7 +138,7 @@ public void newInputData(){
     // create one point of perlin noise
     noiseindex = noiseindex + 0.25; // drives the perlin noise generator
     // perlin noise generator (makes smoothed noise for simulated data)
-    inArray[c] = map(noise(noiseindex), 0, 1, 0, SCREEN_HEIGHT); 
+    inArray[c] = int(map(noise(noiseindex), 0, 1, 0, SCREEN_HEIGHT)); 
     //numbers[c] = floor(random(height));
    }
 }
@@ -243,10 +243,10 @@ float Breeuwsma_Catmull_Rom_Interpolate(float y0,float y1, float y2,float y3, fl
       
       int combinedIndex = (outerPtr*INTERPOLATION_X_MULTIPLIER) + offset; // the original point, times the spreading, plus the offset
       
-      outArray1[combinedIndex] = LinearInterpolate(inArray[outerPtr], inArray[outerPtr+1], muValue);
-      outArray2[combinedIndex] = CosineInterpolate(inArray[outerPtr], inArray[outerPtr+1], muValue);
-      outArray3[combinedIndex] = CubicInterpolate(inArray[outerPtr-1], inArray[outerPtr], inArray[ outerPtr+1], inArray[outerPtr+2], muValue);
-      outArray4[combinedIndex] = Breeuwsma_Catmull_Rom_Interpolate(inArray[outerPtr-1], inArray[outerPtr], inArray[ outerPtr+1], inArray[outerPtr+2], muValue);
+      outArray1[combinedIndex] = int(LinearInterpolate(inArray[outerPtr], inArray[outerPtr+1], muValue));
+      outArray2[combinedIndex] = int(CosineInterpolate(inArray[outerPtr], inArray[outerPtr+1], muValue));
+      outArray3[combinedIndex] = int(CubicInterpolate(inArray[outerPtr-1], inArray[outerPtr], inArray[ outerPtr+1], inArray[outerPtr+2], muValue));
+      outArray4[combinedIndex] = int(Breeuwsma_Catmull_Rom_Interpolate(inArray[outerPtr-1], inArray[outerPtr], inArray[ outerPtr+1], inArray[outerPtr+2], muValue));
       
       // scale the offset for the screen
       int scaledOffset = round(map(offset, 0, INTERPOLATION_X_MULTIPLIER-1, 0, SCREEN_X_MULTIPLIER-1)); 
