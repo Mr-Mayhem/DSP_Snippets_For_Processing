@@ -33,13 +33,12 @@ There is an art to accomplishing extreme efficiency in digital signal processing
 
 Now we get to work, below is my current DSP recipe for 1d edge finding, which will probably change as I learn more:  
 
-1st, using a 'maximum slope detector' loop, we should identify lower and upper indexes to a window of data which contains slopes caused by a narrow shadow cast upon the sensor from a wire, etc. This way, the steps which follow do not have to do extra work on data which contains no edges, a waste multiplied by each operation. 
+1st, using a 'maximum slope detector' loop, we should identify lower and upper indexes to a window of data which contains slopes caused by a narrow shadow cast upon the sensor from a wire, etc. This way, the steps which follow do not have to do extra work on data which contains no edges, a waste multiplied by each subsequent operation. 
 
 So the system is going to perform slope finding on the original data first, which will set an upper and lower limit to what data will be sub-processed. I think this would problematic for detecting weak edges, but the instrument we have in mind will be sensing a single, clean shadow of a wire, using an LED background light which almost saturates the sensor. So, a pretty ideal signal for isolating/windowing.
 
 2nd, a popular method to cleanly identify edges in the data is to convolve a '2nd derivative of a gaussian' with the interesting data, as a smoothing (aka blurring) / edge detection all-in-one step. 
-Convolution runs in a loop, one sample at a time. 
-The output from convolution shows a negative peak corresponding to bright-to-dark gradents in the original data, and a  positive peak for dark-to-bright gradients.
+Convolution runs in a loop, one sample at a time. The output from convolution shows a negative peak corresponding to bright-to-dark gradents in the original data, and a positive peak for dark-to-bright gradients.
 
 3rd, interpolation can be applied to the convolution output data to further smooth it. 
 
@@ -47,7 +46,7 @@ The output from convolution shows a negative peak corresponding to bright-to-dar
 
 Then the subpixel x axis difference between the two results is the center of a shadow cast upon the sensor.
 
-Left out a few things, like thresholding. Also, the sigma or 'wideness / 'narrowness' of the gaussian kernel used in the convolution, sets how agressive the smoothing (blurring) is. This is otherwise known as the scaling problem in edge detection, and it's about finding a best compromise between aggressive smoothing vs light smoothing. 
+On the topic of how much smoothing to apply, the 'wideness / 'narrowness' of the gaussian kernel used in the convolution, aka 'Sigma', sets how agressive the smoothing (blurring) is. This is otherwise known as the scaling problem in edge detection, and it's about finding a best compromise between aggressive smoothing vs light smoothing. Too little smoothing, and noise remains in the data, which reduces edge-finding accuracy. Too much smoothing, and the major edges themselves are blurred, which reduces accuracy. So, there is a sweet spot which must be set by adjustment of the kernel's sigma.
 
 Thresholding ignores edges which fall below a certain steepness of gradient, etc. Again, its all about tweaking it so it rejects noise, but not desired edges.
 
