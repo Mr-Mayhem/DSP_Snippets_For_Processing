@@ -66,7 +66,7 @@ void draw() {
   //  floatArray[i] = i-250;
   //  floatArray[i+250] = 500+(-i);
   //}
-  
+   text("Input: " + ii, 20, 20);
    drawGrid(SCREEN_WIDTH, SCREEN_HEIGHT, 8);
    drawLegend();
   // a for loop that plots the data...
@@ -127,10 +127,10 @@ class Gaussian {
   float sd = 1;          //standard deviation based on mouseX
 
   Gaussian () {  
-  }
+}
   
-  void calc(float sigma, int numOfXPoints) {
-    sd = map(sigma,0,numOfXPoints, 0.001, 1);     //standard deviation based on sigma mapped to numOfXPoints
+void calc(float sigma, int numOfXPoints) {
+    float sd = map(sigma,0,numOfXPoints, 0.001, 1);     //standard deviation based on sigma mapped to numOfXPoints
     for (int i = 0; i < numOfXPoints; i++) {
       float xcoord = map(i,0,numOfXPoints,-3,3);
       float sq2pi = sqrt(2*PI);                   //square root of 2 * PI
@@ -145,7 +145,7 @@ void drawLegend() {
   int rectX, rectY, rectWidth, rectHeight;
   
   rectX = 20;
-  rectY = 20;
+  rectY = 40;
   rectWidth = 10;
   rectHeight = 10;
  
