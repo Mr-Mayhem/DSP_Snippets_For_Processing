@@ -24,7 +24,12 @@ Description of Edge Detection in under a minute:
 
 The analog pixel values can be sampled a few times and averaged, to reduce noise. Or not, if speed more the concern vs accuracy. A balance can be found by experiment; perhaps 1 sample is noise-free enough.
 
-The data is stored in an array.
+The raw sample data can be stored in an array, or processed as it becomes available, depending on if it has to be
+sent somewhere first, or other priorities. 
+
+The less loops we use for processing, the faster. In other words, the more DSP steps we can perform in one loop, the faster the results get generated, due to relatively less overhead. 
+
+There is an art to accomplishing extreme efficiency in digital signal processing; the programmer is always tweaking the code as new stunts are learned. I am kinda re-inventing the wheel here for the sake of learning, pitfalls and all. This way, when you learn something, you really know it, as opposed to nebulous theories, or unverified textbook claims on how something works. It's a simple learning method: Paradox, bang head on desk in frusturation, resolve paradox into solution, celebrate, repeat.
 
 Now we get to work, below is my current DSP recipe for 1d edge finding, which will probably change as I learn more:  
 
