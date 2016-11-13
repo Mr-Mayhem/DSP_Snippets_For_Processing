@@ -33,7 +33,8 @@ There is an art to accomplishing extreme efficiency in digital signal processing
 
 Now we get to work, below is my current DSP recipe for 1d edge finding, which will probably change as I learn more:  
 
-1st, using a 'maximum slope detector' loop, we should identify lower and upper indexes to a window of data which contains slopes caused by a narrow shadow cast upon the sensor from a wire, etc, so the steps which follow do not have to do extra work on data which contains no edges, a waste multiplied by each operation. 
+1st, using a 'maximum slope detector' loop, we should identify lower and upper indexes to a window of data which contains slopes caused by a narrow shadow cast upon the sensor from a wire, etc. This way, the steps which follow do not have to do extra work on data which contains no edges, a waste multiplied by each operation. 
+
 So the system is going to perform slope finding on the original data first, which will set an upper and lower limit to what data will be sub-processed. I think this would problematic for detecting weak edges, but the instrument we have in mind will be sensing a single, clean shadow of a wire, using an LED background light which almost saturates the sensor. So, a pretty ideal signal for isolating/windowing.
 
 2nd, a popular method to cleanly identify edges in the data is to convolve a '2nd derivative of a gaussian' with the interesting data, as a smoothing (aka blurring) / edge detection all-in-one step. 
