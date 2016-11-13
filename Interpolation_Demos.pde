@@ -262,7 +262,7 @@ float Breeuwsma_Catmull_Rom_Interpolate(float y0,float y1, float y2,float y3, fl
       point((outerPtr*SCREEN_X_MULTIPLIER)+scaledOffset, SCREEN_HEIGHT-outArray2[combinedIndex]);
       
       // plot an interpolated point using the scaled x offset
-      stroke(COLOR_COSINE_INTERP); //BreeuwsmaCubic is blue
+      stroke(COLOR_CUBIC_INTERP); //BreeuwsmaCubic is blue
       point((outerPtr*SCREEN_X_MULTIPLIER)+scaledOffset, SCREEN_HEIGHT-outArray3[combinedIndex]);
       
       // plot an interpolated point using the scaled x offset
