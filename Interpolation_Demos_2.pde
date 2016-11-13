@@ -39,11 +39,11 @@ int SENSOR_PIXELS =  32;           // number of discrete values in the input arr
 int SCREEN_X_MULTIPLIER = 32;    // ratio of interpolated points to original points. influences screen width
 int SCREEN_WIDTH = SENSOR_PIXELS*SCREEN_X_MULTIPLIER; // screen width = total pixels * SCREEN_X_MULTIPLIER
 
-color COLOR_ORIGINAL_DATA = color(255);         // White
-color COLOR_LINEAR_INTERP = color(255, 0, 0);   // Red
-color COLOR_COSINE_INTERP = color(0, 255, 0);   // Green
-color COLOR_CUBIC_INTERP = color(0, 0, 255);    // Blue
-color COLOR_CATMULL_ROM_INTERP = color(255, 255, 0); // Yellow
+color COLOR_ORIGINAL_DATA = color(255);               // White
+color COLOR_LINEAR_INTERP = color(255, 0, 0);         // Red
+color COLOR_COSINE_INTERP = color(0, 255, 0);         // Green
+color COLOR_CUBIC_INTERP = color(255, 140, 0);        // Orange
+color COLOR_CATMULL_ROM_INTERP = color(255, 255, 0);  // Yellow
 
 // number of inserted data points for each original data point (but we insert one less when we use it)
 int NUM_INTERP_POINTS = 9; // Num of points that will be added per original data point.
