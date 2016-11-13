@@ -19,7 +19,7 @@ This version is also a bit better thought out.
 Check for updates once in a while, because we are tweaking the code over time as we better learn the techniques and refactor the code, etc.
 
 =========================================================================================
-Description of Edge Detection in under a minute:
+Description of Edge Detection in under 3 minutes: (was 1 minute, but we added quite a bit)
 =========================================================================================
 
 The analog pixel values can be sampled a few times and averaged, to reduce noise. Or not, if speed more the concern vs accuracy. A balance can be found by experiment; perhaps 1 sample is noise-free enough.
