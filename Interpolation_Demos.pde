@@ -4,7 +4,7 @@ Interpolation_Demos.pde, a simple Processing sketch demo of a few low-order
 interpolation functions.
 Created by Douglas Mayhew, November 5, 2016.
 Released into the public domain.
-See: https://github.com/Mr-Mayhem/Processing-Snippets
+See: https://github.com/Mr-Mayhem/DSP_Snippets_For_Processing
 
 Interpolation functions were translated into java by Douglas Mayhew, 
 For original interpolation functions source code and explanation, see: 

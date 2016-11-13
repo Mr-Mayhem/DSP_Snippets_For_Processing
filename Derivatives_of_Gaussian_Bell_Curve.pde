@@ -5,11 +5,12 @@
   
   Created by Douglas Mayhew, November 9, 2016.
   Released into the public domain.
-
- Core bell curve code originally from
- Daniel Shiffman
- The Nature of Code
- http://www.shiffman.net/
+  See: https://github.com/Mr-Mayhem/DSP_Snippets_For_Processing
+  
+  Core bell curve code originally from
+  Daniel Shiffman
+  The Nature of Code
+  http://www.shiffman.net/
 
   Notes: Comment "background(0);" in the loop to see the whole series combined together, 
   creating a hyperbola.
@@ -23,7 +24,9 @@
   convolution, in one loop, instead of two seperate loops as with other methods.
   
   It is this angle I am investigating for use in my convolution.pde Processing sketch.
-  */
+  
+*/
+
 color COLOR_ORIGINAL_DATA = color(255);
 color COLOR_D1 = color(255, 0, 0);
 color COLOR_D2 = color(0, 255, 0);
