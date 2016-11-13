@@ -28,7 +28,7 @@ The data is stored in an array.
 
 Now we get to work, below is my current DSP recipe for 1d edge finding, which will probably change as I learn more:  
 
-1st, using a 'maximum slope detector' loop, we should identify a window of data which contains both strong edges of a shadow falling upon the sensor, so the steps which follow do not have to do extra work on data which contains no edges, which is a waste multiplied by each operation. So I am going to try slope finding on the original data first, which will set an upper and lower limit to what data will be sub-processed.
+1st, using a 'maximum slope detector' loop, we should identify a window of data which contains both strong edges of a shadow falling upon the sensor, so the steps which follow do not have to do extra work on data which contains no edges, which is a waste multiplied by each operation. So I am going to try slope finding on the original data first, which will set an upper and lower limit to what data will be sub-processed. I think this would problematic for detecting weak edges, but the instrument we have in mind will be sensing a single, clean shadow of a wire, using an LED background light which almost saturates the sensor. So, a pretty ideal signal. The data is stored in an array, which the following DSP steps make use of.
 
 2nd, a popular method to cleanly identify edges in the data is to convolve a '2nd derivative of a gaussian' with the interesting data, as a smoothing (aka blurring) / edge detection all-in-one step. 
 Convolution runs in a loop, one sample at a time. 
