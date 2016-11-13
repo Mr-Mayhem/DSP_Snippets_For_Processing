@@ -22,14 +22,21 @@ Check for updates once in a while, because we are tweaking the code over time as
 Description of Edge Detection in under a minute:
 =========================================================================================
 
-The analog pixel values can be sampled a few times and averaged, to reduce noise. 
-Or not, if speed more the concern vs accuracy. Maybe a balance can be found by experiment, or maybe 1 sample is clean enough.
+The analog pixel values can be sampled a few times and averaged, to reduce noise. Or not, if speed more the concern vs accuracy. A balance can be found by experiment; perhaps 1 sample is noise-free enough.
 
-Interpolation can be applied to the data prior to edge detection, for higher resolution, but may not be necessary or is too high a speed or noise cost. Also, different flavors of interpolation can interfere with seeing clean 2nd derivatives, essential for the next step.
+The data is stored in an array.
 
-Next, to find an edge in the pixels, a popular method is to use the 2nd derivative of a gaussian as a smoothing and edge detection in one 'for loop' step.  
+Now we get to work, below is my current DSP recipe for 1d edge finding, which will probably change as I learn more:  
 
-Finally, the computer program would fit a parabola to the top three samples of the two main resulting peaks/troughs, to find center of the edges with subpixel resolution in the x axis, aka quadradic polynomial interpolation. And there is a version of this which takes 4 inputs, rather than 3, and is claimed to be much more accurate, but again at a speed cost. I will sort these out after I get the basic 3 point one working ok.
+1st, using a 'maximum slope detector' loop, we should identify a window of data which contains both strong edges of a shadow falling upon the sensor, so the steps which follow do not have to do extra work on data which contains no edges, which is a waste multiplied by each operation. So I am going to try slope finding on the original data first, which will set an upper and lower limit to what data will be sub-processed.
+
+2nd, a popular method to cleanly identify edges in the data is to convolve a '2nd derivative of a gaussian' with the interesting data, as a smoothing (aka blurring) / edge detection all-in-one step. 
+Convolution runs in a loop, one sample at a time. 
+The output from convolution shows a negative peak corresponding to bright-to-dark gradents in the original data, and a  positive peak for dark-to-bright gradients.
+
+3rd, interpolation can be applied to the convolution output data to further smooth it. 
+
+4th, a parabola can be fit to the top three samples of the two main resulting peaks/troughs, to find center of the edges with subpixel resolution in the x axis, aka quadradic polynomial interpolation. And there is a version of this which takes 4 inputs, rather than 3, and is claimed to be much more accurate, but again at a speed cost. I will sort these out after I get the basic 3 point one working ok.
 
 Then the subpixel x axis difference between the two results is the center of a shadow cast upon the sensor.
 
