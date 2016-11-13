@@ -1,4 +1,4 @@
-# Processing-Snippets
+# DSP_Snippets_For_Processing
 A growing pile of short Processing (Java) sketches related to visualizing steps involved in edge detection with sub-pixel resolution. I am simply chasing the main ingredients to do edge detection as I learn about them, and I will combine the whole process in a final Processing sketch, and an Arduino sketch, for use with linear array photo sensors. 
 
 "Convolution_Demos.pde" demonstrates 1d convolution of existing data with a shorter impulse, or "kernel"
