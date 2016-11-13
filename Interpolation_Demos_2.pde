@@ -35,14 +35,15 @@ This version is also a bit better thought out.
 */
 
 int SCREEN_HEIGHT = 800;
-int SENSOR_PIXELS =  8;           // number of discrete values in the input array
-int SCREEN_X_MULTIPLIER = 128;    // ratio of interpolated points to original points. influences screen width
+int SENSOR_PIXELS =  32;           // number of discrete values in the input array
+int SCREEN_X_MULTIPLIER = 32;    // ratio of interpolated points to original points. influences screen width
 int SCREEN_WIDTH = SENSOR_PIXELS*SCREEN_X_MULTIPLIER; // screen width = total pixels * SCREEN_X_MULTIPLIER
 
-color COLOR_ORIGINAL_DATA = color(0, 255, 255);
-color COLOR_LINEAR_INTERP = color(0, 255, 255);
-color COLOR_COSINE_INTERP = color(0, 255, 0);
-color COLOR_BCOSINE_INTERP = color(255, 255, 0);
+color COLOR_ORIGINAL_DATA = color(255);         // White
+color COLOR_LINEAR_INTERP = color(255, 0, 0);   // Red
+color COLOR_COSINE_INTERP = color(0, 255, 0);   // Green
+color COLOR_CUBIC_INTERP = color(0, 0, 255);    // Blue
+color COLOR_CATMULL_ROM_INTERP = color(255, 255, 0); // Yellow
 
 // number of inserted data points for each original data point (but we insert one less when we use it)
 int NUM_INTERP_POINTS = 9; // Num of points that will be added per original data point.
@@ -57,6 +58,8 @@ int Raw_Data_Ptr_B = 0;
 int Raw_Data_Ptr_C = 0;    // use for linear or cosine, also edit 'outerPtr-2' in inner loop to 'outerPtr'
 int Raw_Data_Ptr_D = 0;    // use for linear or cosine, also edit 'outerPtr-2' in inner loop to 'outerPtr'
 
+int interpOffset = 0;
+
 float noiseindex = 0.25;   // used for generating smooth noise for data
 
 //  a decimal fraction between 0 and 1, representing smaller increment of x position 
@@ -65,12 +68,14 @@ float muIncrement = 1/float(RAW_DATA_SPACING);
 float muValue = 0;         // 0 to 1 valid. 0 at start location, 1 at stop location.
 
 int[] inArray = new int[INTERP_OUT_LENGTH];       // array for input signal
+
 void setup() {
   surface.setSize(SCREEN_WIDTH, SCREEN_HEIGHT);
   strokeWeight(2);
   frameRate(10);
   background(0);
   resetData();
+  interpOffset = 2; // 1 for LinearInterpolate, 1 for Cosine, 2 for Cubic, 2 for Breeuwsma_Catmull_Rom, 2 for all
 }
 
 void drawLegend() {
@@ -105,8 +110,15 @@ void drawLegend() {
   text("Cosine Interpolation", rectX+20, rectY+10);
   
   rectY+=20;
-  stroke(COLOR_BCOSINE_INTERP);
-  fill(COLOR_BCOSINE_INTERP);
+  stroke(COLOR_CUBIC_INTERP);
+  fill(COLOR_CUBIC_INTERP);
+  rect(rectX, rectY, rectWidth, rectHeight);
+  fill(255);
+  text("Cubic Interpolation", rectX+20, rectY+10);
+  
+  rectY+=20;
+  stroke(COLOR_CATMULL_ROM_INTERP);
+  fill(COLOR_CATMULL_ROM_INTERP);
   rect(rectX, rectY, rectWidth, rectHeight);
   fill(255);
   text("Breeuwsma's Catmull-Rom Interpolation", rectX+20, rectY+10);
@@ -150,7 +162,6 @@ public void resetData(){
   //zeroOutputData(); // set to all zeros
   muValue = 0;
   outerPtr = 0;
-
   if(noiseindex > 100){
     noiseindex = 0.25; // noise generator variable reset to beginning
   }
@@ -236,29 +247,43 @@ void draw() {
       for (int innerPtr = 1; innerPtr < RAW_DATA_SPACING; innerPtr++) {
         muValue = muIncrement * innerPtr; // increment mu
         int interpPtr = Raw_Data_Ptr_A + innerPtr;
+        int interpYValueLinear = 0;
+        int interpYValueCosine = 0;
+        int interpYValueCubic = 0;
+        int interpYValueBCubic = 0;
+        
         //println("innerPtr: " + innerPtr + " interpPtr: " + interpPtr + " muValue: " + muValue);
         
-        inArray[interpPtr] = int(Breeuwsma_Catmull_Rom_Interpolate(inArray[Raw_Data_Ptr_A], inArray[Raw_Data_Ptr_B], inArray[Raw_Data_Ptr_C], inArray[Raw_Data_Ptr_D], muValue));
-        //println("inArray[" + interpPtr + "] = " + inArray[interpPtr]);
-        //outArray2[combinedIndex] = CubicInterpolate(inArray[ outerPtr-1], inArray[outerPtr], inArray[ outerPtr+1], inArray[outerPtr+2], muValue);
-        //outArray3[combinedIndex] = Breeuwsma_Catmull_Rom_Interpolate(inArray[ outerPtr-1], inArray[outerPtr], inArray[ outerPtr+1], inArray[outerPtr+2], muValue);
+        interpYValueLinear = int(LinearInterpolate(inArray[Raw_Data_Ptr_C], inArray[Raw_Data_Ptr_D], muValue));
         
+        interpYValueCosine = int(CosineInterpolate(inArray[Raw_Data_Ptr_C], inArray[Raw_Data_Ptr_D], muValue));
+        
+        interpYValueCubic = int(CubicInterpolate(inArray[Raw_Data_Ptr_A], inArray[Raw_Data_Ptr_B], inArray[Raw_Data_Ptr_C], inArray[Raw_Data_Ptr_D], muValue));
+        
+        interpYValueBCubic = int(Breeuwsma_Catmull_Rom_Interpolate(inArray[Raw_Data_Ptr_A], inArray[Raw_Data_Ptr_B], inArray[Raw_Data_Ptr_C], inArray[Raw_Data_Ptr_D], muValue));
+        
+        inArray[interpPtr] = interpYValueBCubic; // store the value in array in between
+        
+        //println("inArray[" + interpPtr + "] = " + inArray[interpPtr]);
+
         // scale the offset for the screen
-        int scaledOffset = int(map(innerPtr, 0, RAW_DATA_SPACING, 0, SCREEN_X_MULTIPLIER)); 
+        int scaledXOffset = int(map(innerPtr, 0, RAW_DATA_SPACING, 0, SCREEN_X_MULTIPLIER)); 
         
         //strokeWeight(2);
         
         // plot an interpolated point using the scaled x offset
-        stroke(COLOR_BCOSINE_INTERP);
-        point(((outerPtr-2)*SCREEN_X_MULTIPLIER)+scaledOffset, height-inArray[interpPtr]);
-        // text(((outerPtr*SCREEN_X_MULTIPLIER)+scaledOffset) + ", " + inArray[interpPtr], (outerPtr*SCREEN_X_MULTIPLIER)+scaledOffset, height-inArray[interpPtr]);
-        //// plot an interpolated point using the scaled x offset
-        //stroke(COLOR_COSINE_INTERP); // cubic is green
-        //point((outerPtr*SCREEN_X_MULTIPLIER)+scaledOffset, SCREEN_HEIGHT-outArray2[combinedIndex]);
+        stroke(COLOR_LINEAR_INTERP);
+        point(((outerPtr-1)*SCREEN_X_MULTIPLIER)+scaledXOffset, height-interpYValueLinear);
         
-        //// plot an interpolated point using the scaled x offset
-        //stroke(COLOR_BCOSINE_INTERP); //BreeuwsmaCubic is blue
-        //point((outerPtr*SCREEN_X_MULTIPLIER)+scaledOffset, SCREEN_HEIGHT-outArray3[combinedIndex]);
+        stroke(COLOR_COSINE_INTERP);
+        point(((outerPtr-1)*SCREEN_X_MULTIPLIER)+scaledXOffset, height-interpYValueCosine);
+        
+        stroke(COLOR_CUBIC_INTERP);
+        point(((outerPtr-2)*SCREEN_X_MULTIPLIER)+scaledXOffset, height-interpYValueCubic);
+        
+        stroke(COLOR_CATMULL_ROM_INTERP);
+        point(((outerPtr-2)*SCREEN_X_MULTIPLIER)+scaledXOffset, height-inArray[interpPtr]);
+        // text(((outerPtr*SCREEN_X_MULTIPLIER)+scaledOffset) + ", " + inArray[interpPtr], (outerPtr*SCREEN_X_MULTIPLIER)+scaledOffset, height-inArray[interpPtr]);
         }
     }
     outerPtr++;  // increment the outer loop pointer
