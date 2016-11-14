@@ -16,7 +16,7 @@ backwards in time from the most recent data point, useful when running interpola
 you don't have the luxury of examining any data more recent than what just arrived.
 This version is also a bit better thought out.
 
-Check for updates once in a while, because we are tweaking the code over time as we better learn the techniques and refactor the code, etc.
+Check for updates once in a while, because we are tweaking the code over time as we better learn the techniques and refactor the code, etc. We will insert the significant discoveries into the linear photodiode array sensor examples and libraries over time as we perfect them.
 
 =========================================================================================
 Description of Edge Detection in under 3 minutes: (was 1 minute, but we added quite a bit)
@@ -29,7 +29,9 @@ sent somewhere first, or other priorities.
 
 The less loops we use for processing, the faster. In other words, the more DSP steps we can perform in one loop, the faster the results get generated, due to relatively less overhead. 
 
-There is an art to accomplishing extreme efficiency in digital signal processing; the programmer is always tweaking the code as new stunts are learned. I am kinda re-inventing the wheel here for the sake of learning, pitfalls and all. This way, when you learn something, you really know it, as opposed to nebulous theories, or unverified textbook claims on how something works. It's a simple yet ideal learning method: Paradox, bang head on desk in frusturation, resolve paradox into solution, celebrate, repeat aggressively.
+There is an art to accomplishing extreme efficiency in digital signal processing; the programmer is always tweaking the code as new stunts are learned. I am kinda re-inventing the wheel here for the sake of learning, pitfalls and all. This way, when you learn something, you really know it, as opposed to nebulous theories, or unverified textbook claims on how something works. 
+
+It's a simple yet ideal learning method: Construct test beds sketches. Paradox, bang head on desk in frusturation, resolve paradox into solution, celebrate, repeat aggressively. Once the dust settles, plug the new functionality into the main software.
 
 Now we get to work, below is my current DSP recipe for 1d edge finding, which will probably change as I learn more:  
 
