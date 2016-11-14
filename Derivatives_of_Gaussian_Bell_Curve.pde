@@ -60,7 +60,7 @@ void setup() {
 }
 
 void draw() {
-  background(0); // uncomment this to see the whole series; comment to see current set only
+  background(0); // current set only, uncomment this line to see the whole series
   Gaussian1.calc(ii, NUM_OF_DATA_POINTS);
   //for (int i = 250; i < 500; i++) {  // try other original data shapes
   //  floatArray[i] = i-250;
