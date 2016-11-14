@@ -34,41 +34,46 @@ color COLOR_D3 = color(0, 0, 255);
 color COLOR_D4 = color(0, 255, 255);
 color COLOR_D5 = color(255, 0, 255);
 
-int SCREEN_HEIGHT = 1000;
-int SCREEN_WIDTH = 1000;
-int NUM_OF_DATA_POINTS = 1000;
-int HALF_SCREEN_HEIGHT = SCREEN_HEIGHT/2;
+int HALF_SCREEN_WIDTH = 0;
+int HALF_SCREEN_HEIGHT = 0;
+int NUM_OF_DATA_POINTS = 4000;
 
 float[] floatArray0 = new float[NUM_OF_DATA_POINTS];
 float[] floatArray1 = new float[NUM_OF_DATA_POINTS];
 float[] floatArray2 = new float[NUM_OF_DATA_POINTS];
 float[] floatArray3 = new float[NUM_OF_DATA_POINTS];
-float[] floatArray4 = new float[NUM_OF_DATA_POINTS];
-float[] floatArray5 = new float[NUM_OF_DATA_POINTS];
-int oloopMax = 1000;
-int ii = 1000;
+//float[] floatArray4 = new float[NUM_OF_DATA_POINTS];
+//float[] floatArray5 = new float[NUM_OF_DATA_POINTS];
+
 boolean flip = true;
 
 Gaussian Gaussian1;
+HScrollbar hs1;  // One scrollbar
+
 void setup() {
-  surface.setSize(SCREEN_WIDTH, SCREEN_HEIGHT);
+  fullScreen();
+  HALF_SCREEN_WIDTH = width/2;
+  HALF_SCREEN_HEIGHT = height/2;
   Gaussian1 = new Gaussian();
-  strokeWeight(1);
+  frameRate(100);
   noFill();
   background(0);
-  //smooth();
+  hs1 = new HScrollbar(200, height-20, width-400, 16, 16);
 }
 
 void draw() {
   background(0); // current set only, uncomment this line to see the whole series
-  Gaussian1.calc(ii, NUM_OF_DATA_POINTS);
+  float scaledii = (width/2)-hs1.getPos();
+  Gaussian1.calc(scaledii, NUM_OF_DATA_POINTS);
   //for (int i = 250; i < 500; i++) {  // try other original data shapes
   //  floatArray[i] = i-250;
   //  floatArray[i+250] = 500+(-i);
   //}
-   text("Input: " + ii, 20, 20);
-   drawGrid(SCREEN_WIDTH, SCREEN_HEIGHT, 8);
+
+   drawGrid(width, height, 8);
    drawLegend();
+   stroke(255);
+   text("Input: " + scaledii, 20, 20);
   // a for loop that plots the data...
   
   for (int i = 1; i < (NUM_OF_DATA_POINTS)-1; i++) {
@@ -78,12 +83,12 @@ void draw() {
     floatArray1[i] = floatArray0[i+1]-floatArray0[i]; // 1st derivative, the y difference between adjacent x points of original
     floatArray2[i] = floatArray1[i+1]-floatArray1[i]; // 2nd derivative, the y difference between adjacent x points of d1
     floatArray3[i] = floatArray2[i+1]-floatArray2[i]; // 3nd derivative, the y difference between adjacent x points of d2
-    floatArray4[i] = floatArray3[i+1]-floatArray3[i]; // 4th derivative, the y difference between adjacent x points of d3
-    floatArray5[i] = floatArray4[i+1]-floatArray4[i]; // 5th derivative, the y difference between adjacent x points of d4
+    //floatArray4[i] = floatArray3[i+1]-floatArray3[i]; // 4th derivative, the y difference between adjacent x points of d3
+    //floatArray5[i] = floatArray4[i+1]-floatArray4[i]; // 5th derivative, the y difference between adjacent x points of d4
     
     // scale x for the screen width
-    int scaledX = round(map(x, 0, NUM_OF_DATA_POINTS-1, 0, SCREEN_WIDTH-1)); 
-      
+    int scaledX = round(map(x, 0, NUM_OF_DATA_POINTS, 0, width-1)); 
+    strokeWeight(2);  
     stroke(COLOR_ORIGINAL_DATA);
     point(scaledX, y); // plot original data, a gaussian bell curve
     
@@ -96,29 +101,31 @@ void draw() {
     stroke(COLOR_D3);
     point(scaledX, map(floatArray3[i], 0, 1, HALF_SCREEN_HEIGHT - 1, 1)); // plot 3nd derivative
     
-    stroke(COLOR_D4);
-    point(scaledX, map(floatArray4[i], 0, 1, HALF_SCREEN_HEIGHT - 1, 1)); // plot 4th derivative
+    //stroke(COLOR_D4);
+    //point(scaledX, map(floatArray4[i], 0, 1, HALF_SCREEN_HEIGHT - 1, 1)); // plot 4th derivative
     
-    stroke(COLOR_D5);
-    point(scaledX, map(floatArray5[i], 0, 1, HALF_SCREEN_HEIGHT - 1, 1)); // plot 5th derivative
-  }
+    //stroke(COLOR_D5);
+    //point(scaledX, map(floatArray5[i], 0, 1, HALF_SCREEN_HEIGHT - 1, 1)); // plot 5th derivative
+    hs1.update();
+    hs1.display();
+    }
   
-  if (!flip){
-    if (ii < 0) {
-      flip = true;
-      delay(2000);
-      background(0);
-    }
-    ii--;
-  } else 
-  {
-    if (ii > oloopMax) {
-      flip = false;
-      delay(2000);
-      background(0);
-    }
-    ii++;
-  }
+  //if (!flip){
+  //  if (ii < 0) {
+  //    flip = true;
+  //    delay(1000);
+  //    background(0);
+  //  }
+  //  ii--;
+  //} else 
+  //{
+  //  if (ii > oloopMax) {
+  //    flip = false;
+  //    delay(1000);
+  //    background(0);
+  //  }
+  //  ii++;
+  //}
 }
 
 class Gaussian {
@@ -130,9 +137,9 @@ class Gaussian {
 }
   
 void calc(float sigma, int numOfXPoints) {
-    float sd = map(sigma,0,numOfXPoints, 0.001, 1);     //standard deviation based on sigma mapped to numOfXPoints
+    float sd = map(sigma, 0, numOfXPoints, 0.001, 0.5); //standard deviation based on sigma mapped to numOfXPoints
     for (int i = 0; i < numOfXPoints; i++) {
-      float xcoord = map(i,0,numOfXPoints,-3,3);
+      float xcoord = map(i, 0, numOfXPoints, -0.5, 0.5);
       float sq2pi = sqrt(2*PI);                   //square root of 2 * PI
       float xmsq = -1*(xcoord-m)*(xcoord-m);      //-(x - mu)^2
       float sdsq = sd*sd;                         //variance (standard deviation squared)
@@ -179,19 +186,19 @@ void drawLegend() {
   fill(255);
   text("3rd derivative", rectX+20, rectY+10);
   
-  rectY+=20;
-  stroke(COLOR_D4);
-  fill(COLOR_D4);
-  rect(rectX, rectY, rectWidth, rectHeight);
-  fill(255);
-  text("4th derivative", rectX+20, rectY+10);
+  //rectY+=20;
+  //stroke(COLOR_D4);
+  //fill(COLOR_D4);
+  //rect(rectX, rectY, rectWidth, rectHeight);
+  //fill(255);
+  //text("4th derivative", rectX+20, rectY+10);
   
-  rectY+=20;
-  stroke(COLOR_D5);
-  fill(COLOR_D5);
-  rect(rectX, rectY, rectWidth, rectHeight);
-  fill(255);
-  text("5th derivative", rectX+20, rectY+10);
+  //rectY+=20;
+  //stroke(COLOR_D5);
+  //fill(COLOR_D5);
+  //rect(rectX, rectY, rectWidth, rectHeight);
+  //fill(255);
+  //text("5th derivative", rectX+20, rectY+10);
 }
 
 void drawGrid(int gWidth, int gHeight, int divisor)
@@ -208,4 +215,80 @@ void drawGrid(int gWidth, int gHeight, int divisor)
    for(int w=0; w<gHeight; w+=heightSpace){
      line(0,w,gWidth,w);
    }
+}
+
+class HScrollbar {
+  int swidth, sheight;    // width and height of bar
+  float xpos, ypos;       // x and y position of bar
+  float spos, newspos;    // x position of slider
+  float sposMin, sposMax; // max and min values of slider
+  int loose;              // how loose/heavy
+  boolean over;           // is the mouse over the slider?
+  boolean locked;
+  float ratio;
+
+  HScrollbar (float xp, float yp, int sw, int sh, int l) {
+    swidth = sw;
+    sheight = sh;
+    int widthtoheight = sw - sh;
+    ratio = (float)sw / (float)widthtoheight;
+    xpos = xp;
+    ypos = yp-sheight/2;
+    spos = xpos + swidth/2 - sheight/2;
+    newspos = spos;
+    sposMin = xpos;
+    sposMax = xpos + swidth - sheight;
+    loose = l;
+  }
+
+  void update() {
+    if (overEvent()) {
+      over = true;
+    } else {
+      over = false;
+    }
+    if (mousePressed && over) {
+      locked = true;
+    }
+    if (!mousePressed) {
+      locked = false;
+    }
+    if (locked) {
+      newspos = constrain(mouseX-sheight/2, sposMin, sposMax);
+    }
+    if (abs(newspos - spos) > 1) {
+      spos = spos + (newspos-spos)/loose;
+    }
+  }
+
+  float constrain(float val, float minv, float maxv) {
+    return min(max(val, minv), maxv);
+  }
+
+  boolean overEvent() {
+    if (mouseX > xpos && mouseX < xpos+swidth &&
+       mouseY > ypos && mouseY < ypos+sheight) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  void display() {
+    noStroke();
+    fill(204);
+    rect(xpos, ypos, swidth, sheight);
+    if (over || locked) {
+      fill(0, 0, 0);
+    } else {
+      fill(102, 102, 102);
+    }
+    rect(spos, ypos, sheight, sheight);
+  }
+
+  float getPos() {
+    // Convert spos to be values between
+    // 0 and the total width of the scrollbar
+    return spos * ratio;
+  }
 }
