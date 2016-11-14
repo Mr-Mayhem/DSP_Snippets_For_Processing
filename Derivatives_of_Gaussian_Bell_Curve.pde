@@ -109,23 +109,6 @@ void draw() {
     hs1.update();
     hs1.display();
     }
-  
-  //if (!flip){
-  //  if (ii < 0) {
-  //    flip = true;
-  //    delay(1000);
-  //    background(0);
-  //  }
-  //  ii--;
-  //} else 
-  //{
-  //  if (ii > oloopMax) {
-  //    flip = false;
-  //    delay(1000);
-  //    background(0);
-  //  }
-  //  ii++;
-  //}
 }
 
 class Gaussian {
