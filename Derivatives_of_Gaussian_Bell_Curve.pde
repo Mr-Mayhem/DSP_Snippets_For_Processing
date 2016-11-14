@@ -36,7 +36,7 @@ color COLOR_D5 = color(255, 0, 255);
 
 int HALF_SCREEN_WIDTH = 0;
 int HALF_SCREEN_HEIGHT = 0;
-int NUM_OF_DATA_POINTS = 4000;
+int NUM_OF_DATA_POINTS = 2000;
 
 float[] floatArray0 = new float[NUM_OF_DATA_POINTS];
 float[] floatArray1 = new float[NUM_OF_DATA_POINTS];
