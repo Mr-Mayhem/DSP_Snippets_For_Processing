@@ -74,6 +74,7 @@ void draw() {
    drawLegend();
    stroke(255);
    text("Input: " + scaledii, 20, 20);
+   text("move the slider!", (width/2)-40, height - 60);
   // a for loop that plots the data...
   
   for (int i = 1; i < (NUM_OF_DATA_POINTS)-1; i++) {
