@@ -31,7 +31,7 @@ The less loops we use for processing, the faster. In other words, the more DSP s
 
 There is an art to accomplishing extreme efficiency in digital signal processing; the programmer is always tweaking the code as new stunts are learned. I am kinda re-inventing the wheel here for the sake of learning, pitfalls and all. This way, when you learn something, you really know it, as opposed to nebulous theories, or unverified textbook claims on how something works. 
 
-It's a simple yet ideal learning method: Construct test beds sketches. Paradox, bang head on desk in frusturation, resolve paradox into solution, celebrate, repeat aggressively. Once the dust settles, plug the new functionality into the main software.
+My simple yet ideal method: Construct test bed code snippets. Hit the Paradox wall, bang head on desk in frusturation, resolve paradox into solution, celebrate, repeat aggressively. Once the dust settles, plug the new functionality into the main software.
 
 Now we get to work, below is my current DSP recipe for 1d edge finding, which will probably change as I learn more:  
 
