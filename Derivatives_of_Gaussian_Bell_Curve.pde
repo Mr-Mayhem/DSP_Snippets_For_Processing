@@ -118,7 +118,8 @@ class Gaussian {
 
   Gaussian () {  
 }
-  
+
+// 'sigma' dosen't equal textbook sigma, but it does the same thing, sets deviation
 void calc(float sigma, int numOfXPoints) {
     float sd = map(sigma, 0, numOfXPoints, 0.001, 0.5); //standard deviation based on sigma mapped to numOfXPoints
     for (int i = 0; i < numOfXPoints; i++) {
