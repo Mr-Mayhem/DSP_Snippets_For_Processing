@@ -21,7 +21,7 @@
   
   Note that the second derivative of a Gaussian bell curve is often used as an 
   inpulse or "kernel" ingredent to perform image processing edge detection via 
-  convolution, in one loop, instead of two seperate loops as with other methods.
+  convolution, in one step, instead of two seperate steps as with other methods.
   
   It is this angle I am investigating for use in my convolution.pde Processing sketch.
   
@@ -63,8 +63,10 @@ void setup() {
 
 void draw() {
   background(0); // current set only, uncomment this line to see the whole series
-  float scaledii = (width/2)-hs1.getPos();
-  Gaussian1.calc(scaledii, NUM_OF_DATA_POINTS);
+  float scaledInput = (width/2)-hs1.getPos();
+  
+  // generate a bell curve and store in floatArray0[]
+  Gaussian1.calc(scaledInput, NUM_OF_DATA_POINTS); 
   //for (int i = 250; i < 500; i++) {  // try other original data shapes
   //  floatArray[i] = i-250;
   //  floatArray[i+250] = 500+(-i);
@@ -73,14 +75,15 @@ void draw() {
    drawGrid(width, height, 8);
    drawLegend();
    stroke(255);
-   text("Input: " + scaledii, 20, 20);
-   text("move the slider!", (width/2)-40, height - 60);
-  // a for loop that plots the data...
+   text("Input: " + scaledInput, 20, 20);
+   text("Move the slider!", (width/2)-40, height - 60);
   
+  // a for loop that plots the data...
   for (int i = 1; i < (NUM_OF_DATA_POINTS)-1; i++) {
     float x = i; 
     float y = map(floatArray0[i], 0, 1, HALF_SCREEN_HEIGHT-2, 2); // original data, a gaussian bell curve
     
+    // The data arrays, one to store the original gaussian bell curve, and one for each derivative
     floatArray1[i] = floatArray0[i+1]-floatArray0[i]; // 1st derivative, the y difference between adjacent x points of original
     floatArray2[i] = floatArray1[i+1]-floatArray1[i]; // 2nd derivative, the y difference between adjacent x points of d1
     floatArray3[i] = floatArray2[i+1]-floatArray2[i]; // 3nd derivative, the y difference between adjacent x points of d2
@@ -89,7 +92,9 @@ void draw() {
     
     // scale x for the screen width
     int scaledX = round(map(x, 0, NUM_OF_DATA_POINTS, 0, width-1)); 
+    
     strokeWeight(2);  
+    
     stroke(COLOR_ORIGINAL_DATA);
     point(scaledX, y); // plot original data, a gaussian bell curve
     
@@ -107,8 +112,8 @@ void draw() {
     
     //stroke(COLOR_D5);
     //point(scaledX, map(floatArray5[i], 0, 1, HALF_SCREEN_HEIGHT - 1, 1)); // plot 5th derivative
-    hs1.update();
-    hs1.display();
+    hs1.update(); // update the slider
+    hs1.display(); // display the slider, simple, huh?
     }
 }
 
@@ -120,7 +125,7 @@ class Gaussian {
   Gaussian () {  
 }
 
-// 'sigma' dosen't equal textbook sigma, but it does the same thing, sets deviation
+// 'sigma' dosen't equal textbook sigma, but it does the same thing, sets spread of bell curve
 void calc(float sigma, int numOfXPoints) {
     float sd = map(sigma, 0, numOfXPoints, 0.001, 0.5); //standard deviation based on sigma mapped to numOfXPoints
     for (int i = 0; i < numOfXPoints; i++) {
