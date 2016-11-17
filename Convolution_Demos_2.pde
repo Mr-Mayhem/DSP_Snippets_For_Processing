@@ -139,8 +139,11 @@ float [] makeGaussKernel1d(double sigma) {
  */
 
   // clear the sum used for normalizing the kernel
-  float impulseSum = 0;  // added this to normalize the plot
+ 
+  float impulseSum = 0;        
   
+  
+  float impulseSumNormal = 0;  
   // create the kernel
   int center = (int) (3.0 * sigma);
   float[] kernel = new float [2*center+1]; // odd size
@@ -150,8 +153,11 @@ float [] makeGaussKernel1d(double sigma) {
   for (int i=0; i<kernel.length; i++) {
     double r = center - i;
     kernel[i] = (float) Math.exp(-0.5 * (r*r)/ sigma2);
-    impulseSum+=kernel[i]; // added this to normalize the output from 0 to 1.
-    println("kernel[" + i + "]:" + kernel[i]); // print the kernel as we save it into the array.
+    
+    // added this to normalize the output from 0 to 1.
+    impulseSum+=kernel[i]; 
+    
+    println("kernel[" + i + "]:" + kernel[i]); // print the original kernel value.
   }
   
   // normalization of the kernel values to 1 was not in the imagingbook version of this function, I added it.
@@ -159,7 +165,11 @@ float [] makeGaussKernel1d(double sigma) {
   {
     if (kernel[i] != 0) 
     {
-      kernel[i] = kernel[i] / impulseSum;
+      kernel[i] = kernel[i] / impulseSum; // could have used map(), but this works ok to normalize
+      
+      // added this to verify we properly normalized the plot, final sum should be very close to 1
+      impulseSumNormal+= kernel[i];
+      
       println("normalized kernel[" + i + "]:" + kernel[i]); // print the normalized kernel value.
     }else 
     {
@@ -168,6 +178,7 @@ float [] makeGaussKernel1d(double sigma) {
   }
   
   println("impulseSum:" + impulseSum); 
+  println("impulseSumNormal:" + impulseSumNormal);
   return kernel;
 }
 
