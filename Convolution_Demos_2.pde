@@ -191,7 +191,7 @@ public void zeroOutputData(){
 public void resetData(){
   outerPtr = 1;
   impulsePtr = 0;
-  newInputData(); // make some new ransom noise
+  newInputData(); // make some new random noise
   zeroOutputData();
   
   if(ii > 100){
