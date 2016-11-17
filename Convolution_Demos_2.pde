@@ -111,7 +111,7 @@ float [] makeGaussKernel1d(double sigma) {
  * 
  * Date: 2007/11/10
  
- code found in the book, and also at:
+ code found also at:
  https://github.com/biometrics/imagingbook/blob/master/src/gauss/GaussKernel1d.java
  */
 
