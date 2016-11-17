@@ -25,10 +25,9 @@ int impulseDataLength = 0;   // use odd impulseDataLength to produce an even int
 int outputDataLength = 0;    // number of discrete values in the array
 int outerPtr = 1;            // outer loop pointer
 int impulsePtr = 0;          // outer loop pointer
-int pixelColor = 0;          // color of element of greyscale bar near top of screen
 
 float ii = 0.04; // used for generating smooth noise for original data
-float impulseSum = 0;
+
 int SCREEN_X_MULTIPLIER = 1;
 int SCREEN_HEIGHT = 800;
 int SCREEN_WIDTH = 0;
@@ -70,7 +69,7 @@ void setup() {
   for (int innerPtr = 0; innerPtr < impulseDataLength; innerPtr++) { // increment the inner loop pointer
     // erase a previous impulse data point
     stroke(0); // background color
-    point((outerPtr+innerPtr-2)*SCREEN_X_MULTIPLIER, SCREEN_HEIGHT-100-(h[innerPtr]*10));
+    point((outerPtr+innerPtr-2)*SCREEN_X_MULTIPLIER, SCREEN_HEIGHT-100-(h[innerPtr]*100));
   }
 
   // plot original data point
@@ -85,19 +84,19 @@ void setup() {
     //delay(5);
     //plot impulse data point
     stroke(COLOR_IMPULSE_DATA); // impulse color
-    point((outerPtr+innerPtr-1)*SCREEN_X_MULTIPLIER, SCREEN_HEIGHT-100-(h[innerPtr]*10));  // draw new impulse point
+    point((outerPtr+innerPtr-1)*SCREEN_X_MULTIPLIER, SCREEN_HEIGHT-100-(h[innerPtr]*100));  // draw new impulse point
     y[outerPtr+innerPtr-1] = y[outerPtr+innerPtr-1] + x[outerPtr-1] * h[innerPtr];  //convolve (the magic line)
   }
 
   //plot the output data
   stroke(COLOR_OUTPUT_DATA);
-  point((outerPtr-(impulseDataLength/2)-1)*SCREEN_X_MULTIPLIER, SCREEN_HEIGHT-y[outerPtr]/impulseSum);
+  point((outerPtr-(impulseDataLength/2)-1)*SCREEN_X_MULTIPLIER, SCREEN_HEIGHT-y[outerPtr]);
 
   // draw section of greyscale bar showing the 'color' of output data values
-  greyscaleBar((outerPtr-(impulseDataLength/2)-1)*SCREEN_X_MULTIPLIER, 11, int(y[outerPtr]/impulseSum));
+  greyscaleBar((outerPtr-(impulseDataLength/2)-1)*SCREEN_X_MULTIPLIER, 11, int(y[outerPtr]));
   
   // draw section of greyscale bar showing the 'color' of the difference between input and output data values
-  greyscaleBar((outerPtr-1)*SCREEN_X_MULTIPLIER, 22, int(x[outerPtr])- int(y[outerPtr]/impulseSum));
+  greyscaleBar((outerPtr-1)*SCREEN_X_MULTIPLIER, 22, int(x[outerPtr]) - int(y[outerPtr]));
   
   outerPtr++;  // increment the outer loop pointer
 }
@@ -139,7 +138,7 @@ float [] makeGaussKernel1d(double sigma) {
  */
 
   // clear the sum used for normalizing the kernel
-  impulseSum = 0;  // added this to normalize the plot
+  float impulseSum = 0;  // added this to normalize the plot
   
   // create the kernel
   int center = (int) (3.0 * sigma);
@@ -150,11 +149,23 @@ float [] makeGaussKernel1d(double sigma) {
   for (int i=0; i<kernel.length; i++) {
     double r = center - i;
     kernel[i] = (float) Math.exp(-0.5 * (r*r)/ sigma2);
-    impulseSum+=kernel[i]; // added this to normalize the drawn points.
+    impulseSum+=kernel[i]; // added this to normalize the output from 0 to 1.
     println("kernel[" + i + "]:" + kernel[i]); // print the kernel as we save it into the array.
   }
   
-  // sum of all elements, could be made to = 1 in an alternative normalization method.
+  // normalization of the kernel values to 1 was not in the imagingbook version of this function, I added it.
+  for (int i=0; i<kernel.length; i++) 
+  {
+    if (kernel[i] != 0) 
+    {
+      kernel[i] = kernel[i] / impulseSum;
+      println("normalized kernel[" + i + "]:" + kernel[i]); // print the normalized kernel value.
+    }else 
+    {
+      println("normalized kernel[" + i + "]:" + kernel[i]); // print the zero kernel value.
+    }
+  }
+  
   println("impulseSum:" + impulseSum); 
   return kernel;
 }
