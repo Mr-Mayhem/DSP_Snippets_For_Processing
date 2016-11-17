@@ -25,6 +25,7 @@ int impulseDataLength = 0;   // use odd impulseDataLength to produce an even int
 int outputDataLength = 0;    // number of discrete values in the array
 int outerPtr = 1;            // outer loop pointer
 int impulsePtr = 0;          // outer loop pointer
+int kernelSigma = 6;         // input to kernel creation function, controls spreading of gaussian kernel
 
 float ii = 0.04; // used for generating smooth noise for original data
 
@@ -37,7 +38,7 @@ float[] h = new float[0];               // array for impulse response
 float[] y = new float[0];               // array for output signal
 
 void setup() {
-  h = makeGaussKernel1d(6); // the input argument is the sigma, higher numbers smooth more via wider kernels
+  h = makeGaussKernel1d(kernelSigma); // the input argument is the sigma, higher numbers smooth more, via wider kernels
   impulseDataLength = h.length; // use odd impulseDataLength to produce an even integer phase offset
   println("impulseDataLength = " + impulseDataLength);
   outputDataLength = inputDataLength + impulseDataLength; //number of discrete values in the array
