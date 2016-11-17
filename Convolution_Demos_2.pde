@@ -21,13 +21,14 @@ color COLOR_IMPULSE_DATA = color(255, 255, 0);
 color COLOR_OUTPUT_DATA = color(0, 255, 255);
 
 int inputDataLength = 1080;  //number of discrete values in the array
-int impulseDataLength = 0;   // use odd impulseDataLength to produce an even integer phase offset
+int KERNEL_LENGTH = 0;   // use odd KERNEL_LENGTH to produce an even integer phase offset
 int outputDataLength = 0;    // number of discrete values in the array
 int outerPtr = 1;            // outer loop pointer
 int impulsePtr = 0;          // outer loop pointer
-int kernelSigma = 6;         // input to kernel creation function, controls spreading of gaussian kernel
+double kernelSigma = 6;         // input to kernel creation function, controls spreading of gaussian kernel
 
-float ii = 0.04; // used for generating smooth noise for original data
+float noiseInput = 0.05;     // used for generating smooth noise for original data
+float noiseIncrement = noiseInput; // the increment of change of the noise input
 
 int SCREEN_X_MULTIPLIER = 1;
 int SCREEN_HEIGHT = 800;
@@ -39,9 +40,9 @@ float[] y = new float[0];               // array for output signal
 
 void setup() {
   h = makeGaussKernel1d(kernelSigma); // the input argument is the sigma, higher numbers smooth more, via wider kernels
-  impulseDataLength = h.length; // use odd impulseDataLength to produce an even integer phase offset
-  println("impulseDataLength = " + impulseDataLength);
-  outputDataLength = inputDataLength + impulseDataLength; //number of discrete values in the array
+  KERNEL_LENGTH = h.length; // use odd KERNEL_LENGTH to produce an even integer phase offset
+  println("KERNEL_LENGTH = " + KERNEL_LENGTH);
+  outputDataLength = inputDataLength + KERNEL_LENGTH; //number of discrete values in the array
   y = new float[outputDataLength]; // array for output signal gets resized after kernel size is known
   SCREEN_WIDTH = outputDataLength*SCREEN_X_MULTIPLIER;
   surface.setSize(SCREEN_WIDTH, SCREEN_HEIGHT);
@@ -67,7 +68,7 @@ void setup() {
   
   // erase the points of the previous impulse by coloring them the background color
   strokeWeight(2);
-  for (int innerPtr = 0; innerPtr < impulseDataLength; innerPtr++) { // increment the inner loop pointer
+  for (int innerPtr = 0; innerPtr < KERNEL_LENGTH; innerPtr++) { // increment the inner loop pointer
     // erase a previous impulse data point
     stroke(0); // background color
     point((outerPtr+innerPtr-2)*SCREEN_X_MULTIPLIER, SCREEN_HEIGHT-100-(h[innerPtr]*100));
@@ -81,7 +82,7 @@ void setup() {
   // draw section of greyscale bar showing the 'color' of original data values
   greyscaleBar((outerPtr-1)*SCREEN_X_MULTIPLIER, 0, int(x[outerPtr]));
   
-  for (int innerPtr = 0; innerPtr < impulseDataLength; innerPtr++) { // increment the inner loop pointer //<>//
+  for (int innerPtr = 0; innerPtr < KERNEL_LENGTH; innerPtr++) { // increment the inner loop pointer //<>//
     //delay(5);
     //plot impulse data point
     stroke(COLOR_IMPULSE_DATA); // impulse color
@@ -91,10 +92,10 @@ void setup() {
 
   //plot the output data
   stroke(COLOR_OUTPUT_DATA);
-  point((outerPtr-(impulseDataLength/2)-1)*SCREEN_X_MULTIPLIER, SCREEN_HEIGHT-y[outerPtr]);
+  point((outerPtr-(KERNEL_LENGTH/2)-1)*SCREEN_X_MULTIPLIER, SCREEN_HEIGHT-y[outerPtr]);
 
   // draw section of greyscale bar showing the 'color' of output data values
-  greyscaleBar((outerPtr-(impulseDataLength/2)-1)*SCREEN_X_MULTIPLIER, 11, int(y[outerPtr]));
+  greyscaleBar((outerPtr-(KERNEL_LENGTH/2)-1)*SCREEN_X_MULTIPLIER, 11, int(y[outerPtr]));
   
   // draw section of greyscale bar showing the 'color' of the difference between input and output data values
   greyscaleBar((outerPtr-1)*SCREEN_X_MULTIPLIER, 22, int(x[outerPtr]) - int(y[outerPtr]));
@@ -115,8 +116,8 @@ void greyscaleBar(int x, int y, int brightness) {
 
 public void newInputData(){
   for (int c = 0; c < inputDataLength; c++) {
-    ii = ii + 0.04;
-    x[c] = map(noise(ii), 0, 0.85, 0, SCREEN_HEIGHT);
+    noiseInput = noiseInput + noiseIncrement;
+    x[c] = map(noise(noiseInput), 0, 0.85, 0, SCREEN_HEIGHT);
     //numbers[c] = floor(random(height));
    }
 }
@@ -140,10 +141,9 @@ float [] makeGaussKernel1d(double sigma) {
 
   // clear the sum used for normalizing the kernel
  
-  float impulseSum = 0;        
+  float kernelSum = 0;        
+  float kernelSumNormal = 0;  
   
-  
-  float impulseSumNormal = 0;  
   // create the kernel
   int center = (int) (3.0 * sigma);
   float[] kernel = new float [2*center+1]; // odd size
@@ -155,20 +155,21 @@ float [] makeGaussKernel1d(double sigma) {
     kernel[i] = (float) Math.exp(-0.5 * (r*r)/ sigma2);
     
     // added this to normalize the output from 0 to 1.
-    impulseSum+=kernel[i]; 
+    kernelSum+=kernel[i]; 
     
     println("kernel[" + i + "]:" + kernel[i]); // print the original kernel value.
   }
   
-  // normalization of the kernel values to 1 was not in the imagingbook version of this function, I added it.
+  // normalization of the kernel values to make them range from 0 to 1.
+  // This was not in the imagingbook version of this function, I added it...Doug.
   for (int i=0; i<kernel.length; i++) 
   {
     if (kernel[i] != 0) 
     {
-      kernel[i] = kernel[i] / impulseSum; // could have used map(), but this works ok to normalize
+      kernel[i] = kernel[i] / kernelSum; // could have used map(), but this works ok to normalize
       
       // added this to verify we properly normalized the plot, final sum should be very close to 1
-      impulseSumNormal+= kernel[i];
+      kernelSumNormal+= kernel[i];
       
       println("normalized kernel[" + i + "]:" + kernel[i]); // print the normalized kernel value.
     }else 
@@ -177,8 +178,8 @@ float [] makeGaussKernel1d(double sigma) {
     }
   }
   
-  println("impulseSum:" + impulseSum); 
-  println("impulseSumNormal:" + impulseSumNormal);
+  println("impulseSum:" + kernelSum); 
+  println("impulseSumNormal:" + kernelSumNormal);
   return kernel;
 }
 
@@ -194,8 +195,8 @@ public void resetData(){
   newInputData(); // make some new random noise
   zeroOutputData();
   
-  if(ii > 100){
-    ii = 0.04;
+  if(noiseInput > 100){
+    noiseInput = noiseIncrement;
   }
 }
 

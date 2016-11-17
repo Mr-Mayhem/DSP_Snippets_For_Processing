@@ -17,23 +17,25 @@ color COLOR_IMPULSE_DATA = color(255, 255, 0);
 color COLOR_OUTPUT_DATA = color(0, 255, 0); 
 
 int inputDataLength = 256; //number of discrete values in the array
-int impulseDataLength = 19; // use odd impulseDataLength to produce an even integer phase offset
+int impulseDataLength = 9; // use odd impulseDataLength to produce an even integer phase offset
 int outputDataLength = inputDataLength + impulseDataLength; //number of discrete values in the array
 int outerPtr = 1; // outer loop pointer
 int impulsePtr = 0; // outer loop pointer
 
-float ii = 0.05; // used for generating smooth noise for original data
+float noiseInput = 0.07;     // used for generating smooth noise for original data
+float noiseIncrement = noiseInput; // the increment of change of the noise input
+
 float[] x = new float[inputDataLength]; // array for input signal
 float[] h = new float[impulseDataLength]; // array for impulse response
 float[] y = new float[outputDataLength]; // array for output signal
-float impulseSum = 0;
+
 int PixelsPerPoint = 4;
 int SCREEN_HEIGHT = 800;
 int SCREEN_WIDTH = outputDataLength*PixelsPerPoint;
 
 void setup() {
   surface.setSize(SCREEN_WIDTH, SCREEN_HEIGHT);
-  impulseSum = newImpulseData(1); // must be > 0 I don't see much difference over a wide range
+  newKernelData();
   background(0);
   frameRate(30);
   resetData();
@@ -59,70 +61,80 @@ void setup() {
   for (int innerPtr = 0; innerPtr < impulseDataLength; innerPtr++) { // increment the inner loop pointer
     // erase a previous impulse data point
     stroke(0); // background color
-    point((outerPtr+innerPtr-2)*PixelsPerPoint, SCREEN_HEIGHT-100-(h[innerPtr]*10));
+    point((outerPtr+innerPtr-2)*PixelsPerPoint, SCREEN_HEIGHT-100-(h[innerPtr]*100));
   }
-
+  
+  strokeWeight(1);
   // plot original data point
   stroke(COLOR_ORIGINAL_DATA);
   point((outerPtr-1)*PixelsPerPoint, SCREEN_HEIGHT-x[outerPtr]);
   
-  strokeWeight(1);
   for (int innerPtr = 0; innerPtr < impulseDataLength; innerPtr++) { // increment the inner loop pointer
     //delay(5);
     //plot impulse data point
     stroke(COLOR_IMPULSE_DATA); // impulse color
-    point((outerPtr+innerPtr-1)*PixelsPerPoint, SCREEN_HEIGHT-100-(h[innerPtr]*10));  // draw new impulse point
+    point((outerPtr+innerPtr-1)*PixelsPerPoint, SCREEN_HEIGHT-100-(h[innerPtr]*100));  // draw new impulse point
     y[outerPtr+innerPtr-1] = y[outerPtr+innerPtr-1] + x[outerPtr-1] * h[innerPtr];  //convolve (the magic line)
   }
 
   //plot the output data
   stroke(COLOR_OUTPUT_DATA);
-  point((outerPtr-(impulseDataLength/2)-1)*PixelsPerPoint, SCREEN_HEIGHT-y[outerPtr]/impulseSum);
+  point((outerPtr-(impulseDataLength/2)-1)*PixelsPerPoint, SCREEN_HEIGHT-y[outerPtr]);
   outerPtr++;  // increment the outer loop pointer
 }
 
 public void newInputData(){
   for (int c = 0; c < inputDataLength; c++) {
-    ii = ii + 0.05;
-    x[c] = map(noise(ii), 0, 1, 0, SCREEN_HEIGHT);
+    noiseInput = noiseInput + noiseIncrement;
+    x[c] = map(noise(noiseInput), 0, 1, 0, SCREEN_HEIGHT);
     //numbers[c] = floor(random(height));
    }
 }
 
- float newImpulseData(float scalingFactor) {
-   float sum = 0;
+void newKernelData() {
+  float kernelSum = 0;        
+  float kernelSumNormal = 0; 
   
   // set all data values to zero
   for (int c = 0; c < impulseDataLength; c++) {
      h[c] = 0;
   }
-  // Laplacian of Gaussian mask, the "mexican hat" shape
-  // this impulse response smooths the data for edge detection
-  h[0] = 0;
-  h[1] = -0.1 * scalingFactor;
-  h[2] = -0.1 * scalingFactor;
-  h[3] = -0.3 * scalingFactor;
-  h[4] = -0.3 * scalingFactor;
-  h[5] = -0.3 * scalingFactor;
-  h[6] = 0.4 * scalingFactor;
-  h[7] = 1.2 * scalingFactor;
-  h[8] = 2.1 * scalingFactor;
-  h[9] = 2.4 * scalingFactor;
-  h[10] = 2.1 * scalingFactor;
-  h[11] = 1.2 * scalingFactor;
-  h[12] = 0.4 * scalingFactor;
-  h[13] = -0.3 * scalingFactor;
-  h[14] = -0.3 * scalingFactor;
-  h[15] = -0.3 * scalingFactor;
-  h[16] = -0.1 * scalingFactor;
-  h[17] = -0.1 * scalingFactor;
-  h[18] = 0;
+
+  // Gaussian mask, the "bell curve" shape
+  // this impulse response is used to blur or smooth images
+  h[0] = 0.03607497;
+  h[1] = 0.13533528;
+  h[2] = 0.41111228;
+  h[3] = 0.8007374;
+  h[4] = 1;
+  h[5] = 0.8007374;
+  h[6] = 0.41111228;
+  h[7] = 0.13533528;
+  h[8] = 0.03607497;
   
-  for (int c = 0; c < 19; c++) {
-    sum+=h[c]; 
+  for (int c = 0; c < impulseDataLength; c++) {
+    kernelSum+=h[c]; 
   }
- // used later to normalize the output data back down to it's original range
-  return sum;
+ 
+   // normalization of the kernel values to make them range from 0 to 1.
+  for (int i=0; i<h.length; i++) 
+  {
+    if (h[i] != 0) 
+    {
+      h[i] = h[i] / kernelSum; // could have used map(), but this works ok to normalize
+      
+      // added this to verify we properly normalized the plot, final sum should be very close to 1
+      kernelSumNormal+= h[i];
+      
+      println("normalized kernel[" + i + "]:" + h[i]); // print the normalized kernel value.
+    }else 
+    {
+      println("normalized kernel[" + i + "]:" + h[i]); // print the zero kernel value.
+    }
+  }
+  
+  println("kernelSum:" + kernelSum); 
+  println("kernelSumNormal:" + kernelSumNormal);
 }
 
 public void zeroOutputData(){
@@ -134,11 +146,11 @@ public void zeroOutputData(){
 public void resetData(){
   outerPtr = 1;
   impulsePtr = 0;
-  newInputData(); // make some new ransom noise
+  newInputData(); // make some new random noise
   zeroOutputData();
   
-  if(ii > 100){
-    ii = 0.05;
+  if(noiseInput > 100){
+    noiseInput = noiseIncrement;
   }
 }
 
@@ -171,7 +183,7 @@ void drawLegend() {
   fill(COLOR_OUTPUT_DATA);
   rect(rectX, rectY, rectWidth, rectHeight);
   fill(255);
-  text("Smoothed  output data, shifted back into original phase", rectX+20, rectY+10);
+  text("Output data, shifted back into original phase", rectX+20, rectY+10);
   
 }
 
