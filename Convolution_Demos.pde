@@ -1,6 +1,7 @@
-/*
-Convolution+Demos.pde, a simple Processing sketch demo of a few low-order 
-interpolation functions.
+/* //<>//
+Convolution_Demos.pde, a simple Processing sketch demo of convolution.
+See also Convolution_Demos_2.pde, which is a later version with more features,
+including dymanic creation of the convolution kernel.
 
 Created by Douglas Mayhew, November 7, 2016.
 
@@ -8,12 +9,12 @@ Released into the public domain.
 
 See: https://github.com/Mr-Mayhem/DSP_Snippets_For_Processing
 
-convolution code originally from //http://www.dspguide.com/ch6/3.htm
+convolution loop code originally from //http://www.dspguide.com/ch6/3.htm
 translated into Processing (java) by Douglas Mayhew
 */
-color COLOR_ORIGINAL_DATA = color(0, 255, 0); // green
-color COLOR_IMPULSE_DATA = color(255, 255, 0); //yellow
-color COLOR_OUTPUT_DATA = color(255); // white
+color COLOR_ORIGINAL_DATA = color(255, 255, 255); 
+color COLOR_IMPULSE_DATA = color(255, 255, 0);
+color COLOR_OUTPUT_DATA = color(0, 255, 0); 
 
 int inputDataLength = 256; //number of discrete values in the array
 int impulseDataLength = 19; // use odd impulseDataLength to produce an even integer phase offset
@@ -48,11 +49,13 @@ void setup() {
     // draw the x and y aixs
     background(0);
     drawGrid(SCREEN_WIDTH, SCREEN_HEIGHT, 8);
-  }
-    drawGrid(SCREEN_WIDTH, SCREEN_HEIGHT, 8);
     drawLegend();
-  
-  strokeWeight(4);
+  }
+    
+    drawGrid(SCREEN_WIDTH, SCREEN_HEIGHT, 8);
+   
+  // erase the points of the previous impulse by coloring them the background color
+  strokeWeight(2);
   for (int innerPtr = 0; innerPtr < impulseDataLength; innerPtr++) { // increment the inner loop pointer
     // erase a previous impulse data point
     stroke(0); // background color
@@ -63,7 +66,7 @@ void setup() {
   stroke(COLOR_ORIGINAL_DATA);
   point((outerPtr-1)*PixelsPerPoint, SCREEN_HEIGHT-x[outerPtr]);
   
-  strokeWeight(2);
+  strokeWeight(1);
   for (int innerPtr = 0; innerPtr < impulseDataLength; innerPtr++) { // increment the inner loop pointer
     //delay(5);
     //plot impulse data point
