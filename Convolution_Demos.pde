@@ -171,7 +171,7 @@ void drawLegend() {
   fill(COLOR_OUTPUT_DATA);
   rect(rectX, rectY, rectWidth, rectHeight);
   fill(255);
-  text("Smoothed output data, shifted back into original phase", rectX+20, rectY+10);
+  text("Smoothed  output data, shifted back into original phase", rectX+20, rectY+10);
   
 }
 
