@@ -20,29 +20,30 @@ color COLOR_ORIGINAL_DATA = color(255);
 color COLOR_IMPULSE_DATA = color(255, 255, 0);
 color COLOR_OUTPUT_DATA = color(0, 255, 255);
 
-int inputDataLength = 1080; //number of discrete values in the array
-int impulseDataLength = 0; // use odd impulseDataLength to produce an even integer phase offset
-int outputDataLength = 0; //number of discrete values in the array
-int outerPtr = 1; // outer loop pointer
-int impulsePtr = 0; // outer loop pointer
+int inputDataLength = 1080;  //number of discrete values in the array
+int impulseDataLength = 0;   // use odd impulseDataLength to produce an even integer phase offset
+int outputDataLength = 0;    // number of discrete values in the array
+int outerPtr = 1;            // outer loop pointer
+int impulsePtr = 0;          // outer loop pointer
+int pixelColor = 0;          // color of element of greyscale bar near top of screen
 
-float ii = 0.02; // used for generating smooth noise for original data
+float ii = 0.04; // used for generating smooth noise for original data
 float impulseSum = 0;
-int PixelsPerPoint = 1;
+int SCREEN_X_MULTIPLIER = 1;
 int SCREEN_HEIGHT = 800;
 int SCREEN_WIDTH = 0;
 
 float[] x = new float[inputDataLength]; // array for input signal
-float[] h = new float[0]; // array for impulse response
-float[] y = new float[0]; // array for output signal
+float[] h = new float[0];               // array for impulse response
+float[] y = new float[0];               // array for output signal
 
 void setup() {
-  h = makeGaussKernel1d(10);
+  h = makeGaussKernel1d(6); // the input argument is the sigma, higher numbers smooth more via wider kernels
   impulseDataLength = h.length; // use odd impulseDataLength to produce an even integer phase offset
   println("impulseDataLength = " + impulseDataLength);
   outputDataLength = inputDataLength + impulseDataLength; //number of discrete values in the array
-  y = new float[outputDataLength]; // array for output signal
-  SCREEN_WIDTH = outputDataLength*PixelsPerPoint;
+  y = new float[outputDataLength]; // array for output signal gets resized after kernel size is known
+  SCREEN_WIDTH = outputDataLength*SCREEN_X_MULTIPLIER;
   surface.setSize(SCREEN_WIDTH, SCREEN_HEIGHT);
   background(0);
   frameRate(100);
@@ -69,32 +70,52 @@ void setup() {
   for (int innerPtr = 0; innerPtr < impulseDataLength; innerPtr++) { // increment the inner loop pointer
     // erase a previous impulse data point
     stroke(0); // background color
-    point((outerPtr+innerPtr-2)*PixelsPerPoint, SCREEN_HEIGHT-100-(h[innerPtr]*10));
+    point((outerPtr+innerPtr-2)*SCREEN_X_MULTIPLIER, SCREEN_HEIGHT-100-(h[innerPtr]*10));
   }
 
   // plot original data point
   strokeWeight(1);
   stroke(COLOR_ORIGINAL_DATA);
-  point((outerPtr-1)*PixelsPerPoint, SCREEN_HEIGHT-x[outerPtr]);
+  point((outerPtr-1)*SCREEN_X_MULTIPLIER, SCREEN_HEIGHT-x[outerPtr]);
+  
+  // greyscale bar along top of screen for output values
+  // prepare color to correspond to sensor pixel reading
+  pixelColor = int(map(x[outerPtr], 0, height, 0, 255));
+  // Plot a row of pixels near the top of the screen ,
+  // and color them with the 0 to 255 greyscale sensor value
+  noStroke();
+  fill(pixelColor, pixelColor, pixelColor);
+  rect((outerPtr-1)*SCREEN_X_MULTIPLIER, 0, SCREEN_X_MULTIPLIER, 10);
   
   for (int innerPtr = 0; innerPtr < impulseDataLength; innerPtr++) { // increment the inner loop pointer //<>//
     //delay(5);
     //plot impulse data point
     stroke(COLOR_IMPULSE_DATA); // impulse color
-    point((outerPtr+innerPtr-1)*PixelsPerPoint, SCREEN_HEIGHT-100-(h[innerPtr]*10));  // draw new impulse point
+    point((outerPtr+innerPtr-1)*SCREEN_X_MULTIPLIER, SCREEN_HEIGHT-100-(h[innerPtr]*10));  // draw new impulse point
     y[outerPtr+innerPtr-1] = y[outerPtr+innerPtr-1] + x[outerPtr-1] * h[innerPtr];  //convolve (the magic line)
   }
 
   //plot the output data
   stroke(COLOR_OUTPUT_DATA);
-  point((outerPtr-(impulseDataLength/2)-1)*PixelsPerPoint, SCREEN_HEIGHT-y[outerPtr]/impulseSum);
+  point((outerPtr-(impulseDataLength/2)-1)*SCREEN_X_MULTIPLIER, SCREEN_HEIGHT-y[outerPtr]/impulseSum);
+
+  // greyscale bar along top of screen for output values
+  // prepare color to correspond to sensor pixel reading
+  pixelColor = int(map(y[outerPtr]/impulseSum, 0, height, 0, 255));
+  // Plot a row of pixels near the top of the screen ,
+  // and color them with the 0 to 255 greyscale sensor value
+  
+  noStroke();
+  fill(pixelColor, pixelColor, pixelColor);
+  rect((outerPtr-(impulseDataLength/2)-1)*SCREEN_X_MULTIPLIER, 11, SCREEN_X_MULTIPLIER, 10);
+  
   outerPtr++;  // increment the outer loop pointer
 }
 
 public void newInputData(){
   for (int c = 0; c < inputDataLength; c++) {
-    ii = ii + 0.02;
-    x[c] = map(noise(ii), 0, 1, 0, SCREEN_HEIGHT);
+    ii = ii + 0.04;
+    x[c] = map(noise(ii), 0, 0.9, 0, SCREEN_HEIGHT);
     //numbers[c] = floor(random(height));
    }
 }
@@ -149,7 +170,7 @@ public void resetData(){
   zeroOutputData();
   
   if(ii > 100){
-    ii = 0.02;
+    ii = 0.04;
   }
 }
 
@@ -157,7 +178,7 @@ void drawLegend() {
   int rectX, rectY, rectWidth, rectHeight;
   
   rectX = 20;
-  rectY = 20;
+  rectY = 30;
   rectWidth = 10;
   rectHeight = 10;
  
