@@ -3,14 +3,19 @@ Convolution_Demos.pde, a demo of convolution, with a special function that dynam
 just prior to use.
 
 Created by Douglas Mayhew, November 17, 2016.
-
-Released into the public domain.
+Released into the public domain, except:
+ * The function, 'makeGaussKernel1d' is made available as part of the book 
+ * "Digital Image * Processing - An Algorithmic Introduction using Java" by Wilhelm Burger
+ * and Mark J. Burge, Copyright (C) 2005-2008 Springer-Verlag Berlin, Heidelberg, New York.
+ * Note that this code comes with absolutely no warranty of any kind.
+ * See http://www.imagingbook.com for details and licensing conditions. 
 
 See: https://github.com/Mr-Mayhem/DSP_Snippets_For_Processing
 
-convolution loop code originally from //http://www.dspguide.com/ch6/3.htm
+Convolution loop code originally from //http://www.dspguide.com/ch6/3.htm
 translated into Processing (java) by Douglas Mayhew
 */
+
 color COLOR_ORIGINAL_DATA = color(255);
 color COLOR_IMPULSE_DATA = color(255, 255, 0);
 color COLOR_OUTPUT_DATA = color(0, 255, 255);
@@ -95,23 +100,39 @@ public void newInputData(){
 }
 
 float [] makeGaussKernel1d(double sigma) {
+  
+ /**
+ * This sample code is made available as part of the book "Digital Image
+ * Processing - An Algorithmic Introduction using Java" by Wilhelm Burger
+ * and Mark J. Burge, Copyright (C) 2005-2008 Springer-Verlag Berlin, 
+ * Heidelberg, New York.
+ * Note that this code comes with absolutely no warranty of any kind.
+ * See http://www.imagingbook.com for details and licensing conditions.
+ * 
+ * Date: 2007/11/10
+ 
+ code found in the book, and also at:
+ https://github.com/biometrics/imagingbook/blob/master/src/gauss/GaussKernel1d.java
+ */
+
   // clear the sum used for normalizing the kernel
-  impulseSum = 0;
+  impulseSum = 0;  // added this to normalize the plot
   
   // create the kernel
   int center = (int) (3.0 * sigma);
   float[] kernel = new float [2*center+1]; // odd size
   
   // fill the kernel
-  double sigma2 = sigma * sigma;
+  double sigma2 = sigma * sigma; // sigma squared
   for (int i=0; i<kernel.length; i++) {
     double r = center - i;
     kernel[i] = (float) Math.exp(-0.5 * (r*r)/ sigma2);
-    impulseSum+=kernel[i]; 
-    println("kernel[" + i + "]:" + kernel[i]);
-    println("impulseSum:" + impulseSum);
-    
+    impulseSum+=kernel[i]; // added this to normalize the drawn points.
+    println("kernel[" + i + "]:" + kernel[i]); // print the kernel as we save it into the array.
   }
+  
+  // sum of all elements, could be made to = 1 in an alternative normalization method.
+  println("impulseSum:" + impulseSum); 
   return kernel;
 }
 
