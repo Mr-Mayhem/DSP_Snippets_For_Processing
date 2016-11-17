@@ -78,14 +78,8 @@ void setup() {
   stroke(COLOR_ORIGINAL_DATA);
   point((outerPtr-1)*SCREEN_X_MULTIPLIER, SCREEN_HEIGHT-x[outerPtr]);
   
-  // greyscale bar along top of screen for output values
-  // prepare color to correspond to sensor pixel reading
-  pixelColor = int(map(x[outerPtr], 0, height, 0, 255));
-  // Plot a row of pixels near the top of the screen ,
-  // and color them with the 0 to 255 greyscale sensor value
-  noStroke();
-  fill(pixelColor, pixelColor, pixelColor);
-  rect((outerPtr-1)*SCREEN_X_MULTIPLIER, 0, SCREEN_X_MULTIPLIER, 10);
+  // draw section of greyscale bar showing the 'color' of original data values
+  greyscaleBar((outerPtr-1)*SCREEN_X_MULTIPLIER, 0, int(x[outerPtr]));
   
   for (int innerPtr = 0; innerPtr < impulseDataLength; innerPtr++) { // increment the inner loop pointer //<>//
     //delay(5);
@@ -99,26 +93,34 @@ void setup() {
   stroke(COLOR_OUTPUT_DATA);
   point((outerPtr-(impulseDataLength/2)-1)*SCREEN_X_MULTIPLIER, SCREEN_HEIGHT-y[outerPtr]/impulseSum);
 
-  // greyscale bar along top of screen for output values
+  // draw section of greyscale bar showing the 'color' of output data values
+  greyscaleBar((outerPtr-(impulseDataLength/2)-1)*SCREEN_X_MULTIPLIER, 11, int(y[outerPtr]/impulseSum));
+  
+  // draw section of greyscale bar showing the 'color' of the difference between input and output data values
+  greyscaleBar((outerPtr-1)*SCREEN_X_MULTIPLIER, 22, int(x[outerPtr])- int(y[outerPtr]/impulseSum));
+  
+  outerPtr++;  // increment the outer loop pointer
+}
+
+void greyscaleBar(int x, int y, int brightness) {
   // prepare color to correspond to sensor pixel reading
-  pixelColor = int(map(y[outerPtr]/impulseSum, 0, height, 0, 255));
+  int pixelColor = int(map(brightness, 0, height, 0, 255));
   // Plot a row of pixels near the top of the screen ,
   // and color them with the 0 to 255 greyscale sensor value
   
   noStroke();
   fill(pixelColor, pixelColor, pixelColor);
-  rect((outerPtr-(impulseDataLength/2)-1)*SCREEN_X_MULTIPLIER, 11, SCREEN_X_MULTIPLIER, 10);
-  
-  outerPtr++;  // increment the outer loop pointer
+  rect(x, y, SCREEN_X_MULTIPLIER, 10);
 }
 
 public void newInputData(){
   for (int c = 0; c < inputDataLength; c++) {
     ii = ii + 0.04;
-    x[c] = map(noise(ii), 0, 0.9, 0, SCREEN_HEIGHT);
+    x[c] = map(noise(ii), 0, 0.85, 0, SCREEN_HEIGHT);
     //numbers[c] = floor(random(height));
    }
 }
+
 
 float [] makeGaussKernel1d(double sigma) {
   
@@ -177,8 +179,8 @@ public void resetData(){
 void drawLegend() {
   int rectX, rectY, rectWidth, rectHeight;
   
-  rectX = 20;
-  rectY = 30;
+  rectX = 30;
+  rectY = 45;
   rectWidth = 10;
   rectHeight = 10;
  
