@@ -25,12 +25,14 @@ int outerPtr = 0;    // outer loop pointer
 float kernelSigma = 6;               // input to kernel creation function, controls spreading of gaussian kernel
 float kernelScale = 1;               // rescales output to compensate for kernel bias 
 float kernelMultiplier = 100.0;      // multiplies the plotted y values of the kernel, for greater visibility since they are small
-float noiseInput = 0.04;             // used for generating smooth noise for original data; lower values are smoother noise
+float noiseInput = 0.02;             // used for generating smooth noise for original data; lower values are smoother noise
 float noiseIncrement = noiseInput;   // the increment of change of the noise input
 
 final int SCREEN_X_MULTIPLIER = 2;
 final int SCREEN_HEIGHT = 800;
 final int HALF_SCREEN_HEIGHT = SCREEN_HEIGHT/2;
+final int QUARTER_SCREEN_HEIGHT = SCREEN_HEIGHT/4;
+
 int SCREEN_WIDTH = 0;
 
 float[] input = new float[INPUT_DATA_LENGTH];     // array for input signal
@@ -40,7 +42,8 @@ float[] output = new float[OUTPUT_DATA_LENGTH];   // array for output signal
 void setup() {
   
   // create the kernel
-  // kernel = createKernelDirectly1d();
+  //kernel = hard_Coded_Gaussian_Kernel_1d();
+  //kernel = Kernel3Points_1d(1.0,-4.0, 1.0); // Laplacian
   // higher sigma smooth the output more, via a more spread-out kernel
   kernel = makeGaussKernel1d(kernelSigma); 
   
@@ -123,7 +126,7 @@ void greyscaleBar(int x, int y, int brightness) {
 }
 
 
-float [] createKernelDirectly1d() {
+float [] hard_Coded_Gaussian_Kernel_1d() {
 
   float[] kernel = new float[9]; // odd size
 
@@ -139,6 +142,17 @@ float [] createKernelDirectly1d() {
   kernel[7] = 0.13533528;
   kernel[8] = 0.03607497;
   
+  return kernel;
+}
+
+float [] Kernel3Points_1d(float pt1, float pt2, float pt3) {
+  
+  float[] kernel = new float[3]; // set to an odd value for an even integer phase offset
+  
+  kernel[0] = pt1;
+  kernel[1] = pt2;
+  kernel[2] = pt3;
+
   return kernel;
 }
  
@@ -213,10 +227,11 @@ public void resetData(){
 }
 
 public void setInputRandomData(){
-
+  
   for (int c = 0; c < INPUT_DATA_LENGTH; c++) {
     noiseInput = noiseInput + noiseIncrement;  // adjust smoothness with noise input
-    input[c] = map(noise(noiseInput), 0, 1, -HALF_SCREEN_HEIGHT, HALF_SCREEN_HEIGHT);  // perlin noise
+    input[c] = map(noise(noiseInput), 0, 1, -QUARTER_SCREEN_HEIGHT, QUARTER_SCREEN_HEIGHT);  // perlin noise
+    //println (noise(noiseInput));
    }
    
 }
