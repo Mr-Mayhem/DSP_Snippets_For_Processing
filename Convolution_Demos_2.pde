@@ -24,7 +24,7 @@ int INPUT_DATA_LENGTH = 256;         // number of discrete values in the input a
 int KERNEL_LENGTH = 0;               // number of discrete values in the kernel array, set in setup()
 int OUTPUT_DATA_LENGTH = 0;          // number of discrete values in the output array, set in setup()
 int outerPtr = 0;                    // outer loop pointer
-float kernelSigma = .8;              // input to kernel creation function, controls spreading of gaussian kernel
+float kernelSigma = 8;              // input to kernel creation function, controls spreading of gaussian kernel
 float kernelScale = 1;               // rescales output to compensate for kernel bias 
 float kernelMultiplier = 100.0;      // multiplies the plotted y values of the kernel, for greater visibility since they are small
 float noiseInput = 0.02;             // used for generating smooth noise for original data; lower values are smoother noise
@@ -44,8 +44,8 @@ void setup() {
   // create the kernel
   // higher sigma smooth the output more, via a more spread-out kernel
   // kernel = makeGaussKernel1d(kernelSigma); 
-  kernel = createKernelDirectly1d();
-  //kernel = createLoGKernal1d(kernelSigma); // smooth and return edges as zero crossings
+  // kernel = createKernelDirectly1d();
+   kernel = createLoGKernal1d(kernelSigma); // smooth and return edges as zero crossings
   
   kernelScale = getKernelScale(kernel);
   KERNEL_LENGTH = kernel.length; 
@@ -170,7 +170,7 @@ float [] makeGaussKernel1d(double sigma) {
 }
 
 float[] createLoGKernal1d(double deviation) {
-  int center = (int) (8 * deviation);
+  int center = (int) (3 * deviation);
   int kSize = 2*center+1; // set to an odd value for an even integer phase offset
   float[] data = new float[kSize];// odd size
   double first = -1.0 / (Math.PI * Math.pow(deviation, 4.0));
