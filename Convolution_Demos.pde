@@ -16,19 +16,19 @@ color COLOR_ORIGINAL_DATA = color(255, 255, 255);
 color COLOR_IMPULSE_DATA = color(255, 255, 0);
 color COLOR_OUTPUT_DATA = color(0, 255, 0); 
 
-int INPUT_DATA_LENGTH = 512;        // number of discrete values in the array
-int KERNEL_LENGTH = 0;              // use odd KERNEL_LENGTH to produce an even integer phase offset
-int OUTPUT_DATA_LENGTH = 0;           // number of discrete values in the array
-int outerPtr = 0;                   // outer loop pointer
-float kernelSigma = 6;             // input to kernel creation function, controls spreading of gaussian kernel
-float kernelScale = 1;              // rescales output to compensate for kernel bias 
-float kernelMultiplier = 100.0;     // multiplies the plotted y values of the kernel, for greater visibility since they are small
+int INPUT_DATA_LENGTH = 256;         // number of discrete values in the input array
+int KERNEL_LENGTH = 0;               // number of discrete values in the kernel array, set in setup()
+int OUTPUT_DATA_LENGTH = 0;          // number of discrete values in the output array, set in setup()
+int outerPtr = 0;                    // outer loop pointer
+float kernelSigma = 6;               // input to kernel creation function, controls spreading of gaussian kernel
+float kernelScale = 1;               // rescales output to compensate for kernel bias 
+float kernelMultiplier = 100.0;      // multiplies the plotted y values of the kernel, for greater visibility since they are small
 
-float noiseInput = 0.07;            // used for generating smooth noise for original data; lower values are smoother noise
-float noiseIncrement = noiseInput;  // the increment of change of the noise input
+float noiseInput = 0.07;             // used for generating smooth noise for original data; lower values are smoother noise
+float noiseIncrement = noiseInput;   // the increment of change of the noise input
 
-float[] input = new float[INPUT_DATA_LENGTH];   // array for input signal
-float[] kernel = new float[KERNEL_LENGTH];      // array for impulse response
+float[] input = new float[INPUT_DATA_LENGTH];     // array for input signal
+float[] kernel = new float[KERNEL_LENGTH];        // array for impulse response
 float[] output = new float[OUTPUT_DATA_LENGTH];   // array for output signal
 
 final int SCREEN_X_MULTIPLIER = 2;
@@ -43,7 +43,7 @@ void setup() {
   //kernel = createKernelDirectly1d();
 
   kernelScale = getKernelScale(kernel);
-  KERNEL_LENGTH = kernel.length; // use odd KERNEL_LENGTH to produce an even integer phase offset
+  KERNEL_LENGTH = kernel.length; // set odd length for an even integer phase offset
   println("KERNEL_LENGTH = " + KERNEL_LENGTH);
   
   // create the input data
@@ -52,7 +52,7 @@ void setup() {
   INPUT_DATA_LENGTH = input.length;
   println("INPUT_DATA_LENGTH = " + INPUT_DATA_LENGTH);
   
-  OUTPUT_DATA_LENGTH = INPUT_DATA_LENGTH + KERNEL_LENGTH; //number of discrete values in the array
+  OUTPUT_DATA_LENGTH = INPUT_DATA_LENGTH + KERNEL_LENGTH; //number of discrete values in the output array
   output = new float[OUTPUT_DATA_LENGTH]; // array for output signal gets resized after kernel size is known
   SCREEN_WIDTH = OUTPUT_DATA_LENGTH*SCREEN_X_MULTIPLIER;
   
