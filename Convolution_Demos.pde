@@ -16,142 +16,140 @@ color COLOR_ORIGINAL_DATA = color(255, 255, 255);
 color COLOR_IMPULSE_DATA = color(255, 255, 0);
 color COLOR_OUTPUT_DATA = color(0, 255, 0); 
 
-int inputDataLength = 256; //number of discrete values in the array
-int impulseDataLength = 9; // use odd impulseDataLength to produce an even integer phase offset
-int outputDataLength = inputDataLength + impulseDataLength; //number of discrete values in the array
-int outerPtr = 1; // outer loop pointer
-int impulsePtr = 0; // outer loop pointer
+int INPUT_DATA_LENGTH = 512;        // number of discrete values in the array
+int KERNEL_LENGTH = 0;              // use odd KERNEL_LENGTH to produce an even integer phase offset
+int outputDataLength = 0;           // number of discrete values in the array
+int outerPtr = 0;                   // outer loop pointer
+int innerPtr = 0;                   // outer loop pointer
+float kernelScale = 1;              // rescales output to compensate for kernel bias 
+float kernelMultiplier = 100.0;     // multiplies the plotted y values of the kernel, for greater visibility since they are small
 
-float noiseInput = 0.07;     // used for generating smooth noise for original data
-float noiseIncrement = noiseInput; // the increment of change of the noise input
+float noiseInput = 0.07;            // used for generating smooth noise for original data; lower values are smoother noise
+float noiseIncrement = noiseInput;  // the increment of change of the noise input
 
-float[] x = new float[inputDataLength]; // array for input signal
-float[] h = new float[impulseDataLength]; // array for impulse response
-float[] y = new float[outputDataLength]; // array for output signal
+float[] input = new float[INPUT_DATA_LENGTH];   // array for input signal
+float[] kernel = new float[KERNEL_LENGTH];      // array for impulse response
+float[] output = new float[outputDataLength];   // array for output signal
 
-int PixelsPerPoint = 4;
-int SCREEN_HEIGHT = 800;
-int SCREEN_WIDTH = outputDataLength*PixelsPerPoint;
+final int SCREEN_X_MULTIPLIER = 2;
+int SCREEN_WIDTH = outputDataLength*SCREEN_X_MULTIPLIER;
+final int SCREEN_HEIGHT = 800;
+final int HALF_SCREEN_HEIGHT = SCREEN_HEIGHT/2;
 
 void setup() {
+  kernel = createKernelDirectly1d();
+  kernelScale = getKernelScale(kernel);
+  KERNEL_LENGTH = kernel.length; // use odd KERNEL_LENGTH to produce an even integer phase offset
+  println("KERNEL_LENGTH = " + KERNEL_LENGTH);
+  outputDataLength = INPUT_DATA_LENGTH + KERNEL_LENGTH; //number of discrete values in the array
+  output = new float[outputDataLength]; // array for output signal gets resized after kernel size is known
+  SCREEN_WIDTH = outputDataLength*SCREEN_X_MULTIPLIER;
   surface.setSize(SCREEN_WIDTH, SCREEN_HEIGHT);
-  newKernelData();
   background(0);
-  frameRate(30);
+  frameRate(100);
   resetData();
 }
     
  void draw() {
-  if (outerPtr >= inputDataLength) {
+  if (outerPtr >= INPUT_DATA_LENGTH) {
     resetData();
-    drawLegend();
   }
   
-  if (outerPtr == 1) {
+  if (outerPtr == 0) {
     // draw the x and y aixs
     background(0);
     drawGrid(SCREEN_WIDTH, SCREEN_HEIGHT, 8);
     drawLegend();
   }
-    
-    drawGrid(SCREEN_WIDTH, SCREEN_HEIGHT, 8);
-   
-  // erase the points of the previous impulse by coloring them the background color
-  strokeWeight(2);
-  for (int innerPtr = 0; innerPtr < impulseDataLength; innerPtr++) { // increment the inner loop pointer
-    // erase a previous impulse data point
-    stroke(0); // background color
-    point((outerPtr+innerPtr-2)*PixelsPerPoint, SCREEN_HEIGHT-100-(h[innerPtr]*100));
+
+  // plot original data point
+  strokeWeight(1);
+  stroke(COLOR_ORIGINAL_DATA);
+  point(outerPtr*SCREEN_X_MULTIPLIER, SCREEN_HEIGHT-input[outerPtr]);
+  
+  // plot the kernel data point
+  // draw new kernel point (scaled up for visibility
+  if (outerPtr < KERNEL_LENGTH) {
+    strokeWeight(1);
+    stroke(COLOR_IMPULSE_DATA); // impulse color
+    point(outerPtr*SCREEN_X_MULTIPLIER+(width/2)-(KERNEL_LENGTH*SCREEN_X_MULTIPLIER)/2, SCREEN_HEIGHT-150-(int(kernel[outerPtr] *kernelScale * kernelMultiplier)));
   }
   
-  strokeWeight(1);
-  // plot original data point
-  stroke(COLOR_ORIGINAL_DATA);
-  point((outerPtr-1)*PixelsPerPoint, SCREEN_HEIGHT-x[outerPtr]);
-  
-  for (int innerPtr = 0; innerPtr < impulseDataLength; innerPtr++) { // increment the inner loop pointer
-    //delay(5);
-    //plot impulse data point
-    stroke(COLOR_IMPULSE_DATA); // impulse color
-    point((outerPtr+innerPtr-1)*PixelsPerPoint, SCREEN_HEIGHT-100-(h[innerPtr]*100));  // draw new impulse point
-    y[outerPtr+innerPtr-1] = y[outerPtr+innerPtr-1] + x[outerPtr-1] * h[innerPtr];  //convolve (the magic line)
+  for (int innerPtr = 0; innerPtr < KERNEL_LENGTH; innerPtr++) { // increment the inner loop pointer
+    // convolution (the magic line)
+    output[outerPtr+innerPtr] = output[outerPtr+innerPtr] + input[outerPtr] * kernel[innerPtr]; 
   }
 
   //plot the output data
   stroke(COLOR_OUTPUT_DATA);
-  point((outerPtr-(impulseDataLength/2)-1)*PixelsPerPoint, SCREEN_HEIGHT-y[outerPtr]);
+  point((outerPtr-(KERNEL_LENGTH/2))*SCREEN_X_MULTIPLIER, SCREEN_HEIGHT-(output[outerPtr]*kernelScale));
+  
   outerPtr++;  // increment the outer loop pointer
 }
 
-public void newInputData(){
-  for (int c = 0; c < inputDataLength; c++) {
-    noiseInput = noiseInput + noiseIncrement;
-    x[c] = map(noise(noiseInput), 0, 1, 0, SCREEN_HEIGHT);
-    //numbers[c] = floor(random(height));
-   }
-}
+float [] createKernelDirectly1d() {
 
-void newKernelData() {
-  float kernelSum = 0;        
-  float kernelSumNormal = 0; 
-  
-  // set all data values to zero
-  for (int c = 0; c < impulseDataLength; c++) {
-     h[c] = 0;
-  }
+  float[] kernel = new float[9]; // odd size
 
   // Gaussian mask, the "bell curve" shape
   // this impulse response is used to blur or smooth images
-  h[0] = 0.03607497;
-  h[1] = 0.13533528;
-  h[2] = 0.41111228;
-  h[3] = 0.8007374;
-  h[4] = 1;
-  h[5] = 0.8007374;
-  h[6] = 0.41111228;
-  h[7] = 0.13533528;
-  h[8] = 0.03607497;
+  kernel[0] = 0.03607497;
+  kernel[1] = 0.13533528;
+  kernel[2] = 0.41111228;
+  kernel[3] = 0.8007374;
+  kernel[4] = 1;
+  kernel[5] = 0.8007374;
+  kernel[6] = 0.41111228;
+  kernel[7] = 0.13533528;
+  kernel[8] = 0.03607497;
   
-  for (int c = 0; c < impulseDataLength; c++) {
-    kernelSum+=h[c]; 
-  }
- 
-   // normalization of the kernel values to make them range from 0 to 1.
-  for (int i=0; i<h.length; i++) 
-  {
-    if (h[i] != 0) 
-    {
-      h[i] = h[i] / kernelSum; // could have used map(), but this works ok to normalize
-      
-      // added this to verify we properly normalized the plot, final sum should be very close to 1
-      kernelSumNormal+= h[i];
-      
-      println("normalized kernel[" + i + "]:" + h[i]); // print the normalized kernel value.
-    }else 
-    {
-      println("normalized kernel[" + i + "]:" + h[i]); // print the zero kernel value.
-    }
+  return kernel;
+}
+  
+float getKernelScale(float[] kernel) {
+  float scale = 1.0;
+  float sum = 0.0;
+  
+  for (int i=0; i<kernel.length; i++){
+    sum += kernel[i];
+    println("kernel[" + i + "]:" + kernel[i]); // print the kernel value.
   }
   
-  println("kernelSum:" + kernelSum); 
-  println("kernelSumNormal:" + kernelSumNormal);
+  if (sum!=0.0){
+    scale = 1.0/sum;
+  }
+  //for (int i=0; i<kernel.length; i++){
+  //  kernel[i] = kernel[i] * scale;
+  //  println("scaled kernel[" + i + "]:" + kernel[i]); // print the kernel value.
+  //}
+  
+  println("sum:" + sum); // print the kernel sum.
+  println("kernel scale:" + scale); // print the kernel scale.
+  return scale;
 }
 
 public void zeroOutputData(){
   for (int c = 0; c < outputDataLength; c++) {
-    y[c] = 0;
+    output[c] = 0;
    }
 }
 
 public void resetData(){
-  outerPtr = 1;
-  impulsePtr = 0;
+  outerPtr = 0;
+  innerPtr = 0;
   newInputData(); // make some new random noise
   zeroOutputData();
   
   if(noiseInput > 100){
     noiseInput = noiseIncrement;
   }
+}
+
+public void newInputData(){
+  for (int c = 0; c < INPUT_DATA_LENGTH; c++) {
+    noiseInput = noiseInput + noiseIncrement;  // adjust smoothness with noise input
+    input[c] = (HALF_SCREEN_HEIGHT/2) + map(noise(noiseInput), 0, 1, 0, HALF_SCREEN_HEIGHT);  // perlin noise
+   }
 }
 
 void drawLegend() {
