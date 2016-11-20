@@ -38,8 +38,8 @@ final int HALF_SCREEN_HEIGHT = SCREEN_HEIGHT/2;
 
 void setup() {
   // create the kernel
-  
-  kernel = makeGaussKernel1d(kernelSigma); // the input argument is the sigma, higher numbers smooth more, via wider kernels
+  // higher sigma smooth the output more, via a more spread-out kernel
+  kernel = makeGaussKernel1d(kernelSigma); 
   //kernel = createKernelDirectly1d();
 
   kernelScale = getKernelScale(kernel);
