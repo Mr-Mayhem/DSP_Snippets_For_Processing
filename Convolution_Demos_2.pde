@@ -20,17 +20,18 @@ color COLOR_ORIGINAL_DATA = color(255);
 color COLOR_IMPULSE_DATA = color(255, 255, 0);
 color COLOR_OUTPUT_DATA = color(0, 255, 255);
 
-int INPUT_DATA_LENGTH = 256;         // number of discrete values in the input array
+int INPUT_DATA_LENGTH = 512;         // number of discrete values in the input array
 int KERNEL_LENGTH = 0;               // number of discrete values in the kernel array, set in setup()
 int OUTPUT_DATA_LENGTH = 0;          // number of discrete values in the output array, set in setup()
 int outerPtr = 0;                    // outer loop pointer
-float kernelSigma = 1.4;              // input to kernel creation function, controls spreading of gaussian kernel
+
+float kernelSigma = 1.4;             // input to kernel creation function, controls spreading of gaussian kernel
 float kernelScale = 1;               // rescales output to compensate for kernel bias 
 float kernelMultiplier = 100.0;      // multiplies the plotted y values of the kernel, for greater visibility since they are small
-float noiseInput = 0.02;             // used for generating smooth noise for original data; lower values are smoother noise
+float noiseInput = 0.04;             // used for generating smooth noise for original data; lower values are smoother noise
 float noiseIncrement = noiseInput;   // the increment of change of the noise input
 
-final int SCREEN_X_MULTIPLIER = 4;
+final int SCREEN_X_MULTIPLIER = 2;
 final int SCREEN_HEIGHT = 800;
 final int HALF_SCREEN_HEIGHT = SCREEN_HEIGHT/2;
 int SCREEN_WIDTH = 0;
@@ -42,18 +43,20 @@ float[] output = new float[0];       // array for output signal
 void setup() {
   
   // create the kernel
+  // kernel = createKernelDirectly1d();
   // higher sigma smooth the output more, via a more spread-out kernel
   // kernel = makeGaussKernel1d(kernelSigma); 
-  // kernel = createKernelDirectly1d();
-   kernel = createLoGKernal1d(kernelSigma); // smooth and return edges as zero crossings
+  kernel = createLoGKernal1d(kernelSigma); // smooth and return edges as zero crossings
   
-  kernelScale = getKernelScale(kernel);
+  //kernelScale = getKernelScale(kernel); // experimental; useful for makeGaussKernel1d, but comment out for kernels containing neg values
   KERNEL_LENGTH = kernel.length; 
   println("KERNEL_LENGTH = " + KERNEL_LENGTH);
   
   // create the input data
+  // note: random noise option is commented in resetData()
   // a single adjustable impluse, useful for verifying kernel for expected output results
-  input = setInputSingleImpulse(INPUT_DATA_LENGTH, 50, KERNEL_LENGTH/2, false); 
+  //input = setInputSingleImpulse(INPUT_DATA_LENGTH, 150, 50, KERNEL_LENGTH/2, false); 
+  input = setInputSquareWave(INPUT_DATA_LENGTH, 100, 50);
   INPUT_DATA_LENGTH = input.length;
   println("INPUT_DATA_LENGTH = " + INPUT_DATA_LENGTH);
   
@@ -65,6 +68,8 @@ void setup() {
   background(0);
   frameRate(100);
   resetData();
+  println("SCREEN_WIDTH: " + SCREEN_WIDTH);
+  println("SCREEN_HEIGHT: " + SCREEN_HEIGHT);
 }
     
  void draw() {
@@ -82,7 +87,7 @@ void setup() {
   // plot original data point
   strokeWeight(1);
   stroke(COLOR_ORIGINAL_DATA);
-  point(outerPtr*SCREEN_X_MULTIPLIER, SCREEN_HEIGHT-input[outerPtr]);
+  point(outerPtr*SCREEN_X_MULTIPLIER, HALF_SCREEN_HEIGHT-input[outerPtr]);
   
   // draw section of greyscale bar showing the 'color' of original data values
   greyscaleBar((outerPtr)*SCREEN_X_MULTIPLIER, 0, int(input[outerPtr]));
@@ -92,7 +97,7 @@ void setup() {
   if (outerPtr < KERNEL_LENGTH) {
     strokeWeight(1);
     stroke(COLOR_IMPULSE_DATA); // impulse color
-    point(outerPtr*SCREEN_X_MULTIPLIER+(width/2)-(KERNEL_LENGTH*SCREEN_X_MULTIPLIER)/2, SCREEN_HEIGHT-150-(int(kernel[outerPtr] *kernelScale * kernelMultiplier)));
+    point(outerPtr*SCREEN_X_MULTIPLIER+(width/2)-(KERNEL_LENGTH*SCREEN_X_MULTIPLIER)/2, SCREEN_HEIGHT-150-(int(kernel[outerPtr] * kernelMultiplier)));
   }
   
   for (int innerPtr = 0; innerPtr < KERNEL_LENGTH; innerPtr++) { // increment the inner loop pointer //<>//
@@ -102,10 +107,10 @@ void setup() {
 
   //plot the output data
   stroke(COLOR_OUTPUT_DATA);
-  point((outerPtr-(KERNEL_LENGTH/2))*SCREEN_X_MULTIPLIER, SCREEN_HEIGHT-(output[outerPtr]*kernelScale));
+  point((outerPtr-(KERNEL_LENGTH/2))*SCREEN_X_MULTIPLIER, HALF_SCREEN_HEIGHT-(output[outerPtr]));
   
   // draw section of greyscale bar showing the 'color' of output data values
-  greyscaleBar((outerPtr-(KERNEL_LENGTH/2))*SCREEN_X_MULTIPLIER, 11, int(output[outerPtr]*kernelScale));
+  greyscaleBar((outerPtr-(KERNEL_LENGTH/2))*SCREEN_X_MULTIPLIER, 11, int(output[outerPtr]));
   
   outerPtr++;  // increment the outer loop pointer
 }
@@ -183,7 +188,7 @@ float[] createLoGKernal1d(double deviation) {
       third = Math.pow(i, 2.0) / second;
       data[x] = (float) (first * (1 - third) * Math.exp(-third));
   }
-return data;
+  return data;
 }
 
 public void zeroOutputData(){
@@ -195,7 +200,7 @@ public void zeroOutputData(){
 public void resetData(){
   outerPtr = 0;
   
-  //setInputRandomData // make some new random noise
+  //setInputRandomData(); // uncomment to make some new random noise for each draw loop
   
   zeroOutputData();
   
@@ -204,7 +209,16 @@ public void resetData(){
   }
 }
 
-float[] setInputSingleImpulse(int dataLength, int pulseWidth, int offset, boolean positivePolarity){
+public void setInputRandomData(){
+
+  for (int c = 0; c < INPUT_DATA_LENGTH; c++) {
+    noiseInput = noiseInput + noiseIncrement;  // adjust smoothness with noise input
+    input[c] = map(noise(noiseInput), 0, 1, -HALF_SCREEN_HEIGHT, HALF_SCREEN_HEIGHT);  // perlin noise
+   }
+   
+}
+
+float[] setInputSingleImpulse(int dataLength, int pulseHeight, int pulseWidth, int offset,boolean positivePolarity){
   
   if (pulseWidth < 2) {
     pulseWidth = 2;
@@ -219,35 +233,42 @@ float[] setInputSingleImpulse(int dataLength, int pulseWidth, int offset, boolea
   float[] data = new float[dataLength];// even size
   
   // head
-  for (int c = 0; c < startPos; c++) {
-    data[c] = HALF_SCREEN_HEIGHT;;
+  for (int c = 0; c < dataLength; c++) {
+    data[c] = 0;
   }
   
   // pulse
   if (positivePolarity){
     for (int c = startPos; c < stopPos; c++) {
-      data[c] = HALF_SCREEN_HEIGHT+150;
+      data[c] = pulseHeight;
     }
   }else{
     for (int c = startPos; c < stopPos; c++) {
-      data[c] = HALF_SCREEN_HEIGHT-150;
+      data[c] = -pulseHeight;
     }
   }
    
    // tail
    for (int c = stopPos; c < dataLength; c++) {
-     data[c] = HALF_SCREEN_HEIGHT;
+     data[c] = 0;
    }
    return data;
 }
 
-public void setInputRandomData(){
-
-  for (int c = 0; c < INPUT_DATA_LENGTH; c++) {
-    noiseInput = noiseInput + noiseIncrement;  // adjust smoothness with noise input
-    input[c] = map(noise(noiseInput), 0, 1, 0, SCREEN_HEIGHT);  // perlin noise
-   }
-   
+float[] setInputSquareWave(int dataLength, int wavelength, int waveHeight){
+  
+  double sinPoint = 0;
+  double squarePoint = 0;
+  float data[] = new float[dataLength];
+  
+  for( int i = 0; i < data.length; i++ )
+  {
+     sinPoint = Math.sin(2 * Math.PI * i/wavelength);
+     squarePoint = Math.signum(sinPoint);
+     //println(squarePoint);
+     data[i] =(int)(squarePoint) * waveHeight;
+  }
+  return data;
 }
 
 float getKernelScale(float[] kernel) {
@@ -262,10 +283,10 @@ float getKernelScale(float[] kernel) {
   if (sum!=0.0){
     scale = 1.0/sum;
   }
-  //for (int i=0; i<kernel.length; i++){
-  //  kernel[i] = kernel[i] * scale;
-  //  println("scaled kernel[" + i + "]:" + kernel[i]); // print the kernel value.
-  //}
+  for (int i=0; i<kernel.length; i++){
+    kernel[i] = kernel[i] * scale;
+    println("scaled kernel[" + i + "]:" + kernel[i]); // print the kernel value.
+  }
   
   println("sum:" + sum); // print the kernel sum.
   println("kernel scale:" + scale); // print the kernel scale.
