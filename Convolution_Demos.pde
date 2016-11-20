@@ -18,9 +18,9 @@ color COLOR_OUTPUT_DATA = color(0, 255, 0);
 
 int INPUT_DATA_LENGTH = 512;        // number of discrete values in the array
 int KERNEL_LENGTH = 0;              // use odd KERNEL_LENGTH to produce an even integer phase offset
-int outputDataLength = 0;           // number of discrete values in the array
+int OUTPUT_DATA_LENGTH = 0;           // number of discrete values in the array
 int outerPtr = 0;                   // outer loop pointer
-int innerPtr = 0;                   // outer loop pointer
+float kernelSigma = 6;             // input to kernel creation function, controls spreading of gaussian kernel
 float kernelScale = 1;              // rescales output to compensate for kernel bias 
 float kernelMultiplier = 100.0;     // multiplies the plotted y values of the kernel, for greater visibility since they are small
 
@@ -29,21 +29,33 @@ float noiseIncrement = noiseInput;  // the increment of change of the noise inpu
 
 float[] input = new float[INPUT_DATA_LENGTH];   // array for input signal
 float[] kernel = new float[KERNEL_LENGTH];      // array for impulse response
-float[] output = new float[outputDataLength];   // array for output signal
+float[] output = new float[OUTPUT_DATA_LENGTH];   // array for output signal
 
 final int SCREEN_X_MULTIPLIER = 2;
-int SCREEN_WIDTH = outputDataLength*SCREEN_X_MULTIPLIER;
+int SCREEN_WIDTH = OUTPUT_DATA_LENGTH*SCREEN_X_MULTIPLIER;
 final int SCREEN_HEIGHT = 800;
 final int HALF_SCREEN_HEIGHT = SCREEN_HEIGHT/2;
 
 void setup() {
-  kernel = createKernelDirectly1d();
+  // create the kernel
+  
+  kernel = makeGaussKernel1d(kernelSigma); // the input argument is the sigma, higher numbers smooth more, via wider kernels
+  //kernel = createKernelDirectly1d();
+
   kernelScale = getKernelScale(kernel);
   KERNEL_LENGTH = kernel.length; // use odd KERNEL_LENGTH to produce an even integer phase offset
   println("KERNEL_LENGTH = " + KERNEL_LENGTH);
-  outputDataLength = INPUT_DATA_LENGTH + KERNEL_LENGTH; //number of discrete values in the array
-  output = new float[outputDataLength]; // array for output signal gets resized after kernel size is known
-  SCREEN_WIDTH = outputDataLength*SCREEN_X_MULTIPLIER;
+  
+  // create the input data
+  // a single adjustable impluse, useful for verifying kernel for expected output results
+  input = setInputSingleImpulse(INPUT_DATA_LENGTH, 50, KERNEL_LENGTH/2, false); 
+  INPUT_DATA_LENGTH = input.length;
+  println("INPUT_DATA_LENGTH = " + INPUT_DATA_LENGTH);
+  
+  OUTPUT_DATA_LENGTH = INPUT_DATA_LENGTH + KERNEL_LENGTH; //number of discrete values in the array
+  output = new float[OUTPUT_DATA_LENGTH]; // array for output signal gets resized after kernel size is known
+  SCREEN_WIDTH = OUTPUT_DATA_LENGTH*SCREEN_X_MULTIPLIER;
+  
   surface.setSize(SCREEN_WIDTH, SCREEN_HEIGHT);
   background(0);
   frameRate(100);
@@ -105,7 +117,39 @@ float [] createKernelDirectly1d() {
   
   return kernel;
 }
+ 
+float [] makeGaussKernel1d(double sigma) {
   
+ /**
+ * This sample code is made available as part of the book "Digital Image
+ * Processing - An Algorithmic Introduction using Java" by Wilhelm Burger
+ * and Mark J. Burge, Copyright (C) 2005-2008 Springer-Verlag Berlin, 
+ * Heidelberg, New York.
+ * Note that this code comes with absolutely no warranty of any kind.
+ * See http://www.imagingbook.com for details and licensing conditions.
+ * 
+ * Date: 2007/11/10
+ 
+ code found also at:
+ https://github.com/biometrics/imagingbook/blob/master/src/gauss/GaussKernel1d.java
+ */
+
+  // clear the sum used for normalizing the kernel
+ 
+  // create the kernel
+  int center = (int) (3.0 * sigma);
+  float[] kernel = new float [2*center+1]; // odd size
+  
+  // fill the kernel
+  double sigmaSquared = sigma * sigma;
+  for (int i=0; i<kernel.length; i++) {
+    double r = center - i;
+    kernel[i] = (float) Math.exp(-0.5 * (r*r)/ sigmaSquared);
+  }
+  
+  return kernel;
+}
+
 float getKernelScale(float[] kernel) {
   float scale = 1.0;
   float sum = 0.0;
@@ -129,15 +173,14 @@ float getKernelScale(float[] kernel) {
 }
 
 public void zeroOutputData(){
-  for (int c = 0; c < outputDataLength; c++) {
+  for (int c = 0; c < OUTPUT_DATA_LENGTH; c++) {
     output[c] = 0;
    }
 }
 
 public void resetData(){
   outerPtr = 0;
-  innerPtr = 0;
-  newInputData(); // make some new random noise
+  //setInputRandomData(); // uncomment to make some new random noise and put it into inputData
   zeroOutputData();
   
   if(noiseInput > 100){
@@ -145,11 +188,50 @@ public void resetData(){
   }
 }
 
-public void newInputData(){
+float[] setInputSingleImpulse(int dataLength, int pulseWidth, int offset, boolean positivePolarity){
+  
+  if (pulseWidth < 2) {
+    pulseWidth = 2;
+  }
+ 
+  int center = dataLength/2+offset;
+  
+  int halfPositives = pulseWidth /2;
+  int startPos = center - halfPositives;
+  int stopPos = center + halfPositives;
+  
+  float[] data = new float[dataLength];// even size
+  
+  // head
+  for (int c = 0; c < startPos; c++) {
+    data[c] = HALF_SCREEN_HEIGHT;;
+  }
+  
+  // pulse
+  if (positivePolarity){
+    for (int c = startPos; c < stopPos; c++) {
+      data[c] = HALF_SCREEN_HEIGHT+150;
+    }
+  }else{
+    for (int c = startPos; c < stopPos; c++) {
+      data[c] = HALF_SCREEN_HEIGHT-150;
+    }
+  }
+   
+   // tail
+   for (int c = stopPos; c < dataLength; c++) {
+     data[c] = HALF_SCREEN_HEIGHT;
+   }
+   return data;
+}
+
+public void setInputRandomData(){
+
   for (int c = 0; c < INPUT_DATA_LENGTH; c++) {
     noiseInput = noiseInput + noiseIncrement;  // adjust smoothness with noise input
-    input[c] = (HALF_SCREEN_HEIGHT/2) + map(noise(noiseInput), 0, 1, 0, HALF_SCREEN_HEIGHT);  // perlin noise
+    input[c] = map(noise(noiseInput), 0, 1, 0, SCREEN_HEIGHT);  // perlin noise
    }
+   
 }
 
 void drawLegend() {
