@@ -35,19 +35,24 @@ final int QUARTER_SCREEN_HEIGHT = SCREEN_HEIGHT/4;
 
 int SCREEN_WIDTH = 0;
 
+private float [] gaussian1 = {0.03607497, 0.13533528, 0.41111228, 0.8007374, 1, 0.8007374, 0.41111228, 0.13533528, 0.03607497};
+private float [] gaussianLaplacian1 = {2, 6, 0, -24, -40, -24, 0, 6, 2};
+private float [] laplacian1 = {1,-2,1}; 
+private float [] laplacian2 = {1,-4,1}; 
+private float [] laplacian3 = {2,-2,2}; 
+
 float[] input = new float[INPUT_DATA_LENGTH];     // array for input signal
 float[] kernel = new float[KERNEL_LENGTH];        // array for impulse response
 float[] output = new float[OUTPUT_DATA_LENGTH];   // array for output signal
 
 void setup() {
   
-  // create the kernel
-  //kernel = hard_Coded_Gaussian_Kernel_1d();
-  //kernel = Kernel3Points_1d(1.0,-4.0, 1.0); // Laplacian
-  // higher sigma smooth the output more, via a more spread-out kernel
+  // create a kernel
+  //kernel = setArray(gaussian1); // set the kernel, choose from above
+ 
   kernel = makeGaussKernel1d(kernelSigma); 
   
-  kernelScale = getKernelScale(kernel); // experimental; useful for makeGaussKernel1d, but comment out for kernels containing neg values
+  kernelScale = getKernelScale(kernel); // experimental; useful for makeGaussKernel1d, but comment out for kernels containing neg values!
   KERNEL_LENGTH = kernel.length; 
   println("KERNEL_LENGTH = " + KERNEL_LENGTH);
   
@@ -59,7 +64,7 @@ void setup() {
   INPUT_DATA_LENGTH = input.length;
   println("INPUT_DATA_LENGTH = " + INPUT_DATA_LENGTH);
   
-  OUTPUT_DATA_LENGTH = INPUT_DATA_LENGTH + KERNEL_LENGTH; //number of discrete values in the array
+  OUTPUT_DATA_LENGTH = INPUT_DATA_LENGTH + KERNEL_LENGTH; //number of discrete values in the output array
   output = new float[OUTPUT_DATA_LENGTH]; // array for output signal gets resized after kernel size is known
   SCREEN_WIDTH = OUTPUT_DATA_LENGTH*SCREEN_X_MULTIPLIER;
   
@@ -125,35 +130,12 @@ void greyscaleBar(int x, int y, int brightness) {
   rect(x, y, SCREEN_X_MULTIPLIER, 10);
 }
 
-
-float [] hard_Coded_Gaussian_Kernel_1d() {
-
-  float[] kernel = new float[9]; // odd size
-
-  // Gaussian mask, the "bell curve" shape
-  // this impulse response is used to blur or smooth images
-  kernel[0] = 0.03607497;
-  kernel[1] = 0.13533528;
-  kernel[2] = 0.41111228;
-  kernel[3] = 0.8007374;
-  kernel[4] = 1;
-  kernel[5] = 0.8007374;
-  kernel[6] = 0.41111228;
-  kernel[7] = 0.13533528;
-  kernel[8] = 0.03607497;
+float [] setArray(float [] inArray) {
   
-  return kernel;
-}
+  float[] outArray = new float[inArray.length]; // set to an odd value for an even integer phase offset
+  outArray = inArray;
 
-float [] Kernel3Points_1d(float pt1, float pt2, float pt3) {
-  
-  float[] kernel = new float[3]; // set to an odd value for an even integer phase offset
-  
-  kernel[0] = pt1;
-  kernel[1] = pt2;
-  kernel[2] = pt3;
-
-  return kernel;
+  return outArray;
 }
  
 float [] makeGaussKernel1d(double sigma) {
