@@ -71,10 +71,12 @@ void setup() {
   // A menu of various input data sources and waveforms, leave one un-commented
   // random noise option is commented out in resetData(), uncomment to set random data input
   
-  // a single adjustable impluse, useful for verifying kernel for expected output results
-  input = setInputHardCoded(0.125);
+  input = setHardCodedSensorData(0.125);
   
+  // a single adjustable step impulse, useful for verifying the kernel is doing what it should.
   //input = setInputSingleImpulse(INPUT_DATA_LENGTH, 150, 20, KERNEL_LENGTH/2, false); 
+  
+  // an adjustable square wave
   //input = setInputSquareWave(INPUT_DATA_LENGTH, 50, 50);
   
   INPUT_DATA_LENGTH = input.length;
@@ -325,7 +327,7 @@ void setInputRandomData(){
    
 }
 
-int[] setInputHardCoded(float scale){
+int[] setHardCodedSensorData(float scale){
   // set this to the number of bits in each Teensy ADC value read from the sensor
   int NBITS_ADC = 12;
   int HIGHEST_ADC_VALUE = int(pow(2.0, float(NBITS_ADC))-1);
