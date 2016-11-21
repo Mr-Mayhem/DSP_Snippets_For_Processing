@@ -149,7 +149,7 @@ void draw() {
   // draw section of greyscale bar showing the 'color' of output data values
   greyscaleBarMapped(scrShiftedOuterPtr, 11, output[outerPtr]);
  
-  // find 1st derivative
+  // find 1st derivative, the difference between adjacent points in the output[] array
   if (outerPtr > 0) {
     stroke(COLOR_DERIVATIVE_1);
     if (outerPtr > 0){
