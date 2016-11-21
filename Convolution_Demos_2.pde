@@ -51,11 +51,6 @@ int[] input = new int[0];        // array for input signal
 float[] kernel = new float[0];       // array for impulse response, or kernel
 float[] output = new float[0];       // array for output signal
 float[] output2 = new float[0];       // array for output signal
-int[] edges = new int[0];            // array for edges signal
-
-float edgeThresh = 0; //Set the threshold value 
-float edgeLimit = 10;
-boolean edgeLimiter = false;
 
 void setup() {
   
@@ -91,10 +86,7 @@ void setup() {
   // arrays for output signals, get resized after kernel size is known
   output = new float[OUTPUT_DATA_LENGTH];                 
   output2 = new float[OUTPUT_DATA_LENGTH];
-  
-  // array for edge detector output, get resized after kernel size is known
-  edges = new int[OUTPUT_DATA_LENGTH];                    
-  
+                    
   // the data length times the number of pixels per data point
   SCREEN_WIDTH = OUTPUT_DATA_LENGTH*SCREEN_X_MULT;
 
