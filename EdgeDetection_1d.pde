@@ -35,7 +35,7 @@ float kernelMultiplier = 100.0;      // multiplies the plotted y values of the k
 float noiseInput = 0.05;             // used for generating smooth noise for original data; lower values are smoother noise
 float noiseIncrement = noiseInput;   // the increment of change of the noise input
 
-final int SCREEN_X_MULT = 4;
+final int SCREEN_X_MULT = 8;
 final int SCREEN_HEIGHT = 800;
 final int HALF_SCREEN_HEIGHT = SCREEN_HEIGHT/2;
 final int QTR_SCREEN_HEIGHT = SCREEN_HEIGHT/4;
@@ -582,21 +582,21 @@ void drawLegend() {
   fill(COLOR_ORIGINAL_DATA);
   rect(rectX, rectY, rectWidth, rectHeight);
   fill(255);
-  text("Original input Data", rectX+20, rectY+10);
+  text("Original input data", rectX+20, rectY+10);
   
   rectY+=20;
   stroke(COLOR_IMPULSE_DATA);
   fill(COLOR_IMPULSE_DATA);
   rect(rectX, rectY, rectWidth, rectHeight);
   fill(255);
-  text("Impulse Data (aka, the 'Kernel')", rectX+20, rectY+10);
+  text("The Kernel)", rectX+20, rectY+10);
   
   rectY+=20;
   stroke(COLOR_OUTPUT_DATA);
   fill(COLOR_OUTPUT_DATA);
   rect(rectX, rectY, rectWidth, rectHeight);
   fill(255);
-  text("Original data, shifted back into original phase", rectX+20, rectY+10);
+  text("Original data, shifted left back into original phase", rectX+20, rectY+10);
   
   rectY+=20;
   stroke(COLOR_DERIVATIVE1_OF_INPUT);
