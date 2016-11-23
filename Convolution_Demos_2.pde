@@ -29,8 +29,8 @@ int OUTPUT_DATA_LENGTH = 0;          // number of discrete values in the output 
 int outerPtr = 0;                    // outer loop pointer
 int kernelDrawYOffset = 100;         // height above bottom of screen to draw the kernel data points
 
-float gaussianKernelSigma = 2;       // input to kernel creation function, controls spreading of gaussian kernel
-float loGKernelSigma = 1.2;          // input to kernel creation function, controls spreading of loG kernel
+float gaussianKernelSigma = 2.0;       // input to kernel creation function, controls spreading of gaussian kernel
+float loGKernelSigma = 1.0;          // input to kernel creation function, controls spreading of loG kernel
 float kernelMultiplier = 100.0;      // multiplies the plotted y values of the kernel, for greater visibility since they are small
 float noiseInput = 0.05;             // used for generating smooth noise for original data; lower values are smoother noise
 float noiseIncrement = noiseInput;   // the increment of change of the noise input
