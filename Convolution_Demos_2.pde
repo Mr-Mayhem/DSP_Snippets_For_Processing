@@ -1,7 +1,7 @@
-/*
-Convolution_Demos_2.pde, a demo of convolution, with a special function that dynamically creates the kernel coefficients 
-just prior to use.
+/* //<>//
+Convolution_Demos_2.pde, a demo of edge detection in one dimension
 
+Created by Douglas Mayhew, November 17, 2016.
 Released into the public domain, except:
  * The function, 'makeGaussKernel1d' is made available as part of the book 
  * "Digital Image * Processing - An Algorithmic Introduction using Java" by Wilhelm Burger
@@ -29,7 +29,7 @@ int OUTPUT_DATA_LENGTH = 0;          // number of discrete values in the output 
 int outerPtr = 0;                    // outer loop pointer
 int kernelDrawYOffset = 100;         // height above bottom of screen to draw the kernel data points
 
-float gaussianKernelSigma = 2.0;       // input to kernel creation function, controls spreading of gaussian kernel
+float gaussianKernelSigma = 2.0;     // input to kernel creation function, controls spreading of gaussian kernel
 float loGKernelSigma = 1.0;          // input to kernel creation function, controls spreading of loG kernel
 float kernelMultiplier = 100.0;      // multiplies the plotted y values of the kernel, for greater visibility since they are small
 float noiseInput = 0.05;             // used for generating smooth noise for original data; lower values are smoother noise
@@ -92,7 +92,7 @@ void setup() {
   output = new float[OUTPUT_DATA_LENGTH];                 
   output2 = new float[OUTPUT_DATA_LENGTH];
   output3 = new float[OUTPUT_DATA_LENGTH];
-                   
+                      
   // the data length times the number of pixels per data point
   SCREEN_WIDTH = OUTPUT_DATA_LENGTH*SCREEN_X_MULT;
 
@@ -136,13 +136,13 @@ void draw() {
   // In other words, we did convolution, which needs to be corrected by half a kernel,
   // AND we are taking the derivative of it, which needs half a data increment shift.
   // So, this pointer does both.
-  float plotXplotXShiftedHalfKernelAndHalfIncrement = plotXShiftedHalfKernel-0.5;
+  float plotXShiftedHalfKernelAndHalfIncrement = plotXShiftedHalfKernel-0.5;
   
   // now multiply by SCREEN_X_MULT to space-out X axis of the data plot by SCREEN_X_MULT pixels per data point
   plotX = plotX * SCREEN_X_MULT;
   plotXShiftedHalfKernel = plotXShiftedHalfKernel * SCREEN_X_MULT;
   plotXShiftedHalfIncrement = plotXShiftedHalfIncrement * SCREEN_X_MULT;
-  plotXplotXShiftedHalfKernelAndHalfIncrement = plotXplotXShiftedHalfKernelAndHalfIncrement * SCREEN_X_MULT;
+  plotXShiftedHalfKernelAndHalfIncrement = plotXShiftedHalfKernelAndHalfIncrement * SCREEN_X_MULT;
 
 
   // plot the kernel data point
@@ -193,11 +193,12 @@ void draw() {
     stroke(COLOR_DERIVATIVE1_OF_OUTPUT);
     if (outerPtr > 0){
       output3[outerPtr] = output[outerPtr] - output[outerPtr-1];
-      point(plotXplotXShiftedHalfKernelAndHalfIncrement, HALF_SCREEN_HEIGHT-output3[outerPtr]);
+      point(plotXShiftedHalfKernelAndHalfIncrement, HALF_SCREEN_HEIGHT-output3[outerPtr]);
       // draw section of greyscale bar showing the 'color' of output2 data values
-      greyscaleBarMappedAbs(plotXplotXShiftedHalfKernelAndHalfIncrement, 22, output3[outerPtr]);
+      greyscaleBarMappedAbs(plotXShiftedHalfKernelAndHalfIncrement, 22, output3[outerPtr]);
     }
   }
+
   outerPtr++;  // increment the outer loop pointer
 }
 
@@ -564,4 +565,4 @@ void drawGrid(int gWidth, int gHeight, int divisor)
    for(int w=0; w<gHeight; w+=heightSpace){
      line(0,w,gWidth,w);
    }
-} //<>//
+}
