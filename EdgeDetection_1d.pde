@@ -23,7 +23,8 @@ color COLOR_OUTPUT_DATA = color(255, 0, 255);
 color COLOR_EDGES = color(0, 255, 0);
 
 int INPUT_DATA_LENGTH = 0;           // number of discrete values in the input array
-int KERNEL_LENGTH = 0;               // number of discrete values in the kernel array, set in setup()
+int KERNEL_LENGTH = 0;               // number of discrete values in the kernel array, set in setup() 
+int HALF_KERNEL_LENGTH = 0;          // Half the kernel length, used to correct convoltion phase shift
 int OUTPUT_DATA_LENGTH = 0;          // number of discrete values in the output array, set in setup()
 int outerPtr = 0;                    // outer loop pointer
 int kernelDrawYOffset = 100;         // height above bottom of screen to draw the kernel data points
@@ -71,6 +72,7 @@ void setup() {
   //kernel = createLoGKernal1d(loGKernelSigma); 
   
   KERNEL_LENGTH = kernel.length; 
+  HALF_KERNEL_LENGTH = KERNEL_LENGTH/2;
   //KERNEL_LENGTH = 0;
   println("KERNEL_LENGTH = " + KERNEL_LENGTH);
   
@@ -125,16 +127,33 @@ void draw() {
     drawLegend();
   }
   // some indexes for scaling plotted data to screen X axis (width)
-  int scrOuterPtr = outerPtr*SCREEN_X_MULT;
-  int scrShiftedOuterPtr = (outerPtr-(KERNEL_LENGTH/2))*SCREEN_X_MULT;
-  float scrDshiftedOuterPtr = ((outerPtr-0.5)-(KERNEL_LENGTH/2))*SCREEN_X_MULT;
   
+  // space the data out on the screen by SCREEN_X_MULT pixel spacing
+  int plotX = outerPtr;
+  
+  // shift left by half the kernel size to correct for convolution shift (dead-on correct for odd-size kernels)
+  int plotXShiftedHalfKernel = outerPtr-HALF_KERNEL_LENGTH; 
+  
+  // shift left by half a data point to properly set the x axis of the plot. 
+  // (First difference lives in-between data points.)
+  float plotXShiftedHalfIncrement = outerPtr-0.5; // subtract half a data point.
+  
+  // shift left by half the kernel and half a pixel to properly set the x axis of the plot
+  float plotXplotXShiftedHalfKernelAndHalfIncrement = plotXShiftedHalfKernel-0.5;
+  
+  // now multiply by SCREEN_X_MULT to space-out X axis of the data plot by SCREEN_X_MULT pixels per data point
+  plotX = plotX * SCREEN_X_MULT;
+  plotXShiftedHalfKernel = plotXShiftedHalfKernel * SCREEN_X_MULT;
+  plotXShiftedHalfIncrement = plotXShiftedHalfIncrement * SCREEN_X_MULT;
+  plotXplotXShiftedHalfKernelAndHalfIncrement = plotXplotXShiftedHalfKernelAndHalfIncrement * SCREEN_X_MULT;
+
+
   // plot the kernel data point
   // draw new kernel point (scaled up for visibility
   if (outerPtr < KERNEL_LENGTH) {
     strokeWeight(1);
     stroke(COLOR_IMPULSE_DATA); // impulse color
-    point(scrOuterPtr+(width/2)-(KERNEL_LENGTH*SCREEN_X_MULT)/2, 
+    point(plotX+(width/2)-(KERNEL_LENGTH*SCREEN_X_MULT)/2, 
     SCREEN_HEIGHT-kernelDrawYOffset-(kernel[outerPtr] * kernelMultiplier));
   }
   
@@ -142,9 +161,9 @@ void draw() {
   strokeWeight(1);
   stroke(COLOR_ORIGINAL_DATA);
   if (outerPtr < INPUT_DATA_LENGTH){
-    point(scrOuterPtr, HALF_SCREEN_HEIGHT-input[outerPtr]);
+    point(plotX, HALF_SCREEN_HEIGHT-input[outerPtr]);
     // draw section of greyscale bar showing the 'color' of original data values
-    greyscaleBarMapped(scrOuterPtr, 0, input[outerPtr]);
+    greyscaleBarMapped(plotX, 0, input[outerPtr]);
     
     // convolution inner loop
     for (int innerPtr = 0; innerPtr < KERNEL_LENGTH; innerPtr++) { // increment the inner loop pointer
@@ -155,20 +174,20 @@ void draw() {
   
   // plot the output data
   stroke(COLOR_OUTPUT_DATA);
-  point(scrShiftedOuterPtr, HALF_SCREEN_HEIGHT-(output[outerPtr]));
+  point(plotXShiftedHalfKernel, HALF_SCREEN_HEIGHT-(output[outerPtr]));
   //println("output[" + outerPtr + "]" +output[outerPtr]);
  
   // draw section of greyscale bar showing the 'color' of output data values
-  greyscaleBarMapped(scrShiftedOuterPtr, 11, output[outerPtr]);
+  greyscaleBarMapped(plotXShiftedHalfKernel, 11, output[outerPtr]);
 
   // find 1st derivative of the original data, the difference between adjacent points in the input[] array
   if (outerPtr > 0 && outerPtr < INPUT_DATA_LENGTH) {
     stroke(COLOR_DERIVATIVE1_OF_INPUT);
     if (outerPtr > 0){
       output2[outerPtr] = input[outerPtr] - input[outerPtr-1];
-      point(scrOuterPtr, HALF_SCREEN_HEIGHT-output2[outerPtr]);
+      point(plotXShiftedHalfIncrement, HALF_SCREEN_HEIGHT-output2[outerPtr]);
       // draw section of greyscale bar showing the 'color' of output2 data values
-      greyscaleBarMappedAbs(scrOuterPtr, 22, output2[outerPtr]);
+      greyscaleBarMappedAbs(plotXShiftedHalfIncrement, 22, output2[outerPtr]);
     }
   }
  
@@ -177,9 +196,9 @@ void draw() {
     stroke(COLOR_DERIVATIVE1_OF_OUTPUT);
     if (outerPtr > 0){
       output3[outerPtr] = output[outerPtr] - output[outerPtr-1];
-      point(scrDshiftedOuterPtr, HALF_SCREEN_HEIGHT-output3[outerPtr]);
+      point(plotXplotXShiftedHalfKernelAndHalfIncrement, HALF_SCREEN_HEIGHT-output3[outerPtr]);
       // draw section of greyscale bar showing the 'color' of output2 data values
-      greyscaleBarMappedAbs(scrShiftedOuterPtr, 22, output3[outerPtr]);
+      greyscaleBarMappedAbs(plotXplotXShiftedHalfKernelAndHalfIncrement, 22, output3[outerPtr]);
     }
   }
   
@@ -572,7 +591,7 @@ void drawLegend() {
   fill(COLOR_OUTPUT_DATA);
   rect(rectX, rectY, rectWidth, rectHeight);
   fill(255);
-  text("Output data, shifted back into original phase", rectX+20, rectY+10);
+  text("Original data, shifted back into original phase", rectX+20, rectY+10);
   
   rectY+=20;
   stroke(COLOR_DERIVATIVE1_OF_INPUT);
