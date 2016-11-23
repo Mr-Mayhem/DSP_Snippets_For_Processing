@@ -140,9 +140,10 @@ void draw() {
   float plotXShiftedHalfIncrement = outerPtr-0.5; // subtract half a data point.
   
   // shift left by half the kernel length AND half a data point increment,
-  // to position the x axis of the 1st derivative of the convolution output's plot
-  // we did convolution, which needs to be corrected by half a kernel,
+  // to position the x axis of the 1st derivative of the convolution output's plot.
+  // In other words, we did convolution, which needs to be corrected by half a kernel,
   // AND we are taking the derivative of it, which needs half a data increment shift.
+  // So, this pointer does both.
   float plotXplotXShiftedHalfKernelAndHalfIncrement = plotXShiftedHalfKernel-0.5;
   
   // now multiply by SCREEN_X_MULT to space-out X axis of the data plot by SCREEN_X_MULT pixels per data point
