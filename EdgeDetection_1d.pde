@@ -134,11 +134,12 @@ void draw() {
   // shift left by half the kernel size to correct for convolution shift (dead-on correct for odd-size kernels)
   int plotXShiftedHalfKernel = outerPtr-HALF_KERNEL_LENGTH; 
   
-  // shift left by half a data point to properly set the x axis of the plot. 
-  // (First difference lives in-between data points.)
+  // shift left by half x to properly set the x axis of the 1st derivative  original data plot. 
+  // (The 1st derivative is the difference between adjacent data points x[-1] and X, so it's phase is centered 
+  // in-between original data points)
   float plotXShiftedHalfIncrement = outerPtr-0.5; // subtract half a data point.
   
-  // shift left by half the kernel and half a pixel to properly set the x axis of the plot
+  // shift left by half the kernel and half x to set the x axis of the smoothed 1st derivative data plot
   float plotXplotXShiftedHalfKernelAndHalfIncrement = plotXShiftedHalfKernel-0.5;
   
   // now multiply by SCREEN_X_MULT to space-out X axis of the data plot by SCREEN_X_MULT pixels per data point
