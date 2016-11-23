@@ -45,8 +45,8 @@ int SCREEN_WIDTH = 0;
 // a menu of various kernels, example: kernel = setArray(gaussian); // remember to comment out the other kernel makers
 private float [] gaussian = {0.0048150257, 0.028716037, 0.10281857, 0.22102419, 0.28525233, 0.22102419, 0.10281857, 0.028716037, 0.0048150257};
 private float [] sorbel = {1, 0, -1};
-private float [] gaussianLaplacian = {2, 6, 0, -24, -40, -24, 0, 6, 2};
-private float [] laplacian = {1,-2, 1}; 
+private float [] gaussianLaplacian = {-7.474675E-4, -0.0123763615, -0.04307856, 0.09653235, 0.31830987, 0.09653235, -0.04307856, -0.0123763615, -7.474675E-4};
+private float [] laplacian = {1, -2, 1}; 
 
 int[] input = new int[0];            // array for input signal
 float[] kernel = new float[0];       // array for impulse response, or kernel
@@ -62,13 +62,13 @@ boolean edgeLimiter = false;
 void setup() {
   
   // choose a kernel
-  //kernel = setArray(gaussian); // set the kernel, choose from above
-  //kernel = setArray(sorbel); // set the kernel, choose from above
-  //kernel = setArray(gaussianLaplacian); // set the kernel, choose from above
-  //kernel = setArray(laplacian); // set the kernel, choose from above
+  // kernel = setArray(gaussian); // set the kernel, choose from above
+  // kernel = setArray(sorbel); // set the kernel, choose from above
+  // kernel = setArray(gaussianLaplacian); // set the kernel, choose from above
+  // kernel = setArray(laplacian); // set the kernel, choose from above
   
   // A dynamically created gaussian
-  kernel = makeGaussKernel1d(gaussianKernelSigma); 
+     kernel = makeGaussKernel1d(gaussianKernelSigma); 
   
   // A dynamically created Gaussian Laplacian (combination of Gaussian and Laplacian, the 'Mexican Hat Filter')
   // kernel = createLoGKernal1d(loGKernelSigma); 
@@ -214,6 +214,11 @@ void draw() {
   // I refactored it for 1d use, (the original is for 2d photos or images) and made other
   // changes to make it follow my way of doing things here.
   
+  // Find the zero crossings
+  // If when neighbouring points are multiplied the result is -ve then there 
+  // must be a change in sign between these two points. 
+  // If the change is also above the thereshold then set it as a zero crossing.   
+  
   // I played with this code for sake of learning, but I don't expect to use it
   // unless I can find a sub-pixel method to go with it. 
   
@@ -230,13 +235,7 @@ void draw() {
   //  } else { 
   //    edgeThresh = 0; 
   //  }
-  
-  //  // Find the zero crossings
-  //  /* If when neighbouring points are multiplied the result is -ve then there 
-  //     must be a change in sign between these two points. 
-  //     If the change is also above the thereshold then set it as a zero crossing. 
-  //  */
-  
+  //
   //  if(output[outerPtr-1]*output[outerPtr+1] < 0){ 
   //    if(Math.abs(output[outerPtr-1]) + Math.abs(output[outerPtr+1]) > edgeThresh){ 
   //       edges[outerPtr-1] = 255; // white
@@ -253,13 +252,13 @@ void draw() {
   //    edges[outerPtr-1] = 0; 
   //  } 
    
-  //  //plot the output data
+  //  // plot the zero crossings as little hollow circles
   //  // draw section of greyscale bar showing the 'color' of output data values
-  //  greyscaleBarDirect(plotXShiftedHalfKernelAndHalfIncrement, 33, edges[outerPtr-1]);
+  //  greyscaleBarDirect(plotXShiftedHalfKernel, 33, edges[outerPtr-1]);
   //  noFill();
   //  stroke(COLOR_EDGES);
   //  if (edges[outerPtr-1] == 255){
-  //    ellipse(plotXShiftedHalfKernelAndHalfIncrement, HALF_SCREEN_HEIGHT, 5, 5);
+  //    ellipse(plotXShiftedHalfKernel, HALF_SCREEN_HEIGHT, 5, 5);
   //  }
   //}
 
@@ -392,7 +391,7 @@ float[] createLoGKernal1d(double deviation) {
       third = Math.pow(i, 2.0) / second;
       kernel[x] = (double) (first * (1 - third) * Math.exp(-third));
       fkernel[x] = (float) kernel[x];
-      println("LoG kernel[" + x + "] = " + kernel[x]);
+      println("LoG kernel[" + x + "] = " + fkernel[x]);
   }
   return fkernel;
 }
