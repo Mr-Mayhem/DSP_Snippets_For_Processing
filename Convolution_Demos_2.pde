@@ -63,11 +63,13 @@ void setup() {
   //kernel = setArray(gaussianLaplacian); // set the kernel, choose from above
   //kernel = setArray(laplacian); // set the kernel, choose from above
   
+  // A dynamically created gaussian
   kernel = makeGaussKernel1d(gaussianKernelSigma); 
-  // Gaussian Laplacian (combination of Gaussian and Laplacian, the 'Mexican Hat Filter')
+  
+  // A dynamically created Gaussian Laplacian (combination of Gaussian and Laplacian, the 'Mexican Hat Filter')
   //kernel = createLoGKernal1d(loGKernelSigma); 
   
-  KERNEL_LENGTH = kernel.length;
+  KERNEL_LENGTH = kernel.length; 
   HALF_KERNEL_LENGTH = KERNEL_LENGTH/2;
   //KERNEL_LENGTH = 0;
   println("KERNEL_LENGTH = " + KERNEL_LENGTH);
