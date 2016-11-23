@@ -589,14 +589,14 @@ void drawLegend() {
   fill(COLOR_IMPULSE_DATA);
   rect(rectX, rectY, rectWidth, rectHeight);
   fill(255);
-  text("The Kernel)", rectX+20, rectY+10);
+  text("The convolution kernel", rectX+20, rectY+10);
   
   rectY+=20;
   stroke(COLOR_OUTPUT_DATA);
   fill(COLOR_OUTPUT_DATA);
   rect(rectX, rectY, rectWidth, rectHeight);
   fill(255);
-  text("Original data, shifted left back into original phase", rectX+20, rectY+10);
+  text("Original data, shifted back into original phase", rectX+20, rectY+10);
   
   rectY+=20;
   stroke(COLOR_DERIVATIVE1_OF_INPUT);
