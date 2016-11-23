@@ -156,14 +156,14 @@ void draw() {
   // plot the kernel data point
   // draw new kernel point (scaled up for visibility
   if (outerPtr < KERNEL_LENGTH) {
-    strokeWeight(1);
+    strokeWeight(2);
     stroke(COLOR_IMPULSE_DATA); // impulse color
     point(plotX+(width/2)-(KERNEL_LENGTH*SCREEN_X_MULT)/2, 
     SCREEN_HEIGHT-kernelDrawYOffset-(kernel[outerPtr] * kernelMultiplier));
   }
   
   // plot original data point
-  strokeWeight(1);
+  strokeWeight(2);
   stroke(COLOR_ORIGINAL_DATA);
   if (outerPtr < INPUT_DATA_LENGTH){
     point(plotX, HALF_SCREEN_HEIGHT-input[outerPtr]);
@@ -589,14 +589,14 @@ void drawLegend() {
   fill(COLOR_IMPULSE_DATA);
   rect(rectX, rectY, rectWidth, rectHeight);
   fill(255);
-  text("The convolution kernel", rectX+20, rectY+10);
+  text("Convolution kernel", rectX+20, rectY+10);
   
   rectY+=20;
   stroke(COLOR_OUTPUT_DATA);
   fill(COLOR_OUTPUT_DATA);
   rect(rectX, rectY, rectWidth, rectHeight);
   fill(255);
-  text("Original data, shifted back into original phase", rectX+20, rectY+10);
+  text("Convolution output data, shifted back into original phase", rectX+20, rectY+10);
   
   rectY+=20;
   stroke(COLOR_DERIVATIVE1_OF_INPUT);
@@ -610,7 +610,7 @@ void drawLegend() {
   fill(COLOR_DERIVATIVE1_OF_OUTPUT);
   rect(rectX, rectY, rectWidth, rectHeight);
   fill(255);
-  text("1st derivative of gaussian smoothed data", rectX+20, rectY+10);
+  text("1st derivative of convolution output data", rectX+20, rectY+10);
   
 }
 
