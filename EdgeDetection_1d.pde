@@ -135,7 +135,7 @@ void draw() {
   int plotXShiftedHalfKernel = outerPtr-HALF_KERNEL_LENGTH; 
   
   // shift left by half a data point increment to properly position the raw 1st derivative plot. 
-  // (The 1st derivative is the difference between adjacent data points x[-1] and X, so it's phase is centered 
+  // (The 1st derivative is the difference between adjacent data points x[-1] and x, so it's phase is centered 
   // in-between original data points)
   float plotXShiftedHalfIncrement = outerPtr-0.5; // subtract half a data point.
   
