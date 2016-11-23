@@ -144,13 +144,13 @@ void draw() {
   // In other words, we did convolution, which needs to be corrected by half a kernel,
   // AND we are taking the derivative of it, which needs half a data increment shift.
   // So, this pointer does both.
-  float plotXplotXShiftedHalfKernelAndHalfIncrement = plotXShiftedHalfKernel-0.5;
+  float plotXShiftedHalfKernelAndHalfIncrement = plotXShiftedHalfKernel-0.5;
   
   // now multiply by SCREEN_X_MULT to space-out X axis of the data plot by SCREEN_X_MULT pixels per data point
   plotX = plotX * SCREEN_X_MULT;
   plotXShiftedHalfKernel = plotXShiftedHalfKernel * SCREEN_X_MULT;
   plotXShiftedHalfIncrement = plotXShiftedHalfIncrement * SCREEN_X_MULT;
-  plotXplotXShiftedHalfKernelAndHalfIncrement = plotXplotXShiftedHalfKernelAndHalfIncrement * SCREEN_X_MULT;
+  plotXShiftedHalfKernelAndHalfIncrement = plotXShiftedHalfKernelAndHalfIncrement * SCREEN_X_MULT;
 
 
   // plot the kernel data point
@@ -201,9 +201,9 @@ void draw() {
     stroke(COLOR_DERIVATIVE1_OF_OUTPUT);
     if (outerPtr > 0){
       output3[outerPtr] = output[outerPtr] - output[outerPtr-1];
-      point(plotXplotXShiftedHalfKernelAndHalfIncrement, HALF_SCREEN_HEIGHT-output3[outerPtr]);
+      point(plotXShiftedHalfKernelAndHalfIncrement, HALF_SCREEN_HEIGHT-output3[outerPtr]);
       // draw section of greyscale bar showing the 'color' of output2 data values
-      greyscaleBarMappedAbs(plotXplotXShiftedHalfKernelAndHalfIncrement, 22, output3[outerPtr]);
+      greyscaleBarMappedAbs(plotXShiftedHalfKernelAndHalfIncrement, 22, output3[outerPtr]);
     }
   }
   
@@ -255,11 +255,11 @@ void draw() {
    
   //  //plot the output data
   //  // draw section of greyscale bar showing the 'color' of output data values
-  //  greyscaleBarDirect(plotXplotXShiftedHalfKernelAndHalfIncrement, 33, edges[outerPtr-1]);
+  //  greyscaleBarDirect(plotXShiftedHalfKernelAndHalfIncrement, 33, edges[outerPtr-1]);
   //  noFill();
   //  stroke(COLOR_EDGES);
   //  if (edges[outerPtr-1] == 255){
-  //    ellipse(plotXplotXShiftedHalfKernelAndHalfIncrement, HALF_SCREEN_HEIGHT, 5, 5);
+  //    ellipse(plotXShiftedHalfKernelAndHalfIncrement, HALF_SCREEN_HEIGHT, 5, 5);
   //  }
   //}
 
