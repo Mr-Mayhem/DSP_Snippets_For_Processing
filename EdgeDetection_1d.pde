@@ -48,11 +48,11 @@ private float [] sorbel = {1, 0, -1};
 private float [] gaussianLaplacian = {2, 6, 0, -24, -40, -24, 0, 6, 2};
 private float [] laplacian = {1,-2, 1}; 
 
-int[] input = new int[0];        // array for input signal
+int[] input = new int[0];            // array for input signal
 float[] kernel = new float[0];       // array for impulse response, or kernel
 float[] output = new float[0];       // array for output signal
-float[] output2 = new float[0];       // array for output signal
-float[] output3 = new float[0];       // array for output signal
+float[] output2 = new float[0];      // array for output signal
+float[] output3 = new float[0];      // array for output signal
 int[] edges = new int[0];            // array for edges signal
 
 float edgeThresh = 0; //Set the threshold value 
