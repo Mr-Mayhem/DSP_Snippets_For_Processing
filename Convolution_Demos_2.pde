@@ -45,7 +45,7 @@ int SCREEN_WIDTH = 0;
 // a menu of various kernels, example: kernel = setArray(gaussian); // remember to comment out the other kernel makers
 private float [] gaussian = {0.0048150257, 0.028716037, 0.10281857, 0.22102419, 0.28525233, 0.22102419, 0.10281857, 0.028716037, 0.0048150257};
 private float [] sorbel = {1, 0, -1};
-private float [] gaussianLaplacian = {2, 6, 0, -24, -40, -24, 0, 6, 2};
+private float [] gaussianLaplacian = {-7.474675E-4, -0.0123763615, -0.04307856, 0.09653235, 0.31830987, 0.09653235, -0.04307856, -0.0123763615, -7.474675E-4};
 private float [] laplacian = {1,-2, 1}; 
 
 int[] input = new int[0];            // array for input signal
