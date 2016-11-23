@@ -18,12 +18,14 @@ translated into Processing (java) by Douglas Mayhew
 
 color COLOR_ORIGINAL_DATA = color(255);
 color COLOR_IMPULSE_DATA = color(255, 255, 0);
-color COLOR_DERIVATIVE_1 = color(0, 255, 0);
+color COLOR_DERIVATIVE1_OF_INPUT = color(255, 0, 0);
+color COLOR_DERIVATIVE1_OF_OUTPUT = color(0, 255, 0);
 color COLOR_OUTPUT_DATA = color(255, 0, 255);
 color COLOR_EDGES = color(0, 255, 0);
 
 int INPUT_DATA_LENGTH = 0;           // number of discrete values in the input array
 int KERNEL_LENGTH = 0;               // number of discrete values in the kernel array, set in setup()
+int HALF_KERNEL_LENGTH = 0;          // Half the kernel length, used to correct convoltion phase shift
 int OUTPUT_DATA_LENGTH = 0;          // number of discrete values in the output array, set in setup()
 int outerPtr = 0;                    // outer loop pointer
 int kernelDrawYOffset = 100;         // height above bottom of screen to draw the kernel data points
@@ -34,7 +36,7 @@ float kernelMultiplier = 100.0;      // multiplies the plotted y values of the k
 float noiseInput = 0.05;             // used for generating smooth noise for original data; lower values are smoother noise
 float noiseIncrement = noiseInput;   // the increment of change of the noise input
 
-final int SCREEN_X_MULT = 4;
+final int SCREEN_X_MULT = 8;
 final int SCREEN_HEIGHT = 800;
 final int HALF_SCREEN_HEIGHT = SCREEN_HEIGHT/2;
 final int QTR_SCREEN_HEIGHT = SCREEN_HEIGHT/4;
@@ -47,10 +49,11 @@ private float [] sorbel = {1, 0, -1};
 private float [] gaussianLaplacian = {2, 6, 0, -24, -40, -24, 0, 6, 2};
 private float [] laplacian = {1,-2, 1}; 
 
-int[] input = new int[0];        // array for input signal
+int[] input = new int[0];            // array for input signal
 float[] kernel = new float[0];       // array for impulse response, or kernel
 float[] output = new float[0];       // array for output signal
-float[] output2 = new float[0];       // array for output signal
+float[] output2 = new float[0];      // array for output signal
+float[] output3 = new float[0];      // array for output signal
 
 void setup() {
   
@@ -64,7 +67,8 @@ void setup() {
   // Gaussian Laplacian (combination of Gaussian and Laplacian, the 'Mexican Hat Filter')
   //kernel = createLoGKernal1d(loGKernelSigma); 
   
-  KERNEL_LENGTH = kernel.length; 
+  KERNEL_LENGTH = kernel.length;
+  HALF_KERNEL_LENGTH = KERNEL_LENGTH/2;
   //KERNEL_LENGTH = 0;
   println("KERNEL_LENGTH = " + KERNEL_LENGTH);
   
@@ -88,6 +92,7 @@ void setup() {
   // arrays for output signals, get resized after kernel size is known
   output = new float[OUTPUT_DATA_LENGTH];                 
   output2 = new float[OUTPUT_DATA_LENGTH];
+  output3 = new float[OUTPUT_DATA_LENGTH];
                     
   // the data length times the number of pixels per data point
   SCREEN_WIDTH = OUTPUT_DATA_LENGTH*SCREEN_X_MULT;
@@ -115,16 +120,38 @@ void draw() {
     drawLegend();
   }
   // some indexes for scaling plotted data to screen X axis (width)
-  int scrOuterPtr = outerPtr*SCREEN_X_MULT;
-  int scrShiftedOuterPtr = (outerPtr-(KERNEL_LENGTH/2))*SCREEN_X_MULT;
-  float scrDshiftedOuterPtr = ((outerPtr-0.5)-(KERNEL_LENGTH/2))*SCREEN_X_MULT;
   
+  // the outer pointer to the data arrays
+  int plotX = outerPtr;
+  
+  // shift left by half the kernel size to correct for convolution shift (dead-on correct for odd-size kernels)
+  int plotXShiftedHalfKernel = outerPtr-HALF_KERNEL_LENGTH; 
+  
+  // shift left by half a data point increment to properly position the raw 1st derivative plot. 
+  // (The 1st derivative is the difference between adjacent data points x[-1] and x, so it's phase is centered 
+  // in-between original data points)
+  float plotXShiftedHalfIncrement = outerPtr-0.5; // subtract half a data point.
+  
+  // shift left by half the kernel length AND half a data point increment,
+  // to position the x axis of the 1st derivative of the convolution output's plot.
+  // In other words, we did convolution, which needs to be corrected by half a kernel,
+  // AND we are taking the derivative of it, which needs half a data increment shift.
+  // So, this pointer does both.
+  float plotXplotXShiftedHalfKernelAndHalfIncrement = plotXShiftedHalfKernel-0.5;
+  
+  // now multiply by SCREEN_X_MULT to space-out X axis of the data plot by SCREEN_X_MULT pixels per data point
+  plotX = plotX * SCREEN_X_MULT;
+  plotXShiftedHalfKernel = plotXShiftedHalfKernel * SCREEN_X_MULT;
+  plotXShiftedHalfIncrement = plotXShiftedHalfIncrement * SCREEN_X_MULT;
+  plotXplotXShiftedHalfKernelAndHalfIncrement = plotXplotXShiftedHalfKernelAndHalfIncrement * SCREEN_X_MULT;
+
+
   // plot the kernel data point
   // draw new kernel point (scaled up for visibility
   if (outerPtr < KERNEL_LENGTH) {
     strokeWeight(1);
     stroke(COLOR_IMPULSE_DATA); // impulse color
-    point(scrOuterPtr+(width/2)-(KERNEL_LENGTH*SCREEN_X_MULT)/2, 
+    point(plotX+(width/2)-(KERNEL_LENGTH*SCREEN_X_MULT)/2, 
     SCREEN_HEIGHT-kernelDrawYOffset-(kernel[outerPtr] * kernelMultiplier));
   }
   
@@ -132,9 +159,9 @@ void draw() {
   strokeWeight(1);
   stroke(COLOR_ORIGINAL_DATA);
   if (outerPtr < INPUT_DATA_LENGTH){
-    point(scrOuterPtr, HALF_SCREEN_HEIGHT-input[outerPtr]);
+    point(plotX, HALF_SCREEN_HEIGHT-input[outerPtr]);
     // draw section of greyscale bar showing the 'color' of original data values
-    greyscaleBarMapped(scrOuterPtr, 0, input[outerPtr]);
+    greyscaleBarMapped(plotX, 0, input[outerPtr]);
     
     // convolution inner loop
     for (int innerPtr = 0; innerPtr < KERNEL_LENGTH; innerPtr++) { // increment the inner loop pointer
@@ -145,23 +172,34 @@ void draw() {
   
   // plot the output data
   stroke(COLOR_OUTPUT_DATA);
-  point(scrShiftedOuterPtr, HALF_SCREEN_HEIGHT-(output[outerPtr]));
+  point(plotXShiftedHalfKernel, HALF_SCREEN_HEIGHT-(output[outerPtr]));
   //println("output[" + outerPtr + "]" +output[outerPtr]);
  
   // draw section of greyscale bar showing the 'color' of output data values
-  greyscaleBarMapped(scrShiftedOuterPtr, 11, output[outerPtr]);
- 
-  // find 1st derivative, the difference between adjacent points in the output[] array
-  if (outerPtr > 0) {
-    stroke(COLOR_DERIVATIVE_1);
+  greyscaleBarMapped(plotXShiftedHalfKernel, 11, output[outerPtr]);
+
+  // find 1st derivative of the original data, the difference between adjacent points in the input[] array
+  if (outerPtr > 0 && outerPtr < INPUT_DATA_LENGTH) {
+    stroke(COLOR_DERIVATIVE1_OF_INPUT);
     if (outerPtr > 0){
-      output2[outerPtr] = output[outerPtr] - output[outerPtr-1];
-      point(scrDshiftedOuterPtr, HALF_SCREEN_HEIGHT-output2[outerPtr]);
+      output2[outerPtr] = input[outerPtr] - input[outerPtr-1];
+      point(plotXShiftedHalfIncrement, HALF_SCREEN_HEIGHT-output2[outerPtr]);
       // draw section of greyscale bar showing the 'color' of output2 data values
-      greyscaleBarMappedAbs(scrShiftedOuterPtr, 22, output2[outerPtr]);
+      greyscaleBarMappedAbs(plotXShiftedHalfIncrement, 22, output2[outerPtr]);
     }
   }
-
+ 
+  // find 1st derivative of filtered (convolved) data, the difference between adjacent points in the output[] array
+  if (outerPtr > 0) {
+    stroke(COLOR_DERIVATIVE1_OF_OUTPUT);
+    if (outerPtr > 0){
+      output3[outerPtr] = output[outerPtr] - output[outerPtr-1];
+      point(plotXplotXShiftedHalfKernelAndHalfIncrement, HALF_SCREEN_HEIGHT-output3[outerPtr]);
+      // draw section of greyscale bar showing the 'color' of output2 data values
+      greyscaleBarMappedAbs(plotXplotXShiftedHalfKernelAndHalfIncrement, 22, output3[outerPtr]);
+    }
+  }
+  
   outerPtr++;  // increment the outer loop pointer
 }
 
@@ -481,28 +519,35 @@ void drawLegend() {
   fill(COLOR_ORIGINAL_DATA);
   rect(rectX, rectY, rectWidth, rectHeight);
   fill(255);
-  text("Original input Data", rectX+20, rectY+10);
+  text("Original input data", rectX+20, rectY+10);
   
   rectY+=20;
   stroke(COLOR_IMPULSE_DATA);
   fill(COLOR_IMPULSE_DATA);
   rect(rectX, rectY, rectWidth, rectHeight);
   fill(255);
-  text("Impulse Data (aka, the 'Kernel')", rectX+20, rectY+10);
+  text("The convolution kernel", rectX+20, rectY+10);
   
   rectY+=20;
   stroke(COLOR_OUTPUT_DATA);
   fill(COLOR_OUTPUT_DATA);
   rect(rectX, rectY, rectWidth, rectHeight);
   fill(255);
-  text("Output data, shifted back into original phase", rectX+20, rectY+10);
+  text("Original data, shifted back into original phase", rectX+20, rectY+10);
   
   rectY+=20;
-  stroke(COLOR_DERIVATIVE_1);
-  fill(COLOR_DERIVATIVE_1);
+  stroke(COLOR_DERIVATIVE1_OF_INPUT);
+  fill(COLOR_DERIVATIVE1_OF_INPUT);
   rect(rectX, rectY, rectWidth, rectHeight);
   fill(255);
-  text("1st derivative (slope of output data)", rectX+20, rectY+10);
+  text("1st derivative of original data", rectX+20, rectY+10);
+  
+  rectY+=20;
+  stroke(COLOR_DERIVATIVE1_OF_OUTPUT);
+  fill(COLOR_DERIVATIVE1_OF_OUTPUT);
+  rect(rectX, rectY, rectWidth, rectHeight);
+  fill(255);
+  text("1st derivative of gaussian smoothed data", rectX+20, rectY+10);
   
 }
 
