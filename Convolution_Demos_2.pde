@@ -2,7 +2,6 @@
 Convolution_Demos_2.pde, a demo of convolution, with a special function that dynamically creates the kernel coefficients 
 just prior to use.
 
-Created by Douglas Mayhew, November 17, 2016.
 Released into the public domain, except:
  * The function, 'makeGaussKernel1d' is made available as part of the book 
  * "Digital Image * Processing - An Algorithmic Introduction using Java" by Wilhelm Burger
@@ -23,15 +22,15 @@ color COLOR_DERIVATIVE1_OF_OUTPUT = color(0, 255, 0);
 color COLOR_OUTPUT_DATA = color(255, 0, 255);
 color COLOR_EDGES = color(0, 255, 0);
 
-int INPUT_DATA_LENGTH = 256;           // number of discrete values in the input array
-int KERNEL_LENGTH = 0;               // number of discrete values in the kernel array, set in setup()
+int INPUT_DATA_LENGTH = 256;         // number of discrete values in the input array
+int KERNEL_LENGTH = 0;               // number of discrete values in the kernel array, set in setup() 
 int HALF_KERNEL_LENGTH = 0;          // Half the kernel length, used to correct convoltion phase shift
 int OUTPUT_DATA_LENGTH = 0;          // number of discrete values in the output array, set in setup()
 int outerPtr = 0;                    // outer loop pointer
 int kernelDrawYOffset = 100;         // height above bottom of screen to draw the kernel data points
 
 float gaussianKernelSigma = 2;       // input to kernel creation function, controls spreading of gaussian kernel
-float loGKernelSigma = 1.4;          // input to kernel creation function, controls spreading of loG kernel
+float loGKernelSigma = 1.2;          // input to kernel creation function, controls spreading of loG kernel
 float kernelMultiplier = 100.0;      // multiplies the plotted y values of the kernel, for greater visibility since they are small
 float noiseInput = 0.05;             // used for generating smooth noise for original data; lower values are smoother noise
 float noiseIncrement = noiseInput;   // the increment of change of the noise input
@@ -57,7 +56,7 @@ float[] output3 = new float[0];      // array for output signal
 
 void setup() {
   
-  // create a kernel
+  // choose a kernel
   //kernel = setArray(gaussian); // set the kernel, choose from above
   //kernel = setArray(sorbel); // set the kernel, choose from above
   //kernel = setArray(gaussianLaplacian); // set the kernel, choose from above
@@ -70,20 +69,18 @@ void setup() {
   // kernel = createLoGKernal1d(loGKernelSigma); 
   
   KERNEL_LENGTH = kernel.length; 
-  HALF_KERNEL_LENGTH = KERNEL_LENGTH/2;
-  //KERNEL_LENGTH = 0;
-  println("KERNEL_LENGTH = " + KERNEL_LENGTH);
+  HALF_KERNEL_LENGTH = KERNEL_LENGTH / 2;
   
-  // A menu of various input data sources and waveforms, leave one un-commented
+  // Choose an input data source, leave one un-commented
   // random noise option is commented out in resetData(), uncomment to set random data input
   
   input = setHardCodedSensorData(0.125);
   
   // a single adjustable step impulse, useful for verifying the kernel is doing what it should.
-  //input = setInputSingleImpulse(INPUT_DATA_LENGTH, 150, 20, KERNEL_LENGTH/2, false); 
+  // input = setInputSingleImpulse(INPUT_DATA_LENGTH, 150, 20, KERNEL_LENGTH/2, false); 
   
   // an adjustable square wave
-  //input = setInputSquareWave(INPUT_DATA_LENGTH, 50, 50);
+  // input = setInputSquareWave(INPUT_DATA_LENGTH, 50, 50);
   
   INPUT_DATA_LENGTH = input.length;
   println("INPUT_DATA_LENGTH = " + INPUT_DATA_LENGTH);
@@ -95,7 +92,7 @@ void setup() {
   output = new float[OUTPUT_DATA_LENGTH];                 
   output2 = new float[OUTPUT_DATA_LENGTH];
   output3 = new float[OUTPUT_DATA_LENGTH];
-                    
+                   
   // the data length times the number of pixels per data point
   SCREEN_WIDTH = OUTPUT_DATA_LENGTH*SCREEN_X_MULT;
 
@@ -127,7 +124,7 @@ void draw() {
   int plotX = outerPtr;
   
   // shift left by half the kernel size to correct for convolution shift (dead-on correct for odd-size kernels)
-  int plotXShiftedHalfKernel = outerPtr-HALF_KERNEL_LENGTH; 
+  int plotXShiftedHalfKernel = outerPtr - HALF_KERNEL_LENGTH; 
   
   // shift left by half a data point increment to properly position the raw 1st derivative plot. 
   // (The 1st derivative is the difference between adjacent data points x[-1] and x, so it's phase is centered 
@@ -151,7 +148,7 @@ void draw() {
   // plot the kernel data point
   // draw new kernel point (scaled up for visibility
   if (outerPtr < KERNEL_LENGTH) {
-    strokeWeight(1);
+    strokeWeight(2);
     stroke(COLOR_IMPULSE_DATA); // impulse color
     point(plotX+(width/2)-(KERNEL_LENGTH*SCREEN_X_MULT)/2, 
     SCREEN_HEIGHT-kernelDrawYOffset-(kernel[outerPtr] * kernelMultiplier));
@@ -201,7 +198,6 @@ void draw() {
       greyscaleBarMappedAbs(plotXplotXShiftedHalfKernelAndHalfIncrement, 22, output3[outerPtr]);
     }
   }
-  
   outerPtr++;  // increment the outer loop pointer
 }
 
@@ -345,8 +341,9 @@ public void zeroOutputData(){
 public void resetData(){
   outerPtr = 0;
   
-  // uncomment to make some new random noise for each draw loop
-  // setInputRandomData(); 
+  // uncomment setInputRandomData below, to make some new random noise for each draw loop
+  
+   //setInputRandomData(); 
   
   zeroOutputData();
   

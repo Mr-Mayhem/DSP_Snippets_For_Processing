@@ -22,7 +22,7 @@ color COLOR_DERIVATIVE1_OF_OUTPUT = color(0, 255, 0);
 color COLOR_OUTPUT_DATA = color(255, 0, 255);
 color COLOR_EDGES = color(0, 255, 0);
 
-int INPUT_DATA_LENGTH = 256;           // number of discrete values in the input array
+int INPUT_DATA_LENGTH = 256;         // number of discrete values in the input array
 int KERNEL_LENGTH = 0;               // number of discrete values in the kernel array, set in setup() 
 int HALF_KERNEL_LENGTH = 0;          // Half the kernel length, used to correct convoltion phase shift
 int OUTPUT_DATA_LENGTH = 0;          // number of discrete values in the output array, set in setup()
@@ -30,7 +30,7 @@ int outerPtr = 0;                    // outer loop pointer
 int kernelDrawYOffset = 100;         // height above bottom of screen to draw the kernel data points
 
 float gaussianKernelSigma = 2;       // input to kernel creation function, controls spreading of gaussian kernel
-float loGKernelSigma = 1.4;          // input to kernel creation function, controls spreading of loG kernel
+float loGKernelSigma = 1.2;          // input to kernel creation function, controls spreading of loG kernel
 float kernelMultiplier = 100.0;      // multiplies the plotted y values of the kernel, for greater visibility since they are small
 float noiseInput = 0.05;             // used for generating smooth noise for original data; lower values are smoother noise
 float noiseIncrement = noiseInput;   // the increment of change of the noise input
@@ -61,7 +61,7 @@ boolean edgeLimiter = false;
 
 void setup() {
   
-  // create a kernel
+  // choose a kernel
   //kernel = setArray(gaussian); // set the kernel, choose from above
   //kernel = setArray(sorbel); // set the kernel, choose from above
   //kernel = setArray(gaussianLaplacian); // set the kernel, choose from above
@@ -76,7 +76,7 @@ void setup() {
   KERNEL_LENGTH = kernel.length; 
   HALF_KERNEL_LENGTH = KERNEL_LENGTH / 2;
   
-  // A menu of various input data sources and waveforms, leave one un-commented
+  // Choose an input data source, leave one un-commented
   // random noise option is commented out in resetData(), uncomment to set random data input
   
   input = setHardCodedSensorData(0.125);
@@ -207,7 +207,8 @@ void draw() {
     }
   }
   
-  // Edge finder for use after 2nd derivative kernel or Gaussian Laplacian1
+  // Edge finder for use after gaussianLaplacian convolution
+  // Set kernel to gaussianLaplacian 
   
   // This function is part of the JFeatureLib project: https://github.com/locked-fg/JFeatureLib
   // I refactored it for 1d use, (the original is for 2d photos or images) and made other
@@ -223,7 +224,7 @@ void draw() {
   // routines via many different methods, such as a fitting a parabola to the top 3 
   // points (quadratic interpolation), gaussuan estimation, linear regression, etc.
   
-  //if (outerPtr > 0) { 
+  //if (outerPtr > 0 && outerPtr < INPUT_DATA_LENGTH) { 
   //  if(edgeLimiter){ 
   //    edgeThresh = edgeLimit; 
   //  } else { 
@@ -254,12 +255,11 @@ void draw() {
    
   //  //plot the output data
   //  // draw section of greyscale bar showing the 'color' of output data values
-  //  println("edges[" + i + "] = " + edges[i]);
-  //  greyscaleBarDirect(shiftedScreenOuterPtr, 33, edges[outerPtr-1]);
+  //  greyscaleBarDirect(plotXShiftedHalfKernel, 33, edges[outerPtr-1]);
   //  noFill();
   //  stroke(COLOR_EDGES);
   //  if (edges[outerPtr-1] == 255){
-  //    ellipse(shiftedScreenOuterPtr, HALF_SCREEN_HEIGHT, 5, 5);
+  //    ellipse(plotXShiftedHalfKernel, HALF_SCREEN_HEIGHT, 5, 5);
   //  }
   //}
 
@@ -406,8 +406,9 @@ public void zeroOutputData(){
 public void resetData(){
   outerPtr = 0;
   
-  // uncomment to make some new random noise for each draw loop
-  // setInputRandomData(); 
+  // uncomment setInputRandomData below, to make some new random noise for each draw loop
+  
+   //setInputRandomData(); 
   
   zeroOutputData();
   
