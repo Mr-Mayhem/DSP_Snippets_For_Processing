@@ -23,7 +23,7 @@ color COLOR_DERIVATIVE1_OF_OUTPUT = color(0, 255, 0);
 color COLOR_OUTPUT_DATA = color(255, 0, 255);
 color COLOR_EDGES = color(0, 255, 0);
 
-int INPUT_DATA_LENGTH = 0;           // number of discrete values in the input array
+int INPUT_DATA_LENGTH = 256;           // number of discrete values in the input array
 int KERNEL_LENGTH = 0;               // number of discrete values in the kernel array, set in setup()
 int HALF_KERNEL_LENGTH = 0;          // Half the kernel length, used to correct convoltion phase shift
 int OUTPUT_DATA_LENGTH = 0;          // number of discrete values in the output array, set in setup()
@@ -67,7 +67,7 @@ void setup() {
   kernel = makeGaussKernel1d(gaussianKernelSigma); 
   
   // A dynamically created Gaussian Laplacian (combination of Gaussian and Laplacian, the 'Mexican Hat Filter')
-  //kernel = createLoGKernal1d(loGKernelSigma); 
+  // kernel = createLoGKernal1d(loGKernelSigma); 
   
   KERNEL_LENGTH = kernel.length; 
   HALF_KERNEL_LENGTH = KERNEL_LENGTH/2;

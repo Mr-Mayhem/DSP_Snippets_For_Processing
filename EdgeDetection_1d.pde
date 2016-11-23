@@ -22,7 +22,7 @@ color COLOR_DERIVATIVE1_OF_OUTPUT = color(0, 255, 0);
 color COLOR_OUTPUT_DATA = color(255, 0, 255);
 color COLOR_EDGES = color(0, 255, 0);
 
-int INPUT_DATA_LENGTH = 0;           // number of discrete values in the input array
+int INPUT_DATA_LENGTH = 256;           // number of discrete values in the input array
 int KERNEL_LENGTH = 0;               // number of discrete values in the kernel array, set in setup() 
 int HALF_KERNEL_LENGTH = 0;          // Half the kernel length, used to correct convoltion phase shift
 int OUTPUT_DATA_LENGTH = 0;          // number of discrete values in the output array, set in setup()
@@ -71,9 +71,10 @@ void setup() {
   kernel = makeGaussKernel1d(gaussianKernelSigma); 
   
   // A dynamically created Gaussian Laplacian (combination of Gaussian and Laplacian, the 'Mexican Hat Filter')
-  //kernel = createLoGKernal1d(loGKernelSigma); 
+  // kernel = createLoGKernal1d(loGKernelSigma); 
   
   KERNEL_LENGTH = kernel.length; 
+  HALF_KERNEL_LENGTH = KERNEL_LENGTH / 2;
   
   // A menu of various input data sources and waveforms, leave one un-commented
   // random noise option is commented out in resetData(), uncomment to set random data input
@@ -81,10 +82,10 @@ void setup() {
   input = setHardCodedSensorData(0.125);
   
   // a single adjustable step impulse, useful for verifying the kernel is doing what it should.
-  //input = setInputSingleImpulse(INPUT_DATA_LENGTH, 150, 20, KERNEL_LENGTH/2, false); 
+  // input = setInputSingleImpulse(INPUT_DATA_LENGTH, 150, 20, KERNEL_LENGTH/2, false); 
   
   // an adjustable square wave
-  //input = setInputSquareWave(INPUT_DATA_LENGTH, 50, 50);
+  // input = setInputSquareWave(INPUT_DATA_LENGTH, 50, 50);
   
   INPUT_DATA_LENGTH = input.length;
   println("INPUT_DATA_LENGTH = " + INPUT_DATA_LENGTH);
@@ -131,7 +132,7 @@ void draw() {
   int plotX = outerPtr;
   
   // shift left by half the kernel size to correct for convolution shift (dead-on correct for odd-size kernels)
-  int plotXShiftedHalfKernel = outerPtr-HALF_KERNEL_LENGTH; 
+  int plotXShiftedHalfKernel = outerPtr - HALF_KERNEL_LENGTH; 
   
   // shift left by half a data point increment to properly position the raw 1st derivative plot. 
   // (The 1st derivative is the difference between adjacent data points x[-1] and x, so it's phase is centered 
@@ -162,7 +163,7 @@ void draw() {
   }
   
   // plot original data point
-  strokeWeight(2);
+  strokeWeight(1);
   stroke(COLOR_ORIGINAL_DATA);
   if (outerPtr < INPUT_DATA_LENGTH){
     point(plotX, HALF_SCREEN_HEIGHT-input[outerPtr]);
