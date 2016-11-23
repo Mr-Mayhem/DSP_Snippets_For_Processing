@@ -19,11 +19,10 @@
   point(x, y);
   lines to hide derivatives so the uncommented ones are less cluttered.
   
-  Note that the second derivative of a Gaussian bell curve is often used as an 
-  inpulse or "kernel" ingredent to perform image processing edge detection via 
-  convolution, in one step, instead of two seperate steps as with other methods.
+  Note that the first and second derivatives of a Gaussian bell curve are often used 
+  as 'recipe' building blocks for edge detection. 
   
-  It is this angle I am investigating for use in my convolution.pde Processing sketch.
+  It is this I am investigating for use in my convolution.pde Processing sketch.
   
 */
 
@@ -112,6 +111,7 @@ void draw() {
     
     //stroke(COLOR_D5);
     //point(scaledX, map(floatArray5[i], 0, 1, HALF_SCREEN_HEIGHT - 1, 1)); // plot 5th derivative
+    
     hs1.update(); // update the slider
     hs1.display(); // display the slider, simple, huh?
     }
