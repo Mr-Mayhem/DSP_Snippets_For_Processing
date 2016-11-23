@@ -128,7 +128,7 @@ void draw() {
   }
   // some indexes for scaling plotted data to screen X axis (width)
   
-  // space the data out on the screen by SCREEN_X_MULT pixel spacing
+  // the outer pointer to the data arrays
   int plotX = outerPtr;
   
   // shift left by half the kernel size to correct for convolution shift (dead-on correct for odd-size kernels)
