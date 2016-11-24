@@ -43,7 +43,8 @@ final int QTR_SCREEN_HEIGHT = SCREEN_HEIGHT/4;
 int SCREEN_WIDTH = 0;
 int HALF_SCREEN_WIDTH = 0;
 
-// a menu of various kernels, example: kernel = setArray(gaussian); // remember to comment out the other kernel makers
+// a menu of various one dimensional kernels, example: kernel = setArray(gaussian); 
+// remember to comment out the other kernel makers
 private float [] gaussian = {0.0048150257, 0.028716037, 0.10281857, 0.22102419, 0.28525233, 0.22102419, 0.10281857, 0.028716037, 0.0048150257};
 private float [] sorbel = {1, 0, -1};
 private float [] gaussianLaplacian = {-7.474675E-4, -0.0123763615, -0.04307856, 0.09653235, 0.31830987, 0.09653235, -0.04307856, -0.0123763615, -7.474675E-4};
