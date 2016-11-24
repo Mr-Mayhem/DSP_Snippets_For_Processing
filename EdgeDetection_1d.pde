@@ -16,7 +16,7 @@ translated into Processing (java) by Douglas Mayhew
 */
 
 color COLOR_ORIGINAL_DATA = color(255);
-color COLOR_IMPULSE_DATA = color(255, 255, 0);
+color COLOR_KERNEL_DATA = color(255, 255, 0);
 color COLOR_DERIVATIVE1_OF_INPUT = color(255, 0, 0);
 color COLOR_DERIVATIVE1_OF_OUTPUT = color(0, 255, 0);
 color COLOR_OUTPUT_DATA = color(255, 0, 255);
@@ -41,6 +41,7 @@ final int HALF_SCREEN_HEIGHT = SCREEN_HEIGHT/2;
 final int QTR_SCREEN_HEIGHT = SCREEN_HEIGHT/4;
 
 int SCREEN_WIDTH = 0;
+int HALF_SCREEN_WIDTH = 0;
 
 // a menu of various kernels, example: kernel = setArray(gaussian); // remember to comment out the other kernel makers
 private float [] gaussian = {0.0048150257, 0.028716037, 0.10281857, 0.22102419, 0.28525233, 0.22102419, 0.10281857, 0.028716037, 0.0048150257};
@@ -103,7 +104,8 @@ void setup() {
   
   // the data length times the number of pixels per data point
   SCREEN_WIDTH = OUTPUT_DATA_LENGTH*SCREEN_X_MULT;
-
+  HALF_SCREEN_WIDTH = SCREEN_WIDTH /2;
+  
   // set the screen dimentions
   surface.setSize(SCREEN_WIDTH, SCREEN_HEIGHT);
   background(0);
@@ -157,8 +159,8 @@ void draw() {
   // draw new kernel point (scaled up for visibility
   if (outerPtr < KERNEL_LENGTH) {
     strokeWeight(2);
-    stroke(COLOR_IMPULSE_DATA); // impulse color
-    point(plotX+(width/2)-(KERNEL_LENGTH*SCREEN_X_MULT)/2, 
+    stroke(COLOR_KERNEL_DATA); // impulse color
+    point(plotXShiftedHalfKernel+HALF_SCREEN_WIDTH, 
     SCREEN_HEIGHT-kernelDrawYOffset-(kernel[outerPtr] * kernelMultiplier));
   }
   
@@ -585,8 +587,8 @@ void drawLegend() {
   text("Original input data", rectX+20, rectY+10);
   
   rectY+=20;
-  stroke(COLOR_IMPULSE_DATA);
-  fill(COLOR_IMPULSE_DATA);
+  stroke(COLOR_KERNEL_DATA);
+  fill(COLOR_KERNEL_DATA);
   rect(rectX, rectY, rectWidth, rectHeight);
   fill(255);
   text("Convolution kernel", rectX+20, rectY+10);
