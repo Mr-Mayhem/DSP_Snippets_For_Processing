@@ -142,11 +142,12 @@ Serial myPort;
 void setup() {
 // ==============================================================================================
   // Set the data & screen scaling:
+  // You are encouraged to adjust these, especially to 'zoom in' to the shadow location see the subpixel details better.
   
-  SCALE_X = 1;                                    // set x pixels (width) per data point
-  SCALE_Y = 0.0625;                                // set y size (height) is shrunk by this decimal fraction multiplier
-  SCREEN_HEIGHT = int(HIGHEST_ADC_VALUE * 0.125); // set screen height relative to the highest ADC value, 4095 for 12 bits
-  HALF_SCREEN_HEIGHT = SCREEN_HEIGHT/2;           // leave alone. Used in many places to center data at middle height
+  SCALE_X = 1;      // set x pixels (width) per data point, greater values appear to zoom in and spread the pixels more in x.
+  SCALE_Y = 0.0625; // set y size (height) is set by this decimal fraction multiplier, greater values make data taller
+  SCREEN_HEIGHT = int(HIGHEST_ADC_VALUE * 0.125); // set screen height relative to the highest ADC value, greater values increases screen height
+  HALF_SCREEN_HEIGHT = SCREEN_HEIGHT/2; // leave alone. Used in many places to center data at middle height
   
 // ==============================================================================================
   // Choose a kernel source:
@@ -192,6 +193,7 @@ void setup() {
   
 // ==============================================================================================
   // Choose a data source:
+  // You are encouraged to try different data sources, to see how the subpixel code behaves with perfect waveforms
   dataSource = 3;
 // ==============================================================================================
   
