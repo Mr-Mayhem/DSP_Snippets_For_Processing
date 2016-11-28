@@ -245,7 +245,7 @@ void setup() {
   // set the screen dimentions
   surface.setSize(SCREEN_WIDTH, SCREEN_HEIGHT);
   background(0);
-  frameRate(20);
+  frameRate(60);
   resetData();
   
   println("SCREEN_WIDTH: " + SCREEN_WIDTH);
