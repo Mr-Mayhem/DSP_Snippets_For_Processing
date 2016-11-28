@@ -871,7 +871,7 @@ void calcAndDisplaySensorShadowPos()
     text("m2 = " + String.format("%.3f", m2), 325, YCoord);
     text("widthSubPixel = " + String.format("%.3f", widthSubPixel), 400, YCoord);
     text("filPrecisePos = " + String.format("%.3f", filPrecisePos), 550, YCoord);
-    text("filPreciseMMPos =  " + String.format("%.4f", filPreciseMMPos), 700, YCoord);
+    text("filPreciseMMPos =  " + String.format("%.3f", filPreciseMMPos), 700, YCoord);
   } //<>//
 } //<>//
 
