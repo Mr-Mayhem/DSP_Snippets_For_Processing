@@ -111,6 +111,7 @@ int kernelDrawYOffset = 50; // height above bottom of screen to draw the kernel 
 int markSize = 3;           // diameter of drawn subpixel marker circles
 int bytesRead = 0;          // number of bytes actually read out from the serial buffer
 int availableBytesDraw = 0; // used to show the number of bytes present in the serial buffer
+int subpixelMarkerLen = 0;  // length of vertical lines which indicate subpixel peaks and shadow center location
 
 float SCALE_Y = 0.12;                        // scales plotted data height, and is a decimal fraction of HIGHEST_ADC_VALUE
 float gaussianKernelSigma = 1.5;             // input to kernel creation function, controls spreading of gaussian kernel
@@ -144,11 +145,12 @@ void setup() {
   // Set the data & screen scaling:
   // You are encouraged to adjust these, especially to 'zoom in' to the shadow location see the subpixel details better.
   
-  SCALE_X = 1;      // set x pixels (width) per data point, greater values appear to zoom in and spread the pixels more in x.
-  SCALE_Y = 0.0625; // set y size (height) is set by this decimal fraction multiplier, greater values make data taller
-  SCREEN_HEIGHT = int(HIGHEST_ADC_VALUE * 0.125); // set screen height relative to the highest ADC value, greater values increases screen height
-  HALF_SCREEN_HEIGHT = SCREEN_HEIGHT/2; // leave alone. Used in many places to center data at middle height
-  
+  SCALE_X = 8;      // sets x pixels (width) per data point, greater values appear to zoom in and spread the pixels more in x.
+  SCALE_Y = 0.0625; // sets y size (height) is set by this decimal fraction multiplier, greater values make data taller
+  SCREEN_HEIGHT = int(HIGHEST_ADC_VALUE * 0.125); // sets screen height relative to the highest ADC value, greater values increases screen height
+  HALF_SCREEN_HEIGHT = SCREEN_HEIGHT / 2; // leave alone. Used in many places to center data at middle height
+  subpixelMarkerLen = SCREEN_HEIGHT / 12;  // sets height deviation of vertical lines from center height, 
+                                          // indicates subpixel peaks and shadow center location
 // ==============================================================================================
   // Choose a kernel source:
   kernelSource = 0;
@@ -824,8 +826,6 @@ void calcAndDisplaySensorShadowPos()
     
     // m1=((a1-c1) / (a1+c1-(b1*2)))/2;
     // m2=((a2-c2) / (a2+c2-(b2*2)))/2;
-    
-    //check for a measurement > cutoff value  otherwise treat as noise and output a 0
   
     widthSubPixel = filWidth + m2 - m1; 
     // widthSubPixelLP = widthSubPixelLP * 0.9 + widthSubPixel * 0.1;
@@ -838,20 +838,17 @@ void calcAndDisplaySensorShadowPos()
     strokeWeight(1);
     stroke(255, 0, 0);
     XCoord = (NegPeakLoc + m1 - 0.5 - HALF_KERNEL_LENGTH) * SCALE_X;
-    YCoord = HALF_SCREEN_HEIGHT;
-    line(XCoord, 100, XCoord, YCoord);
+    line(XCoord, HALF_SCREEN_HEIGHT + subpixelMarkerLen, XCoord, HALF_SCREEN_HEIGHT - subpixelMarkerLen);
       
     // Mark m2 with green line
     stroke(0, 255, 0);
     XCoord = (PosPeakLoc + m2 -0.5 - HALF_KERNEL_LENGTH) * SCALE_X;
-    YCoord = HALF_SCREEN_HEIGHT;
-    line(XCoord, YCoord, XCoord, 100);
+    line(XCoord, HALF_SCREEN_HEIGHT + subpixelMarkerLen, XCoord, HALF_SCREEN_HEIGHT - subpixelMarkerLen);
       
     // Mark subpixel center with white line
     stroke(255);
     XCoord = (filPrecisePos - 0.5 - HALF_KERNEL_LENGTH) * SCALE_X;
-    YCoord = HALF_SCREEN_HEIGHT;
-    line(XCoord, 100, XCoord, YCoord); 
+    line(XCoord, HALF_SCREEN_HEIGHT + subpixelMarkerLen, XCoord, HALF_SCREEN_HEIGHT - subpixelMarkerLen);
       
     // Mark minsteploc 3 pixel cluster with one red circle each
     stroke(255, 0, 0);
