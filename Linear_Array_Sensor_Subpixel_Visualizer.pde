@@ -747,8 +747,8 @@ int[] setInputSquareWave(int dataLength, int wavelength, int waveHeight){
 void calcAndDisplaySensorShadowPos()
 
 {
-  int NegStep, PosStep;                    // peak values, y axis (height centric)
-  int NegStepLoc, PosStepLoc;              // array index of peak locations, x axis (width centric)
+  int NegPeak, PosPeak;                    // peak values, y axis (height centric)
+  int NegPeakLoc, PosPeakLoc;              // array index of peak locations, x axis (width centric)
   int SubPixelStartPos = 12;               // loop array traversal start point, set a little beyond first few pixels,
                                            // to avoid false positive from d1 peak at beginning
   int SubPixelEndPos = SENSOR_PIXELS;      // loop end point
@@ -763,10 +763,10 @@ void calcAndDisplaySensorShadowPos()
   float XCoord = 0;
   float YCoord = 0;
   
-  NegStep = 0;
-  PosStep = 0;
-  NegStepLoc = 1280; // one past the last pixel, to prevent false positives
-  PosStepLoc = 1280; // one past the last pixel, to prevent false positives
+  NegPeak = 0;
+  PosPeak = 0;
+  NegPeakLoc = 1280; // one past the last pixel, to prevent false positives?
+  PosPeakLoc = 1280; // one past the last pixel, to prevent false positives?
    
   //clear the sub-pixel buffers
   a1 = b1 = c1 = a2 = b2 = c2 = 0;
@@ -778,33 +778,33 @@ void calcAndDisplaySensorShadowPos()
  // find the the tallest negative peak in 1st derivative data, 
  // which is the point of steepest negative slope in the smoothed original data)
  for (int i = SubPixelStartPos; i < SubPixelEndPos - 1; i++) {
-    if (output2[i] < NegStep) {
-      NegStep = output2[i];
-      NegStepLoc = i;
+    if (output2[i] < NegPeak) {
+      NegPeak = output2[i];
+      NegPeakLoc = i;
     }
   }
  
  // find the the tallest positive peak in 1st derivative data, 
  // which is the point of steepest positive slope in the smoothed original data)
  for (int i = SubPixelStartPos; i < SubPixelEndPos - 1; i++) {
-    if (output2[i] > PosStep) {
-      PosStep = output2[i];
-      PosStepLoc = i;
+    if (output2[i] > PosPeak) {
+      PosPeak = output2[i];
+      PosPeakLoc = i;
     }
   }
 
   // store the 1st derivative values to simple variables
-  c1=output2[NegStepLoc+1];  // tallest negative peak array index location plus 1
-  b1=output2[NegStepLoc];    // tallest negative peak array index location
-  a1=output2[NegStepLoc-1];  // tallest negative peak array index location minus 1
+  c1=output2[NegPeakLoc+1];  // tallest negative peak array index location plus 1
+  b1=output2[NegPeakLoc];    // tallest negative peak array index location
+  a1=output2[NegPeakLoc-1];  // tallest negative peak array index location minus 1
   
-  c2=output2[PosStepLoc+1];  // tallest positive peak array index location plus 1
-  b2=output2[PosStepLoc];    // tallest positive peak array index location
-  a2=output2[PosStepLoc-1];  // tallest positive peak array index location minus 1
+  c2=output2[PosPeakLoc+1];  // tallest positive peak array index location plus 1
+  b2=output2[PosPeakLoc];    // tallest positive peak array index location
+  a2=output2[PosPeakLoc-1];  // tallest positive peak array index location minus 1
     
-  if (NegStep<-16 && PosStep>16)  // check for significant threshold
+  if (NegPeak<-16 && PosPeak>16)  // check for significant threshold
   {
-    filWidth=PosStepLoc-NegStepLoc;
+    filWidth=PosPeakLoc-NegPeakLoc;
   } else 
   {
     filWidth=0;
@@ -828,20 +828,20 @@ void calcAndDisplaySensorShadowPos()
     widthSubPixel = filWidth + m2 - m1; 
     // widthSubPixelLP = widthSubPixelLP * 0.9 + widthSubPixel * 0.1;
   
-    filPrecisePos = (((NegStepLoc + m1) + (PosStepLoc + m2)) / 2);
+    filPrecisePos = (((NegPeakLoc + m1) + (PosPeakLoc + m2)) / 2);
     filPreciseMMPos = filPrecisePos * sensorPixelSpacing;
     
     // Mark m1 with red line
     noFill();
     strokeWeight(1);
     stroke(255, 0, 0);
-    XCoord = (NegStepLoc + m1 - 0.5 - HALF_KERNEL_LENGTH) * SCALE_X;
+    XCoord = (NegPeakLoc + m1 - 0.5 - HALF_KERNEL_LENGTH) * SCALE_X;
     YCoord = HALF_SCREEN_HEIGHT;
     line(XCoord, 100, XCoord, YCoord);
       
     // Mark m2 with green line
     stroke(0, 255, 0);
-    XCoord = (PosStepLoc + m2 -0.5 - HALF_KERNEL_LENGTH) * SCALE_X;
+    XCoord = (PosPeakLoc + m2 -0.5 - HALF_KERNEL_LENGTH) * SCALE_X;
     YCoord = HALF_SCREEN_HEIGHT;
     line(XCoord, YCoord, XCoord, 100);
       
@@ -853,25 +853,25 @@ void calcAndDisplaySensorShadowPos()
       
     // Mark minsteploc 3 pixel cluster with one red circle each
     stroke(255, 0, 0);
-    ellipse(((NegStepLoc - 1.5) - HALF_KERNEL_LENGTH)  * SCALE_X, HALF_SCREEN_HEIGHT - (a1 * SCALE_Y), markSize, markSize);
-    ellipse((NegStepLoc - 0.5 - HALF_KERNEL_LENGTH) * SCALE_X, HALF_SCREEN_HEIGHT - (b1 * SCALE_Y), markSize, markSize);
-    ellipse(((NegStepLoc + 0.5) - HALF_KERNEL_LENGTH) * SCALE_X, HALF_SCREEN_HEIGHT - (c1 * SCALE_Y), markSize, markSize);
+    ellipse(((NegPeakLoc - 1.5) - HALF_KERNEL_LENGTH)  * SCALE_X, HALF_SCREEN_HEIGHT - (a1 * SCALE_Y), markSize, markSize);
+    ellipse((NegPeakLoc - 0.5 - HALF_KERNEL_LENGTH) * SCALE_X, HALF_SCREEN_HEIGHT - (b1 * SCALE_Y), markSize, markSize);
+    ellipse(((NegPeakLoc + 0.5) - HALF_KERNEL_LENGTH) * SCALE_X, HALF_SCREEN_HEIGHT - (c1 * SCALE_Y), markSize, markSize);
    
     // Mark maxsteploc 3 pixel cluster with one green circle each
     stroke(0, 255, 0);
-    ellipse(((PosStepLoc - 1.5) - HALF_KERNEL_LENGTH) * SCALE_X, HALF_SCREEN_HEIGHT - (a2 * SCALE_Y), markSize, markSize);
-    ellipse((PosStepLoc - 0.5 - HALF_KERNEL_LENGTH) * SCALE_X, HALF_SCREEN_HEIGHT - (b2 * SCALE_Y), markSize, markSize);
-    ellipse(((PosStepLoc + 0.5) - HALF_KERNEL_LENGTH) * SCALE_X, HALF_SCREEN_HEIGHT - (c2 * SCALE_Y), markSize, markSize);
+    ellipse(((PosPeakLoc - 1.5) - HALF_KERNEL_LENGTH) * SCALE_X, HALF_SCREEN_HEIGHT - (a2 * SCALE_Y), markSize, markSize);
+    ellipse((PosPeakLoc - 0.5 - HALF_KERNEL_LENGTH) * SCALE_X, HALF_SCREEN_HEIGHT - (b2 * SCALE_Y), markSize, markSize);
+    ellipse(((PosPeakLoc + 0.5) - HALF_KERNEL_LENGTH) * SCALE_X, HALF_SCREEN_HEIGHT - (c2 * SCALE_Y), markSize, markSize);
     
     YCoord = SCREEN_HEIGHT-10;
     fill(255);
-    text("NegStepLoc = " + NegStepLoc, 0, YCoord);
-    text("PosStepLoc = " + PosStepLoc, 100, YCoord);
-    text("m1 = " + String.format("%.3f", m1), 200, YCoord);
-    text("m2 = " + String.format("%.3f", m2), 275, YCoord);
-    text("widthSubPixel = " + String.format("%.3f", widthSubPixel), 375, YCoord);
-    text("filPrecisePos = " + String.format("%.3f", filPrecisePos), 650, YCoord);
-    text("filPreciseMMPos =  " + String.format("%.4f", filPreciseMMPos), 800, YCoord);
+    text("NegPeakLoc = " + NegPeakLoc, 0, YCoord);
+    text("PosPeakLoc = " + PosPeakLoc, 125, YCoord);
+    text("m1 = " + String.format("%.3f", m1), 250, YCoord);
+    text("m2 = " + String.format("%.3f", m2), 325, YCoord);
+    text("widthSubPixel = " + String.format("%.3f", widthSubPixel), 400, YCoord);
+    text("filPrecisePos = " + String.format("%.3f", filPrecisePos), 550, YCoord);
+    text("filPreciseMMPos =  " + String.format("%.4f", filPreciseMMPos), 700, YCoord);
   } //<>//
 } //<>//
 
