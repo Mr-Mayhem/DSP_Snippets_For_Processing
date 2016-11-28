@@ -1,5 +1,6 @@
 /*
-Linear_Array_Sensor_Subpixel_Visualizer.pde, a demo of edge detection in one dimension
+Linear_Array_Sensor_Subpixel_Visualizer.pde, a demo of subpixel resolution shadow position measurement and visualization,
+using a TSL1402R or TSL1410R linear photodiode array via serial port, or synthesized waveforms.
 
 Created by Douglas Mayhew, November 20, 2016.
 Released into the public domain, except:
