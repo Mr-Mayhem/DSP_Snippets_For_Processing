@@ -144,7 +144,7 @@ void setup() {
   // Set the data & screen scaling:
   
   SCALE_X = 1;                                    // set x pixels (width) per data point
-  SCALE_Y = 0.125;                                // set y size (height) is shrunk by this decimal fraction multiplier
+  SCALE_Y = 0.0625;                                // set y size (height) is shrunk by this decimal fraction multiplier
   SCREEN_HEIGHT = int(HIGHEST_ADC_VALUE * 0.125); // set screen height relative to the highest ADC value, 4095 for 12 bits
   HALF_SCREEN_HEIGHT = SCREEN_HEIGHT/2;           // leave alone. Used in many places to center data at middle height
   
