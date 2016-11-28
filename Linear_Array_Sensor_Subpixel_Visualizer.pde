@@ -146,7 +146,7 @@ void setup() {
   // Set the data & screen scaling:
   // You are encouraged to adjust these, especially to 'zoom in' to the shadow location see the subpixel details better.
   
-  SCALE_X = 8;      // sets x pixels (width) per data point, greater values appear to zoom in and spread the pixels more in x.
+  SCALE_X = 1;      // sets x pixels (width) per data point, greater values appear to zoom in and spread the pixels more in x.
   SCALE_Y = 0.0625; // sets y size (height) is set by this decimal fraction multiplier, greater values make data taller
   SCREEN_HEIGHT = int(HIGHEST_ADC_VALUE * 0.125); // sets screen height relative to the highest ADC value, greater values increases screen height
   HALF_SCREEN_HEIGHT = SCREEN_HEIGHT / 2; // leave alone. Used in many places to center data at middle height
