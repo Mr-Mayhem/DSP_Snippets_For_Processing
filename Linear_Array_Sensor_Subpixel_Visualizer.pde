@@ -57,6 +57,8 @@ translated into Processing (java) by Douglas Mayhew
  3. Auto-Calibration using drill bits, dowel pins, etc.
  4. Multiple angles of led lights shining on the target, so multiple exposures may be compared 
     for additional subpixel accuracy
+ 5. add data window zoom and scrolling
+ 6. add measurement history display
 */
 // ==============================================================================================
 // imports:
@@ -86,6 +88,7 @@ float[] kernel = new float[0];   // array for impulse response, or kernel
 int[] output = new int[0];       // array for output signal
 int[] output2 = new int[0];      // array for output signal
 int[] edges = new int[0];        // array for edges signal
+float[] MeasurementHistory = new float[0];
 
 // a menu of various one dimensional kernels, example: kernel = setArray(gaussian); 
 private float [] gaussian = {0.0048150257, 0.028716037, 0.10281857, 0.22102419, 0.28525233, 0.22102419, 0.10281857, 0.028716037, 0.0048150257};
@@ -138,7 +141,7 @@ float drawPtrXLessKandD1 = 0;
 
 // ==============================================================================================
 // Set Objects
-Serial myPort;  
+Serial myPort;
 // ==============================================================================================
 
 void setup() {
@@ -148,7 +151,7 @@ void setup() {
   
   SCALE_X = 1;      // sets x pixels (width) per data point, greater values appear to zoom in and spread the pixels more in x.
   SCALE_Y = 0.0625; // sets y size (height) is set by this decimal fraction multiplier, greater values make data taller
-  SCREEN_HEIGHT = int(HIGHEST_ADC_VALUE * 0.125); // sets screen height relative to the highest ADC value, greater values increases screen height
+  SCREEN_HEIGHT = int(HIGHEST_ADC_VALUE * 0.25); // sets screen height relative to the highest ADC value, greater values increases screen height
   HALF_SCREEN_HEIGHT = SCREEN_HEIGHT / 2; // leave alone. Used in many places to center data at middle height
   subpixelMarkerLen = SCREEN_HEIGHT / 12;  // sets height deviation of vertical lines from center height, 
                                           // indicates subpixel peaks and shadow center location
@@ -186,7 +189,7 @@ void setup() {
   // A hard-coded Laplacian kernel
   // kernel = setArray(laplacian);
   
-  // A hard-coded Gaussian-Laplacian kernel
+  // A hard-coded Gaussian-Laplacian kernel (combination of Gaussian and Laplacian, the 'Mexican Hat Filter')
   // This kernel saves a convolution step by combining two kernels which would otherwise be run seperately, into one.
   // kernel = setArray(gaussianLaplacian);
 
@@ -239,15 +242,13 @@ void setup() {
   // arrays for output signals, get resized after kernel size is known
   output = new int[OUTPUT_DATA_LENGTH];                 
   output2 = new int[OUTPUT_DATA_LENGTH];
-   
-  // array for edge detector output, get resized after kernel size is known
-  //edges = new int[OUTPUT_DATA_LENGTH];                    
+  MeasurementHistory = new float[OUTPUT_DATA_LENGTH];
   
   // the data length times the number of pixels per data point
   SCREEN_WIDTH = (OUTPUT_DATA_LENGTH) * SCALE_X;
   HALF_SCREEN_WIDTH = SCREEN_WIDTH / 2;
   
-  // set the screen dimentions
+  // set the screen dimensions
   surface.setSize(SCREEN_WIDTH, SCREEN_HEIGHT);
   background(0);
   frameRate(60);
@@ -295,13 +296,12 @@ void draw() {
   
   // Plot the Data
   if (dataSource == 3){             // Plot using Serial Data //<>//
-    DrawHeadFromSerialData();       // from 0 to SENSOR_PIXELS-1
-    DrawTail();                     // from SENSOR_PIXELS to (SENSOR_PIXELS + KERNEL_LENGTH)-1
+    drawHeadFromSerialData(0, SENSOR_PIXELS);       // from 0 to SENSOR_PIXELS-1              
   }else
   {                                 // Plot using Simulated Data
-    DrawHeadFromSimulatedData();    // from 0 to SENSOR_PIXELS-1
-    DrawTail();                     // from SENSOR_PIXELS to (SENSOR_PIXELS + KERNEL_LENGTH)-1
+    drawHeadFromSimulatedData(0, SENSOR_PIXELS);    // from 0 to SENSOR_PIXELS-1
   }
+   DrawTail();  // from SENSOR_PIXELS to (SENSOR_PIXELS + KERNEL_LENGTH)-1
    calcAndDisplaySensorShadowPos(); // Subpixel calculation
    resetData();                     // reset the pointer, new random data if used.
 }
@@ -322,10 +322,10 @@ void drawKernel(){
    }
 }
 
-void DrawHeadFromSerialData(){
+void drawHeadFromSerialData(int startPos, int endPos){
   
   // increment the outer loop pointer from 0 to SENSOR_PIXELS-1
-  for (outerPtrX = 0; outerPtrX < SENSOR_PIXELS; outerPtrX++) {
+  for (outerPtrX = startPos; outerPtrX < endPos; outerPtrX++) {
     
     // receive serial port data into the input[] array
     
@@ -383,10 +383,10 @@ void DrawHeadFromSerialData(){
   }
 }
 
-void DrawHeadFromSimulatedData(){
+void drawHeadFromSimulatedData(int startPos, int endPos){
   
   // increment the outer loop pointer from 0 to SENSOR_PIXELS-1
-  for (outerPtrX = 0; outerPtrX < SENSOR_PIXELS; outerPtrX++) {
+  for (outerPtrX = startPos; outerPtrX < endPos; outerPtrX++) {
     
     // Below we prepare 3 indexes to phase shift the x axis down (to the left as drawn), which corrects 
     // for convolution shift, and then multiply by the x scaling variable.
@@ -752,26 +752,28 @@ int[] setInputSquareWave(int dataLength, int wavelength, int waveHeight){
 void calcAndDisplaySensorShadowPos()
 
 {
-  int NegPeak, PosPeak;                    // peak values, y axis (height centric)
-  int NegPeakLoc, PosPeakLoc;              // array index of peak locations, x axis (width centric)
-  int SubPixelStartPos = 12;               // loop array traversal start point, set a little beyond first few pixels,
+  int negPeak, posPeak;                    // peak values, y axis (height centric)
+  int negPeakLoc, posPeakLoc;              // array index of peak locations, x axis (width centric)
+  int loopStartPos = 12;                   // loop array traversal start point, set a little beyond first few pixels,
                                            // to avoid false positive from d1 peak at beginning
-  int SubPixelEndPos = SENSOR_PIXELS;      // loop end point
+  int loopEndPos = SENSOR_PIXELS;          // loop end point
   
-  float a1, b1, c1, a2, b2, c2;           // sub pixel quadratic interpolation input variables, 3 per D1 peak, one negative, one positive
-  float m1, m2;                           // sub pixel quadratic interpolation output variables, 1 per D1 peak, one negative, one positive
-  float widthSubPixel = 0;                // filament width is still here if you need it
-  float filPrecisePos = 0;                // final output before conversion to mm
-  float filPreciseMMPos = 0;              // final mm output
+  float a1, b1, c1, a2, b2, c2;            // sub pixel quadratic interpolation input variables, 3 per D1 peak, one negative, one positive
+  float m1, m2;                            // sub pixel quadratic interpolation output variables, 1 per D1 peak, one negative, one positive
+  float preciseWidth = 0;                  // filament width is still here if you need it
+  float preciseWidthMM = 0;                // filament width in mm is still here if you need it
+  float precisePosition = 0;               // final output before conversion to mm
+  float preciseMMPos = 0;                  // final mm output
   
-  float filWidth = 0;
-  float XCoord = 0;
-  float YCoord = 0;
+  float roughWidth = 0;
+  float XCoord = 0;                        // temporary variable for holding a screen X coordinate
+  float YCoord = 0;                        // temporary variable for holding a screen Y coordinate
   
-  NegPeak = 0;
-  PosPeak = 0;
-  NegPeakLoc = 1280; // one past the last pixel, to prevent false positives?
-  PosPeakLoc = 1280; // one past the last pixel, to prevent false positives?
+  negPeak = 0;                             // value of greatest negative peak found during scan of derivative data
+  posPeak = 0;                             // value of greatest positive peak found during scan of derivative data
+  
+  negPeakLoc = 1280; // one past the last pixel, to prevent false positives?
+  posPeakLoc = 1280; // one past the last pixel, to prevent false positives?
    
   //clear the sub-pixel buffers
   a1 = b1 = c1 = a2 = b2 = c2 = 0;
@@ -782,41 +784,41 @@ void calcAndDisplaySensorShadowPos()
  
  // find the the tallest negative peak in 1st derivative data, 
  // which is the point of steepest negative slope in the smoothed original data)
- for (int i = SubPixelStartPos; i < SubPixelEndPos - 1; i++) {
-    if (output2[i] < NegPeak) {
-      NegPeak = output2[i];
-      NegPeakLoc = i;
+ for (int i = loopStartPos; i < loopEndPos - 1; i++) {
+    if (output2[i] < negPeak) {
+      negPeak = output2[i];
+      negPeakLoc = i;
     }
   }
  
  // find the the tallest positive peak in 1st derivative data, 
  // which is the point of steepest positive slope in the smoothed original data)
- for (int i = SubPixelStartPos; i < SubPixelEndPos - 1; i++) {
-    if (output2[i] > PosPeak) {
-      PosPeak = output2[i];
-      PosPeakLoc = i;
+ for (int i = loopStartPos; i < loopEndPos - 1; i++) {
+    if (output2[i] > posPeak) {
+      posPeak = output2[i];
+      posPeakLoc = i;
     }
   }
 
   // store the 1st derivative values to simple variables
-  c1=output2[NegPeakLoc+1];  // tallest negative peak array index location plus 1
-  b1=output2[NegPeakLoc];    // tallest negative peak array index location
-  a1=output2[NegPeakLoc-1];  // tallest negative peak array index location minus 1
+  c1=output2[negPeakLoc+1];  // tallest negative peak array index location plus 1
+  b1=output2[negPeakLoc];    // tallest negative peak array index location
+  a1=output2[negPeakLoc-1];  // tallest negative peak array index location minus 1
   
-  c2=output2[PosPeakLoc+1];  // tallest positive peak array index location plus 1
-  b2=output2[PosPeakLoc];    // tallest positive peak array index location
-  a2=output2[PosPeakLoc-1];  // tallest positive peak array index location minus 1
+  c2=output2[posPeakLoc+1];  // tallest positive peak array index location plus 1
+  b2=output2[posPeakLoc];    // tallest positive peak array index location
+  a2=output2[posPeakLoc-1];  // tallest positive peak array index location minus 1
     
-  if (NegPeak<-16 && PosPeak>16)  // check for significant threshold
+  if (negPeak<-16 && posPeak>16)  // check for significant threshold
   {
-    filWidth=PosPeakLoc-NegPeakLoc;
+    roughWidth=posPeakLoc-negPeakLoc;
   } else 
   {
-    filWidth=0;
+    roughWidth=0;
   }
   
   // check for width out of range (15.7pixels per mm, 65535/635=103)
-  if(filWidth > 8 && filWidth < 103)
+  if(roughWidth > 8 && roughWidth < 103)
   {
     
     // sub-pixel edge detection using interpolation
@@ -828,50 +830,52 @@ void calcAndDisplaySensorShadowPos()
     // m1=((a1-c1) / (a1+c1-(b1*2)))/2;
     // m2=((a2-c2) / (a2+c2-(b2*2)))/2;
   
-    widthSubPixel = filWidth + m2 - m1; 
-    // widthSubPixelLP = widthSubPixelLP * 0.9 + widthSubPixel * 0.1;
+    preciseWidth = roughWidth + m2 - m1; 
+    preciseWidthMM = preciseWidth * sensorPixelSpacing;
+    // preciseWidthLP = preciseWidthLP * 0.9 + preciseWidth * 0.1;
   
-    filPrecisePos = (((NegPeakLoc + m1) + (PosPeakLoc + m2)) / 2);
-    filPreciseMMPos = filPrecisePos * sensorPixelSpacing;
+    precisePosition = (((negPeakLoc + m1) + (posPeakLoc + m2)) / 2);
+    preciseMMPos = precisePosition * sensorPixelSpacing;
     
     // Mark m1 with red line
     noFill();
     strokeWeight(1);
     stroke(255, 0, 0);
-    XCoord = (NegPeakLoc + m1 - 0.5 - HALF_KERNEL_LENGTH) * SCALE_X;
+    XCoord = (negPeakLoc + m1 - 0.5 - HALF_KERNEL_LENGTH) * SCALE_X;
     line(XCoord, HALF_SCREEN_HEIGHT + subpixelMarkerLen, XCoord, HALF_SCREEN_HEIGHT - subpixelMarkerLen);
       
     // Mark m2 with green line
     stroke(0, 255, 0);
-    XCoord = (PosPeakLoc + m2 -0.5 - HALF_KERNEL_LENGTH) * SCALE_X;
+    XCoord = (posPeakLoc + m2 -0.5 - HALF_KERNEL_LENGTH) * SCALE_X;
     line(XCoord, HALF_SCREEN_HEIGHT + subpixelMarkerLen, XCoord, HALF_SCREEN_HEIGHT - subpixelMarkerLen);
       
     // Mark subpixel center with white line
     stroke(255);
-    XCoord = (filPrecisePos - 0.5 - HALF_KERNEL_LENGTH) * SCALE_X;
+    XCoord = (precisePosition - 0.5 - HALF_KERNEL_LENGTH) * SCALE_X;
     line(XCoord, HALF_SCREEN_HEIGHT + subpixelMarkerLen, XCoord, HALF_SCREEN_HEIGHT - subpixelMarkerLen);
       
     // Mark minsteploc 3 pixel cluster with one red circle each
     stroke(255, 0, 0);
-    ellipse(((NegPeakLoc - 1.5) - HALF_KERNEL_LENGTH)  * SCALE_X, HALF_SCREEN_HEIGHT - (a1 * SCALE_Y), markSize, markSize);
-    ellipse((NegPeakLoc - 0.5 - HALF_KERNEL_LENGTH) * SCALE_X, HALF_SCREEN_HEIGHT - (b1 * SCALE_Y), markSize, markSize);
-    ellipse(((NegPeakLoc + 0.5) - HALF_KERNEL_LENGTH) * SCALE_X, HALF_SCREEN_HEIGHT - (c1 * SCALE_Y), markSize, markSize);
+    ellipse(((negPeakLoc - 1.5) - HALF_KERNEL_LENGTH)  * SCALE_X, HALF_SCREEN_HEIGHT - (a1 * SCALE_Y), markSize, markSize);
+    ellipse((negPeakLoc - 0.5 - HALF_KERNEL_LENGTH) * SCALE_X, HALF_SCREEN_HEIGHT - (b1 * SCALE_Y), markSize, markSize);
+    ellipse(((negPeakLoc + 0.5) - HALF_KERNEL_LENGTH) * SCALE_X, HALF_SCREEN_HEIGHT - (c1 * SCALE_Y), markSize, markSize);
    
     // Mark maxsteploc 3 pixel cluster with one green circle each
     stroke(0, 255, 0);
-    ellipse(((PosPeakLoc - 1.5) - HALF_KERNEL_LENGTH) * SCALE_X, HALF_SCREEN_HEIGHT - (a2 * SCALE_Y), markSize, markSize);
-    ellipse((PosPeakLoc - 0.5 - HALF_KERNEL_LENGTH) * SCALE_X, HALF_SCREEN_HEIGHT - (b2 * SCALE_Y), markSize, markSize);
-    ellipse(((PosPeakLoc + 0.5) - HALF_KERNEL_LENGTH) * SCALE_X, HALF_SCREEN_HEIGHT - (c2 * SCALE_Y), markSize, markSize);
+    ellipse(((posPeakLoc - 1.5) - HALF_KERNEL_LENGTH) * SCALE_X, HALF_SCREEN_HEIGHT - (a2 * SCALE_Y), markSize, markSize);
+    ellipse((posPeakLoc - 0.5 - HALF_KERNEL_LENGTH) * SCALE_X, HALF_SCREEN_HEIGHT - (b2 * SCALE_Y), markSize, markSize);
+    ellipse(((posPeakLoc + 0.5) - HALF_KERNEL_LENGTH) * SCALE_X, HALF_SCREEN_HEIGHT - (c2 * SCALE_Y), markSize, markSize);
     
     YCoord = SCREEN_HEIGHT-10;
     fill(255);
-    text("NegPeakLoc = " + NegPeakLoc, 0, YCoord);
-    text("PosPeakLoc = " + PosPeakLoc, 125, YCoord);
+    text("negPeakLoc = " + negPeakLoc, 0, YCoord);
+    text("posPeakLoc = " + posPeakLoc, 125, YCoord);
     text("m1 = " + String.format("%.3f", m1), 250, YCoord);
     text("m2 = " + String.format("%.3f", m2), 325, YCoord);
-    text("widthSubPixel = " + String.format("%.3f", widthSubPixel), 400, YCoord);
-    text("filPrecisePos = " + String.format("%.3f", filPrecisePos), 550, YCoord);
-    text("filPreciseMMPos =  " + String.format("%.3f", filPreciseMMPos), 700, YCoord);
+    text("preciseWidth = " + String.format("%.3f", preciseWidth), 400, YCoord);
+    text("preciseWidthMM =  " + String.format("%.3f", preciseWidthMM), 525, YCoord);
+    text("precisePosition = " + String.format("%.3f", precisePosition), 725, YCoord);
+    text("PreciseMMPos =  " + String.format("%.3f", preciseMMPos), 925, YCoord);
   } //<>//
 } //<>//
 
