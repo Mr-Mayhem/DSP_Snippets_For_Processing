@@ -251,7 +251,11 @@ void setup() {
   // set the screen dimensions
   surface.setSize(SCREEN_WIDTH, SCREEN_HEIGHT);
   background(0);
-  frameRate(60);
+  
+  // set framerate() a little above where increases don't speed it up much.
+  // for highest speed, comment out drawing those things you don't care about.
+  frameRate(60); 
+  
   resetData();
   
   println("SCREEN_WIDTH: " + SCREEN_WIDTH);
@@ -439,6 +443,16 @@ void drawHeadFromSimulatedData(int startPos, int endPos){
 }
 
 void DrawTail(){
+  // this draws the last few pixels (half the kernel length) that exist in the convolution output array beyond 
+  // the original pixel count as a result of convolution. Since typical useful kernels are only 9 pixels in 
+  // length or so, we are talking only 4 pixels or so.
+  // We can ignore these last few pixels by commenting out this code from firing. I seperated this for
+  // sake of not needing to have guarding if statements for all pixels on the 'head' draw loop, which draws the 
+  // bulk of the pixels.
+  // This improves speed and efficiency by removing that 'administrative overhead' of if statements, 
+  // like 'If i < PIXEL_COUNT' kind of guards.
+  // By the time you needed a kernel large enough where the pixels at this step grew significant in number,
+  // you would be smoothing the data so much the subpixel code would be losing a lot of accuracy.
   
   // increment the outer loop pointer from SENSOR_PIXELS to (SENSOR_PIXELS + KERNEL_LENGTH)-1
   for (outerPtrX = SENSOR_PIXELS; outerPtrX < OUTPUT_DATA_LENGTH; outerPtrX++) { 
@@ -827,6 +841,7 @@ void calcAndDisplaySensorShadowPos()
     m1 = 0.5 * (a1 - c1) / (a1 - 2 * b1 + c1);
     m2 = 0.5 * (a2 - c2) / (a2 - 2 * b2 + c2);
     
+    // original function translated from flipper's filament width sensor; does the same thing as above
     // m1=((a1-c1) / (a1+c1-(b1*2)))/2;
     // m2=((a2-c2) / (a2+c2-(b2*2)))/2;
   
