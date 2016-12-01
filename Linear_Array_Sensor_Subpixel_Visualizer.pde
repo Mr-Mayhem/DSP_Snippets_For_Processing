@@ -830,7 +830,7 @@ void calcAndDisplaySensorShadowPos()
     // m1=((a1-c1) / (a1+c1-(b1*2)))/2;
     // m2=((a2-c2) / (a2+c2-(b2*2)))/2;
   
-    preciseWidth = roughWidth + m2 - m1; 
+    preciseWidth = roughWidth + (m2 - m1); 
     preciseWidthMM = preciseWidth * sensorPixelSpacing;
     // preciseWidthLP = preciseWidthLP * 0.9 + preciseWidth * 0.1;
   
@@ -872,9 +872,9 @@ void calcAndDisplaySensorShadowPos()
     text("posPeakLoc = " + posPeakLoc, 125, YCoord);
     text("m1 = " + String.format("%.3f", m1), 250, YCoord);
     text("m2 = " + String.format("%.3f", m2), 325, YCoord);
-    text("preciseWidth = " + String.format("%.3f", preciseWidth), 400, YCoord);
-    text("preciseWidthMM =  " + String.format("%.3f", preciseWidthMM), 525, YCoord);
-    text("precisePosition = " + String.format("%.3f", precisePosition), 725, YCoord);
+    text("preciseWidth = " + String.format("%.3f", preciseWidth), 425, YCoord);
+    text("preciseWidthMM =  " + String.format("%.3f", preciseWidthMM), 575, YCoord);
+    text("precisePosition = " + String.format("%.3f", precisePosition), 750, YCoord);
     text("PreciseMMPos =  " + String.format("%.3f", preciseMMPos), 925, YCoord);
   } //<>//
 } //<>//
