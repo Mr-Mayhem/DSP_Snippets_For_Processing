@@ -208,6 +208,7 @@ void drawGrid(int gWidth, int gHeight, int divisor)
 }
 
 class HScrollbar {
+  // from https://processing.org/examples/scrollbar.html
   int swidth, sheight;    // width and height of bar
   float xpos, ypos;       // x and y position of bar
   float spos, newspos;    // x position of slider
